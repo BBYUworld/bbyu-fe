@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../login/login_view.dart';
+import 'package:remedi_kopo/remedi_kopo.dart';
 
 class RegisterView extends StatefulWidget {
   @override
@@ -17,7 +18,9 @@ class _RegisterViewState extends State<RegisterView> {
   final TextEditingController _phoneController1 = TextEditingController();
   final TextEditingController _phoneController2 = TextEditingController();
   final TextEditingController _phoneController3 = TextEditingController();
+  final TextEditingController _postcodeController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
+  final TextEditingController _addressDetailController = TextEditingController();
   String _gender = "";
   String authNumber = "";
   bool existCheck = false;
@@ -31,6 +34,23 @@ class _RegisterViewState extends State<RegisterView> {
     return _phoneController1.text.length == 3 &&
         _phoneController2.text.length == 4 &&
         _phoneController3.text.length == 4;
+  }
+
+  void _searchAddress(BuildContext context) async {
+    KopoModel? model = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => RemediKopo(),
+      ),
+    );
+
+    if (model != null) {
+      setState(() {
+        _postcodeController.text = model.zonecode ?? '';
+        _addressController.text = model.address ?? '';
+        _addressDetailController.text = model.buildingName ?? '';
+      });
+    }
   }
 
   Future<void> _validateUserAlreadyExist() async {
@@ -75,6 +95,7 @@ class _RegisterViewState extends State<RegisterView> {
       _showDialog("성별을 선택해주세요.");
       return;
     }
+    print("주소 테스트 : ${_postcodeController.text} ${_addressController.text} ${_addressDetailController.text}");
     final url = Uri.parse('http://10.0.2.2:8080/user/regist');
     try{
       final response = await http.post(
@@ -86,7 +107,7 @@ class _RegisterViewState extends State<RegisterView> {
           // name ,phone, address
           'name' : _nameController.text,
           'phone' : formattedPhoneNumber,
-          'address' : _addressController.text,
+          'address' : "${_addressController.text} ${_addressDetailController.text}",
           'gender' : _gender
         }),
       );
@@ -241,10 +262,26 @@ class _RegisterViewState extends State<RegisterView> {
                 ),
               ],
             ),
+
+            TextField(
+              controller: _postcodeController,
+              decoration: InputDecoration(labelText: '우편번호'),
+              readOnly: true,
+            ),
             TextField(
               controller: _addressController,
-              decoration: InputDecoration(labelText: '주소를 입력해주세요.'),
+              decoration: InputDecoration(labelText: '기본주소'),
+              readOnly: true,
             ),
+            TextField(
+              controller: _addressDetailController,
+              decoration: InputDecoration(labelText: '상세주소'),
+            ),
+            ElevatedButton(
+              onPressed: () => _searchAddress(context),
+              child: Text('주소 검색'),
+            ),
+
             SizedBox(height: 16),
             Text('성별:'),
             Row(

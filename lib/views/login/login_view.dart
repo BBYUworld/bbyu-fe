@@ -3,6 +3,7 @@ import 'package:gagyebbyu_fe/storage/TokenStorage.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'register_view.dart';
+import '../test/KakaoAddressScreen.dart';
 
 class LoginView extends StatefulWidget {
   @override
@@ -143,6 +144,15 @@ class _LoginViewState extends State<LoginView> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(builder: (context) => RegisterView()),
+                    );
+                  },
+                  child: Text('Sign Up'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => KakaoAddressScreen()),
                     );
                   },
                   child: Text('Sign Up'),
