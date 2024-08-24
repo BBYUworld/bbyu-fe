@@ -20,6 +20,7 @@ class _RegisterViewState extends State<RegisterView> {
   final TextEditingController _phoneController3 = TextEditingController();
   final TextEditingController _postcodeController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
+  final TextEditingController _ageController = TextEditingController();
   final TextEditingController _addressDetailController = TextEditingController();
   String _gender = "";
   String authNumber = "";
@@ -91,10 +92,6 @@ class _RegisterViewState extends State<RegisterView> {
       _showDialog("이메일 중복조회를 먼저 진행해주세요.");
       return;
     }
-    if(_gender == ""){
-      _showDialog("성별을 선택해주세요.");
-      return;
-    }
     print("주소 테스트 : ${_postcodeController.text} ${_addressController.text} ${_addressDetailController.text}");
     final url = Uri.parse('http://10.0.2.2:8080/user/regist');
     try{
@@ -108,7 +105,6 @@ class _RegisterViewState extends State<RegisterView> {
           'name' : _nameController.text,
           'phone' : formattedPhoneNumber,
           'address' : "${_addressController.text} ${_addressDetailController.text}",
-          'gender' : _gender
         }),
       );
       if (response.statusCode == 200) {
@@ -282,24 +278,6 @@ class _RegisterViewState extends State<RegisterView> {
               child: Text('주소 검색'),
             ),
 
-            SizedBox(height: 16),
-            Text('성별:'),
-            Row(
-              children: [
-                Radio(
-                  value: 'M',
-                  groupValue: _gender,
-                  onChanged: (value) => setState(() => _gender = value.toString()),
-                ),
-                Text('남자'),
-                Radio(
-                  value: 'F',
-                  groupValue: _gender,
-                  onChanged: (value) => setState(() => _gender = value.toString()),
-                ),
-                Text('여자'),
-              ],
-            ),
             SizedBox(height: 24),
             ElevatedButton(
               onPressed: _register,

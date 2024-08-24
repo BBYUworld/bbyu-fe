@@ -4,6 +4,8 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'register_view.dart';
 import '../test/KakaoAddressScreen.dart';
+import '../login/AdditionalInfoScreen.dart';
+import './OnBoardingProcess.dart';
 
 class LoginView extends StatefulWidget {
   @override
@@ -47,9 +49,16 @@ class _LoginViewState extends State<LoginView> {
       print('accessToken = $accessToken');
       print('refreshToken = $refreshToken');
       if (response.statusCode == 200) {
-        _showLoginSuccessDialog();
-        print('Login successful');
-        print('Response body: ${response.body}');
+        if (jsonResponse['_first_login'] == true) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => OnboardingProcess(email: _idController.text),
+            ),
+          );
+        } else {
+          _showLoginSuccessDialog();
+        }
       } else {
         _showErrorDialog('로그인 실패. 다시 시도해주세요.');
         print('Login failed');
