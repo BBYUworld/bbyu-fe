@@ -31,9 +31,6 @@ class _OnboardingProcessState extends State<OnboardingProcess> {
 
   void _completeOnboarding() {
     if (_additionalInfo.isNotEmpty && _isAccountLinked) {
-      // TODO: Navigate to the main page
-      print('Onboarding completed. Navigating to main page.');
-      // For now, we'll just show a dialog
       showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -59,7 +56,7 @@ class _OnboardingProcessState extends State<OnboardingProcess> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('${widget.email}추가 정보 입력'),
+        title: Text('${widget.email} 추가 정보 입력'),
         leading: _currentStep == 0 ? null : IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
@@ -67,14 +64,14 @@ class _OnboardingProcessState extends State<OnboardingProcess> {
               _currentStep = 0;
             });
           },
+
         ),
       ),
-      body: IndexedStack(
-        index: _currentStep,
-        children: [
-          AdditionalInfoScreen(onComplete: _onAdditionalInfoComplete),
-          AccountLinkScreen(onComplete: _onAccountLinked),
-        ],
+      body: _currentStep == 0
+          ? AdditionalInfoScreen(onComplete: _onAdditionalInfoComplete)
+          : AccountLinkScreen(
+          key: ValueKey(_currentStep),
+          onComplete: _onAccountLinked
       ),
     );
   }

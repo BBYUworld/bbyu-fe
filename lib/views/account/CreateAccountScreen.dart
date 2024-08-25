@@ -10,6 +10,7 @@ import 'package:gagyebbyu_fe/views/account/ProductDetailScreen.dart';
 class CreateAccountScreen extends StatefulWidget {
   final VoidCallback onAccountCreated;
 
+
   CreateAccountScreen({required this.onAccountCreated});
 
   @override
@@ -77,7 +78,10 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
       MaterialPageRoute(
         builder: (context) => ProductDetailScreen(
           product: product,
-          onCreateAccount: widget.onAccountCreated,
+          onCreateAccount: () {
+            widget.onAccountCreated();
+            Navigator.of(context).popUntil((route) => route.isFirst);
+          },
         ),
       ),
     );
