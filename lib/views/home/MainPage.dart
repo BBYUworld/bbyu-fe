@@ -14,7 +14,6 @@ class _MainPageState extends State<MainPage> {
     setState(() {
       _selectedIndex = index;
     });
-    // 여기에 라우팅 로직을 추가할 수 있습니다.
   }
 
   @override
@@ -58,55 +57,61 @@ class _MainPageState extends State<MainPage> {
   }
 
   Widget _buildCoupleCard() {
-    return Card(
-      color: Colors.pink[100],
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('김싸피', style: TextStyle(fontWeight: FontWeight.bold)),
-                Text('1,234,567원', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              ],
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text('박싸피', style: TextStyle(fontWeight: FontWeight.bold)),
-                CircleAvatar(
-                  radius: 25,
-                  backgroundColor: Colors.grey[300],
-                  child: Icon(Icons.person, size: 30),
-                ),
-              ],
-            ),
-          ],
+    return Container(
+      height: 160, // 현재 높이의 두 배로 조정
+      child: Card(
+        color: Colors.pink[100],
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('김싸피', style: TextStyle(fontWeight: FontWeight.bold)),
+                  Text('1,234,567원', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                ],
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text('박싸피', style: TextStyle(fontWeight: FontWeight.bold)),
+                  CircleAvatar(
+                    radius: 25,
+                    backgroundColor: Colors.grey[300],
+                    child: Icon(Icons.person, size: 30),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
   Widget _buildMenuCard(String title, IconData icon) {
-    return Card(
-      child: InkWell(
-        onTap: () {
-          if (title == '가계부') {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => HouseholdLedgerScreen()),
-            );
-          }
-        },
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, size: 40),
-            SizedBox(height: 8),
-            Text(title, textAlign: TextAlign.center),
-          ],
+    return AspectRatio(
+      aspectRatio: 1.5, // 카드의 높이를 줄이기 위해 사용 (비율을 조절하여 높낮이를 변경)
+      child: Card(
+        child: InkWell(
+          onTap: () {
+            if (title == '가계부') {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => HouseholdLedgerScreen()),
+              );
+            }
+          },
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, size: 40),
+              SizedBox(height: 8),
+              Text(title, textAlign: TextAlign.center),
+            ],
+          ),
         ),
       ),
     );

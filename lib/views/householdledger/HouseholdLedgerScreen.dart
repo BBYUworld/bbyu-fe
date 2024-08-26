@@ -5,6 +5,7 @@ import 'package:gagyebbyu_fe/views/householdledger/JointLedgerScreen.dart';
 import 'package:gagyebbyu_fe/services/ledger_api_service.dart';
 import 'package:gagyebbyu_fe/models/user_account.dart';
 import 'package:gagyebbyu_fe/models/couple_expense_model.dart';
+import 'package:gagyebbyu_fe/views/householdledger/JointLedgerListScreen.dart';
 
 class HouseholdLedgerScreen extends StatefulWidget {
   @override
@@ -16,6 +17,7 @@ class _HouseholdLedgerScreenState extends State<HouseholdLedgerScreen> {
   int _currentPageIndex = 0;
   late LedgerApiService _apiService;
   late List<Account> userAccount;
+  bool _isListView = true;
   CoupleExpense? coupleExpense;
   late Future<void> _loadDataFuture;
 
@@ -54,14 +56,6 @@ class _HouseholdLedgerScreenState extends State<HouseholdLedgerScreen> {
       final data = await _apiService.fetchCoupleExpense(year, month);
       setState(() {
         coupleExpense = data;
-        print("Couple Expense Details:");
-        print("Total Amount: ${coupleExpense?.totalAmount}");
-        print("Target Amount: ${coupleExpense?.targetAmount}");
-        print("Amount Difference: ${coupleExpense?.amountDifference}");
-        print("Daily Expenses:");
-        coupleExpense?.expenses.forEach((expense) {
-          print("  Date: ${expense.date}, Amount: ${expense.totalAmount}");
-        });
       });
     } catch (e) {
       print('Error fetching couple expense: $e');
@@ -69,12 +63,10 @@ class _HouseholdLedgerScreenState extends State<HouseholdLedgerScreen> {
   }
 
   void _onMonthChanged(int year, int month) {
-    print('Emit year = $year and Month = $month');
     fetchCoupleExpense(year, month);
   }
 
   Future<void> _onRefresh(int year, int month) async {
-    print('Refreshing data for year = $year and month = $month');
     await fetchCoupleExpense(year, month);
   }
 
@@ -124,13 +116,75 @@ class _HouseholdLedgerScreenState extends State<HouseholdLedgerScreen> {
     if (_currentPageIndex == 0) {
       return PersonalLedgerScreen();
     } else if (_currentPageIndex == 1 && coupleExpense != null) {
-      return JointLedgerScreen(
-        onMonthChanged: _onMonthChanged,
-        coupleExpense: coupleExpense,
-        onRefresh: _onRefresh,
+      return Column(
+        children: [
+          Expanded(
+            child: _isListView
+                ? JointLedgerListScreen(
+              coupleExpense: coupleExpense,
+              onRefresh: _onRefresh,
+            )
+                : JointLedgerScreen(
+              onMonthChanged: _onMonthChanged,
+              coupleExpense: coupleExpense,
+              onRefresh: _onRefresh,
+            ),
+          ),
+          _buildCustomFooter(),
+        ],
       );
     } else {
       return Center(child: CircularProgressIndicator());
     }
+  }
+
+  Widget _buildCustomFooter() {
+    return Container(
+      height: 50,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.3),
+            spreadRadius: 1,
+            blurRadius: 5,
+            offset: Offset(0, -3),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          _buildFooterTab('내역', Icons.list, _isListView),
+          _buildFooterTab('캘린더', Icons.calendar_today, !_isListView),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFooterTab(String label, IconData icon, bool isSelected) {
+    return InkWell(
+      onTap: () {
+        setState(() {
+          _isListView = label == '내역';
+        });
+      },
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            icon,
+            color: isSelected ? Colors.blue : Colors.grey,
+          ),
+          Text(
+            label,
+            style: TextStyle(
+              color: isSelected ? Colors.blue : Colors.grey,
+              fontSize: 12,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

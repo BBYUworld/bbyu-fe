@@ -67,15 +67,11 @@ class _JointLedgerScreenState extends State<JointLedgerScreen> {
   Widget build(BuildContext context) {
     return RefreshIndicator(
       onRefresh: _handleRefresh,
-      child: SingleChildScrollView(
-        physics: AlwaysScrollableScrollPhysics(),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildAccountInfo(),
-            _buildCalendar(),
-          ],
-        ),
+      child: ListView(
+        children: [
+          _buildAccountInfo(),
+          _buildCalendar(),
+        ],
       ),
     );
   }
@@ -83,30 +79,61 @@ class _JointLedgerScreenState extends State<JointLedgerScreen> {
   Widget _buildAccountInfo() {
     return Padding(
       padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('지출 총액: - ${widget.coupleExpense?.totalAmount ?? 0}원',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.red)),
-          Text('한달 목표 지출: ${widget.coupleExpense?.targetAmount ?? 0}원',
-              style: TextStyle(fontSize: 18)),
-          Text('차이: ${widget.coupleExpense?.amountDifference ?? 0}원',
-              style: TextStyle(fontSize: 18, color: Colors.red)),
-          SizedBox(height: 16),
-          Text('총 지출: - ${_calculateTotalExpense()}원', style: TextStyle(color: Colors.red, fontSize: 16, fontWeight: FontWeight.bold)),
-        ],
+      child: Card(
+        elevation: 4,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '지출 총액: - ${widget.coupleExpense?.totalAmount ?? 0}원',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.red,
+                ),
+              ),
+              Text(
+                '한달 목표 지출: ${widget.coupleExpense?.targetAmount ?? 0}원',
+                style: TextStyle(fontSize: 18),
+              ),
+              Text(
+                '차이: ${widget.coupleExpense?.amountDifference ?? 0}원',
+                style: TextStyle(
+                  fontSize: 18,
+                  color: Colors.red,
+                ),
+              ),
+              SizedBox(height: 16),
+              Text(
+                '총 지출: - ${_calculateTotalExpense()}원',
+                style: TextStyle(
+                  color: Colors.red,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
 
   Widget _buildCalendar() {
-    return Container(
-      height: 600,  // 캘린더의 높이를 600으로 설정
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: TableCalendar(
         firstDay: DateTime.utc(2021, 1, 1),
         lastDay: DateTime.utc(2030, 12, 31),
         focusedDay: _focusedDay,
+        rowHeight: 150,
         calendarFormat: CalendarFormat.month,
+        availableGestures: AvailableGestures.horizontalSwipe,
         onPageChanged: (focusedDay) {
           setState(() {
             _focusedDay = focusedDay;
@@ -115,10 +142,6 @@ class _JointLedgerScreenState extends State<JointLedgerScreen> {
         },
         calendarStyle: CalendarStyle(
           outsideDaysVisible: false,
-          todayDecoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: Colors.transparent,
-          ),
           todayTextStyle: TextStyle(
             fontWeight: FontWeight.bold,
             color: Colors.blue,
@@ -127,19 +150,26 @@ class _JointLedgerScreenState extends State<JointLedgerScreen> {
         headerStyle: HeaderStyle(
           formatButtonVisible: false,
           titleCentered: true,
-          decoration: BoxDecoration(
-            color: Colors.blue,  // 헤더의 배경색을 파란색으로 설정
-          ),
+          titleTextFormatter: (date, locale) => '${date.year}년 ${date.month}월',
           titleTextStyle: TextStyle(
-            color: Colors.white,  // 헤더의 텍스트 색상을 흰색으로 설정
+            color: Colors.black,
             fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+          leftChevronIcon: Icon(
+            Icons.chevron_left,
+            color: Colors.black,
+          ),
+          rightChevronIcon: Icon(
+            Icons.chevron_right,
+            color: Colors.black,
           ),
         ),
         daysOfWeekStyle: DaysOfWeekStyle(
-          weekdayStyle: TextStyle(color: Colors.black),  // 평일 텍스트 색상
-          weekendStyle: TextStyle(color: Colors.red),  // 주말 텍스트 색상
+          weekdayStyle: TextStyle(color: Colors.black),
+          weekendStyle: TextStyle(color: Colors.red),
           dowTextFormatter: (date, locale) {
-            return ['월', '화', '수', '목', '금', '토', '일'][date.weekday - 1];  // 요일을 한글로 표시
+            return ['월', '화', '수', '목', '금', '토', '일'][date.weekday - 1];
           },
         ),
         calendarBuilders: CalendarBuilders(
@@ -158,8 +188,12 @@ class _JointLedgerScreenState extends State<JointLedgerScreen> {
                     Text(
                       day.day.toString(),
                       style: TextStyle(
-                        fontWeight: isSameDay(day, DateTime.now()) ? FontWeight.bold : FontWeight.normal,
-                        color: isSameDay(day, DateTime.now()) ? Colors.blue : Colors.black,
+                        fontWeight: isSameDay(day, DateTime.now())
+                            ? FontWeight.bold
+                            : FontWeight.normal,
+                        color: isSameDay(day, DateTime.now())
+                            ? Colors.blue
+                            : Colors.black,
                       ),
                     ),
                     if (expense?.totalAmount != 0)
