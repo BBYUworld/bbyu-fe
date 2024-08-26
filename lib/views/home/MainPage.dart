@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:gagyebbyu_fe/views/home/Fotter.dart';
+import 'package:gagyebbyu_fe/views/householdledger/HouseholdLedgerScreen.dart';
 
 class MainPage extends StatefulWidget {
   @override
@@ -6,6 +8,15 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
+  int _selectedIndex = 0;
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+    // 여기에 라우팅 로직을 추가할 수 있습니다.
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -38,6 +49,10 @@ class _MainPageState extends State<MainPage> {
             ],
           ),
         ),
+      ),
+      bottomNavigationBar: CustomFooter(
+        selectedIndex: _selectedIndex,
+        onItemTapped: _onItemTapped,
       ),
     );
   }
@@ -76,13 +91,23 @@ class _MainPageState extends State<MainPage> {
 
   Widget _buildMenuCard(String title, IconData icon) {
     return Card(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, size: 40),
-          SizedBox(height: 8),
-          Text(title, textAlign: TextAlign.center),
-        ],
+      child: InkWell(
+        onTap: () {
+          if (title == '가계부') {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => HouseholdLedgerScreen()),
+            );
+          }
+        },
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 40),
+            SizedBox(height: 8),
+            Text(title, textAlign: TextAlign.center),
+          ],
+        ),
       ),
     );
   }
