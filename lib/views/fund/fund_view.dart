@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gagyebbyu_fe/models/fund/fund_overview.dart';
 import 'package:gagyebbyu_fe/models/couple/couple_response.dart';
 import 'package:gagyebbyu_fe/models/fund/fund_transaction.dart';
+import 'package:gagyebbyu_fe/views/fund/fund_transaction_view.dart';
 import 'package:http/http.dart' as http;
 import 'package:gagyebbyu_fe/storage/TokenStorage.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -149,7 +150,7 @@ class _FundViewState extends State<FundView> {
                     style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black87),
                   ),
                   SizedBox(height: 16),
-                  _buildGoalCard(fundOverview, coupleResponse),
+                  _buildGoalCard(fundOverview, coupleResponse, fundTransactions),
                   SizedBox(height: 16),
                   _buildLoanCard(),
                   SizedBox(height: 16),
@@ -167,62 +168,74 @@ class _FundViewState extends State<FundView> {
     );
   }
 
-  Widget _buildGoalCard(FundOverview data, CoupleResponse coupleResponse) {
-    double progress = (data.currentAmount / data.targetAmount).clamp(0, 1);
+  Widget _buildGoalCard(FundOverview fundOverview, CoupleResponse coupleResponse, List<FundTransaction> fundTransactions) {
+    double progress = (fundOverview.currentAmount / fundOverview.targetAmount).clamp(0, 1);
 
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      elevation: 4,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  '현재 모은 돈 (${coupleResponse.nickname})',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-                CircleAvatar(
-                  radius: 20,
-                  backgroundImage: AssetImage('assets/couple_avatar.png'),
-                ),
-              ],
+    return InkWell(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => FundTransactionView(
+              transactions: fundTransactions,
+              fundOverview: fundOverview,
             ),
-            SizedBox(height: 12),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  '${coupleResponse.user1Name} ❤ ${coupleResponse.user2Name}',
-                  style: TextStyle(fontSize: 16, color: Colors.black),
-                ),
-              ],
-            ),
-            SizedBox(height: 12),
-            Text('목표 금액: ${_formatCurrency(data.targetAmount)}', style: TextStyle(fontSize: 16)),
-            SizedBox(height: 8),
-            Text('현재 모은 금액: ${_formatCurrency(data.currentAmount)}', style: TextStyle(fontSize: 16)),
-            SizedBox(height: 16),
-            LinearProgressIndicator(
-              value: progress,
-              minHeight: 12,
-              backgroundColor: Colors.grey[300],
-              color: Colors.blueAccent,
-            ),
-            SizedBox(height: 8),
-            Text(
-              '달성률: ${(progress * 100).toStringAsFixed(2)}%',
-              style: TextStyle(fontSize: 14, color: Colors.grey[700]),
-            ),
-          ],
+          ),
+        );
+      },
+      child: Card(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        elevation: 4,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    '현재 모은 돈 (${coupleResponse.nickname})',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                  CircleAvatar(
+                    radius: 20,
+                    backgroundImage: AssetImage('assets/couple_avatar.png'),
+                  ),
+                ],
+              ),
+              SizedBox(height: 12),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    '사용자: ${coupleResponse.user1Name} & ${coupleResponse.user2Name}',
+                    style: TextStyle(fontSize: 16, color: Colors.black54),
+                  ),
+                ],
+              ),
+              SizedBox(height: 12),
+              Text('목표 금액: ${_formatCurrency(fundOverview.targetAmount)}', style: TextStyle(fontSize: 16)),
+              SizedBox(height: 8),
+              Text('현재 모은 금액: ${_formatCurrency(fundOverview.currentAmount)}', style: TextStyle(fontSize: 16)),
+              SizedBox(height: 16),
+              LinearProgressIndicator(
+                value: progress,
+                minHeight: 12,
+                backgroundColor: Colors.grey[300],
+                color: Colors.blueAccent,
+              ),
+              SizedBox(height: 8),
+              Text(
+                '달성률: ${(progress * 100).toStringAsFixed(2)}%',
+                style: TextStyle(fontSize: 14, color: Colors.grey[700]),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
-
 
   Widget _buildLoanCard() {
     int loanAmount = 5000000;
