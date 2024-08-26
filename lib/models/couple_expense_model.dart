@@ -48,6 +48,11 @@ class DailyExpense {
       totalAmount: json['totalAmount'] ?? 0,
     );
   }
+
+  get description => null;
+
+  get category => null;
+  
   @override
   String toString() {
     return 'DailyExpense(coupleId: $coupleId, date: $date, totalAmount: $totalAmount)';

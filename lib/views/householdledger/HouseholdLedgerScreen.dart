@@ -17,13 +17,18 @@ class _HouseholdLedgerScreenState extends State<HouseholdLedgerScreen> {
   late LedgerApiService _apiService;
   late List<Account> userAccount;
   CoupleExpense? coupleExpense;
-
+  late Future<void> _loadDataFuture;
 
   @override
   void initState() {
     super.initState();
     _apiService = LedgerApiService();
-    _fetchLedgerData();
+    _loadDataFuture = _fetchInitialData();
+  }
+
+  Future<void> _fetchInitialData() async {
+    await _fetchLedgerData();
+    await fetchCoupleExpense(DateTime.now().year, DateTime.now().month);
   }
 
   Future<void> _fetchLedgerData() async {
@@ -34,9 +39,7 @@ class _HouseholdLedgerScreenState extends State<HouseholdLedgerScreen> {
         print("user Account List = $userAccount");
       });
     } catch (e) {
-      // 에러 처리
       print('Error fetching ledger data: $e');
-      // 사용자에게 에러 메시지를 보여줄 수 있습니다.
     }
   }
 
@@ -44,8 +47,8 @@ class _HouseholdLedgerScreenState extends State<HouseholdLedgerScreen> {
     setState(() {
       _selectedIndex = index;
     });
-    // 여기에 라우팅 로직을 추가할 수 있습니다.
   }
+
   Future<void> fetchCoupleExpense(int year, int month) async {
     try {
       final data = await _apiService.fetchCoupleExpense(year, month);
@@ -65,7 +68,6 @@ class _HouseholdLedgerScreenState extends State<HouseholdLedgerScreen> {
     }
   }
 
-
   void _onMonthChanged(int year, int month) {
     print('Emit year = $year and Month = $month');
     fetchCoupleExpense(year, month);
@@ -75,8 +77,6 @@ class _HouseholdLedgerScreenState extends State<HouseholdLedgerScreen> {
     print('Refreshing data for year = $year and month = $month');
     await fetchCoupleExpense(year, month);
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -101,17 +101,36 @@ class _HouseholdLedgerScreenState extends State<HouseholdLedgerScreen> {
           ),
         ],
       ),
-      body: _currentPageIndex == 0
-          ? PersonalLedgerScreen()
-          : JointLedgerScreen(
-        onMonthChanged: _onMonthChanged,
-        coupleExpense: coupleExpense,
-        onRefresh: _onRefresh,
+      body: FutureBuilder(
+        future: _loadDataFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else {
+            return _buildBody();
+          }
+        },
       ),
       bottomNavigationBar: CustomFooter(
         selectedIndex: _selectedIndex,
         onItemTapped: _onItemTapped,
       ),
     );
+  }
+
+  Widget _buildBody() {
+    if (_currentPageIndex == 0) {
+      return PersonalLedgerScreen();
+    } else if (_currentPageIndex == 1 && coupleExpense != null) {
+      return JointLedgerScreen(
+        onMonthChanged: _onMonthChanged,
+        coupleExpense: coupleExpense,
+        onRefresh: _onRefresh,
+      );
+    } else {
+      return Center(child: CircularProgressIndicator());
+    }
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:gagyebbyu_fe/models/couple_expense_model.dart';
+import 'package:gagyebbyu_fe/views/householdledger/daily_expense_detail_modal.dart';
 
 class JointLedgerScreen extends StatefulWidget {
   final Function(int year, int month) onMonthChanged;
@@ -14,9 +15,8 @@ class JointLedgerScreen extends StatefulWidget {
 
 class _JointLedgerScreenState extends State<JointLedgerScreen> {
   DateTime _focusedDay = DateTime.now();
-  DateTime _selectedDay = DateTime.now();
-  double _startScrollPosition = 0;
   bool _isRefreshing = false;
+
   Future<void> _handleRefresh() async {
     if (!_isRefreshing) {
       setState(() {
@@ -27,6 +27,34 @@ class _JointLedgerScreenState extends State<JointLedgerScreen> {
         _isRefreshing = false;
       });
     }
+  }
+
+  void _showDailyExpenseDetail(BuildContext context, DateTime date) {
+    final expenses = widget.coupleExpense?.expenses
+        .where((e) => isSameDay(DateTime.parse(e.date), date))
+        .toList() ?? [];
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) {
+        return DraggableScrollableSheet(
+          initialChildSize: 0.5,
+          minChildSize: 0.3,
+          maxChildSize: 0.5,
+          builder: (_, controller) {
+            return Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+              ),
+              child: DailyExpenseDetailModal(date: date, expenses: expenses),
+            );
+          },
+        );
+      },
+    );
   }
 
   @override
@@ -46,7 +74,6 @@ class _JointLedgerScreenState extends State<JointLedgerScreen> {
           children: [
             _buildAccountInfo(),
             _buildCalendar(),
-            _buildExpenseList(),
           ],
         ),
       ),
@@ -73,77 +100,82 @@ class _JointLedgerScreenState extends State<JointLedgerScreen> {
   }
 
   Widget _buildCalendar() {
-    return TableCalendar(
-      firstDay: DateTime.utc(2021, 1, 1),
-      lastDay: DateTime.utc(2030, 12, 31),
-      focusedDay: _focusedDay,
-      selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
-      onDaySelected: (selectedDay, focusedDay) {
-        setState(() {
-          _selectedDay = selectedDay;
-          _focusedDay = focusedDay;
-        });
-      },
-      onPageChanged: (focusedDay) {
-        setState(() {
-          _focusedDay = focusedDay;
-        });
-        widget.onMonthChanged(focusedDay.year, focusedDay.month);
-      },
-      calendarStyle: CalendarStyle(
-        outsideDaysVisible: false,
-        todayDecoration: BoxDecoration(
-          color: Colors.grey[300],
-          shape: BoxShape.rectangle,
+    return Container(
+      height: 600,  // 캘린더의 높이를 600으로 설정
+      child: TableCalendar(
+        firstDay: DateTime.utc(2021, 1, 1),
+        lastDay: DateTime.utc(2030, 12, 31),
+        focusedDay: _focusedDay,
+        calendarFormat: CalendarFormat.month,
+        onPageChanged: (focusedDay) {
+          setState(() {
+            _focusedDay = focusedDay;
+          });
+          widget.onMonthChanged(focusedDay.year, focusedDay.month);
+        },
+        calendarStyle: CalendarStyle(
+          outsideDaysVisible: false,
+          todayDecoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.transparent,
+          ),
+          todayTextStyle: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.blue,
+          ),
         ),
-        selectedDecoration: BoxDecoration(
-          color: Colors.grey[300],
-          shape: BoxShape.rectangle,
+        headerStyle: HeaderStyle(
+          formatButtonVisible: false,
+          titleCentered: true,
+          decoration: BoxDecoration(
+            color: Colors.blue,  // 헤더의 배경색을 파란색으로 설정
+          ),
+          titleTextStyle: TextStyle(
+            color: Colors.white,  // 헤더의 텍스트 색상을 흰색으로 설정
+            fontSize: 20,
+          ),
         ),
-      ),
-      headerStyle: HeaderStyle(
-        formatButtonVisible: false,
-        titleCentered: true,
-      ),
-      calendarBuilders: CalendarBuilders(
-        markerBuilder: (context, day, events) {
-          final expense = widget.coupleExpense?.expenses.firstWhere(
-                (e) => isSameDay(DateTime.parse(e.date), day),
-            orElse: () => DailyExpense(coupleId: 0, date: '', totalAmount: 0),
-          );
-          if (expense?.totalAmount != 0) {
-            return Container(
-              alignment: Alignment.bottomCenter,
-              child: Text(
-                '- ${expense!.totalAmount.abs()}',
-                style: TextStyle(
-                  color: Colors.red,
-                  fontSize: 10,
+        daysOfWeekStyle: DaysOfWeekStyle(
+          weekdayStyle: TextStyle(color: Colors.black),  // 평일 텍스트 색상
+          weekendStyle: TextStyle(color: Colors.red),  // 주말 텍스트 색상
+          dowTextFormatter: (date, locale) {
+            return ['월', '화', '수', '목', '금', '토', '일'][date.weekday - 1];  // 요일을 한글로 표시
+          },
+        ),
+        calendarBuilders: CalendarBuilders(
+          defaultBuilder: (context, day, focusedDay) {
+            final expense = widget.coupleExpense?.expenses.firstWhere(
+                  (e) => isSameDay(DateTime.parse(e.date), day),
+              orElse: () => DailyExpense(coupleId: 0, date: '', totalAmount: 0),
+            );
+            return GestureDetector(
+              onTap: () => _showDailyExpenseDetail(context, day),
+              child: Container(
+                margin: const EdgeInsets.all(4.0),
+                alignment: Alignment.topCenter,
+                child: Column(
+                  children: [
+                    Text(
+                      day.day.toString(),
+                      style: TextStyle(
+                        fontWeight: isSameDay(day, DateTime.now()) ? FontWeight.bold : FontWeight.normal,
+                        color: isSameDay(day, DateTime.now()) ? Colors.blue : Colors.black,
+                      ),
+                    ),
+                    if (expense?.totalAmount != 0)
+                      Text(
+                        '-${expense!.totalAmount.abs()}',
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontSize: 10,
+                        ),
+                      ),
+                  ],
                 ),
               ),
             );
-          }
-          return null;
-        },
-      ),
-    );
-  }
-
-  Widget _buildExpenseList() {
-    return Container(
-      height: 300,  // 고정 높이 지정 또는 필요에 따라 조절
-      child: ListView.builder(
-        itemCount: widget.coupleExpense?.expenses.length ?? 0,
-        itemBuilder: (context, index) {
-          final expense = widget.coupleExpense!.expenses[index];
-          return ListTile(
-            title: Text(expense.date),
-            subtitle: Text(
-              '- ${expense.totalAmount.abs()}원',
-              style: TextStyle(color: Colors.red),
-            ),
-          );
-        },
+          },
+        ),
       ),
     );
   }
