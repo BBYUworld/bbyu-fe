@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'register_view.dart';
 import '../test/KakaoAddressScreen.dart';
+import '../fund/fund_view.dart';
 import '../login/AdditionalInfoScreen.dart';
 import './OnBoardingProcess.dart';
 
@@ -165,6 +166,15 @@ class _LoginViewState extends State<LoginView> {
                     );
                   },
                   child: Text('Sign Up'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => FundView()),
+                    );
+                  },
+                  child: Text('fund'),
                 ),
               ],
             ),
