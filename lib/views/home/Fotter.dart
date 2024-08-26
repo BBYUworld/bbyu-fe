@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gagyebbyu_fe/views/home/MainPage.dart';
 
 class CustomFooter extends StatelessWidget {
   final int selectedIndex;
@@ -35,9 +36,19 @@ class CustomFooter extends StatelessWidget {
         ),
       ],
       currentIndex: selectedIndex,
-      selectedItemColor: Colors.blue,
+      selectedItemColor: Colors.grey,  // 선택된 항목의 색상을 회색으로 변경
       unselectedItemColor: Colors.grey,
-      onTap: onItemTapped,
+      onTap: (index) {
+        if (index == 0) {
+          // 홈 버튼을 눌렀을 때 MainPage로 이동
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => MainPage()),
+          );
+        } else {
+          onItemTapped(index);
+        }
+      },
       type: BottomNavigationBarType.fixed,
       showUnselectedLabels: true,
     );
