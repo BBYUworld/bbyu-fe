@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../views/home/home_view.dart';
+import '../views/login/login_view.dart';
 import 'theme.dart';
 
 class MyApp extends StatelessWidget {
@@ -8,7 +9,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Todo App',
       theme: appTheme,
-      home: HomeView(),
+      home: LoginView(),
+
       debugShowCheckedModeBanner: false,
     );
   }
