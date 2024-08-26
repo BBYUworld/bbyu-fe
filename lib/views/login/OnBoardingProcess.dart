@@ -13,6 +13,7 @@ class OnboardingProcess extends StatefulWidget {
 class _OnboardingProcessState extends State<OnboardingProcess> {
   int _currentStep = 0;
   Map<String, dynamic> _additionalInfo = {};
+  List<Map<String, dynamic>> _selectedAccounts = [];
   bool _isAccountLinked = false;
 
   void _onAdditionalInfoComplete(Map<String, dynamic> info) {
@@ -36,7 +37,17 @@ class _OnboardingProcessState extends State<OnboardingProcess> {
         builder: (BuildContext context) {
           return AlertDialog(
             title: Text('온보딩 완료'),
-            content: Text('이메일: ${widget.email}\n추가 정보 입력과 계좌 연결이 완료되었습니다.'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('이메일: ${widget.email}'),
+                Text('추가 정보 입력과 계좌 연결이 완료되었습니다.'),
+                SizedBox(height: 10),
+                Text('선택된 계좌:'),
+                ..._selectedAccounts.map((account) => Text('- ${account['bankName']}: ${account['accountNo']}')),
+              ],
+            ),
             actions: [
               TextButton(
                 onPressed: () {
@@ -64,14 +75,14 @@ class _OnboardingProcessState extends State<OnboardingProcess> {
               _currentStep = 0;
             });
           },
-
         ),
       ),
       body: _currentStep == 0
           ? AdditionalInfoScreen(onComplete: _onAdditionalInfoComplete)
           : AccountLinkScreen(
-          key: ValueKey(_currentStep),
-          onComplete: _onAccountLinked
+        key: ValueKey(_currentStep),
+        onComplete: _onAccountLinked,
+        additionalInfo: _additionalInfo,
       ),
     );
   }

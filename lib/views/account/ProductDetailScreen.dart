@@ -7,8 +7,9 @@ import 'package:gagyebbyu_fe/models/BankProduct.dart';
 class ProductDetailScreen extends StatefulWidget {
   final BankProduct product;
   final VoidCallback onCreateAccount;
+  final Map<String, dynamic> additionalInfo;
 
-  ProductDetailScreen({required this.product, required this.onCreateAccount});
+  ProductDetailScreen({required this.product, required this.onCreateAccount, required this.additionalInfo});
 
   @override
   _ProductDetailScreenState createState() => _ProductDetailScreenState();

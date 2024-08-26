@@ -9,9 +9,10 @@ import 'package:gagyebbyu_fe/views/account/ProductDetailScreen.dart';
 
 class CreateAccountScreen extends StatefulWidget {
   final VoidCallback onAccountCreated;
+  final Map<String, dynamic> additionalInfo;
 
 
-  CreateAccountScreen({required this.onAccountCreated});
+  CreateAccountScreen({required this.onAccountCreated, required this.additionalInfo});
 
   @override
   _CreateAccountScreenState createState() => _CreateAccountScreenState();
@@ -82,6 +83,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
             widget.onAccountCreated();
             Navigator.of(context).popUntil((route) => route.isFirst);
           },
+          additionalInfo: widget.additionalInfo,
         ),
       ),
     );

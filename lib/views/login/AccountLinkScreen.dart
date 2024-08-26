@@ -6,8 +6,13 @@ import '../account/CreateAccountScreen.dart';
 
 class AccountLinkScreen extends StatefulWidget {
   final VoidCallback onComplete;
+  final Map<String, dynamic> additionalInfo;
 
-  AccountLinkScreen({Key? key, required this.onComplete}) : super(key: key);
+  AccountLinkScreen({
+    Key? key,
+    required this.onComplete,
+    required this.additionalInfo
+  }) : super(key: key);
 
   @override
   _AccountLinkScreenState createState() => _AccountLinkScreenState();
@@ -89,6 +94,7 @@ class _AccountLinkScreenState extends State<AccountLinkScreen> with WidgetsBindi
           onAccountCreated: () {
             _linkAccount();
           },
+          additionalInfo: widget.additionalInfo,
         ),
       ),
     );
@@ -157,6 +163,9 @@ class _AccountLinkScreenState extends State<AccountLinkScreen> with WidgetsBindi
               child: Text('확인'),
               onPressed: () {
                 Navigator.of(context).pop();
+                List<Map<String, dynamic>> selectedAccounts = _selectedAccountIndices
+                    .map((index) => _accounts[index])
+                    .toList();
                 widget.onComplete();
               },
             ),
@@ -184,51 +193,68 @@ class _AccountLinkScreenState extends State<AccountLinkScreen> with WidgetsBindi
   }
 
   Widget _buildContent() {
-    if (!_dataLoaded) {
-      return Center(child: Text('계좌 정보를 확인 중입니다.'));
-    } else if (_accounts.isEmpty) {
-      return Center(child: Text('연결된 계좌가 없습니다.'));
-    } else {
-      return Column(
-        children: [
-          Expanded(
-            child: RefreshIndicator(
-              onRefresh: _linkAccount,
-              child: ListView.builder(
-                itemCount: _accounts.length,
-                itemBuilder: (context, index) {
-                  final account = _accounts[index];
-                  return Card(
-                    child: CheckboxListTile(
-                      title: Text(account['bankName']),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(account['accountNo']),
-                          Text(account['accountName']),
-                        ],
-                      ),
-                      value: _selectedAccountIndices.contains(index),
-                      onChanged: (_) => _toggleAccountSelection(index),
-                      secondary: IconButton(
-                        icon: Icon(Icons.info),
-                        onPressed: () => _showAccountDetails(account),
-                      ),
+    return Column(
+      children: [
+        // 추가 정보 표시
+        Card(
+          margin: EdgeInsets.all(16),
+          child: Padding(
+            padding: EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('추가 정보', style: Theme.of(context).textTheme.titleLarge),
+                SizedBox(height: 8),
+                Text('나이: ${widget.additionalInfo['age'] ?? '없음'}'),
+                Text('성별: ${widget.additionalInfo['gender'] ?? '없음'}'),
+                Text('연봉: ${widget.additionalInfo['salary'] ?? '없음'}'),
+                Text('한달 지출: ${widget.additionalInfo['desiredSpending'] ?? '없음'}'),
+                // 필요에 따라 더 많은 정보를 추가할 수 있습니다.
+              ],
+            ),
+          ),
+        ),
+        Expanded(
+          child: _dataLoaded
+              ? _accounts.isEmpty
+              ? Center(child: Text('연결된 계좌가 없습니다.'))
+              : RefreshIndicator(
+            onRefresh: _linkAccount,
+            child: ListView.builder(
+              itemCount: _accounts.length,
+              itemBuilder: (context, index) {
+                final account = _accounts[index];
+                return Card(
+                  child: CheckboxListTile(
+                    title: Text(account['bankName']),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(account['accountNo']),
+                        Text(account['accountName']),
+                      ],
                     ),
-                  );
-                },
-              ),
+                    value: _selectedAccountIndices.contains(index),
+                    onChanged: (_) => _toggleAccountSelection(index),
+                    secondary: IconButton(
+                      icon: Icon(Icons.info),
+                      onPressed: () => _showAccountDetails(account),
+                    ),
+                  ),
+                );
+              },
             ),
+          )
+              : Center(child: Text('계좌 정보를 확인 중입니다.')),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: ElevatedButton(
+            onPressed: _selectedAccountIndices.isNotEmpty ? _confirmAccountLinking : null,
+            child: Text('${_selectedAccountIndices.length}개의 계좌 연결하기'),
           ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: ElevatedButton(
-              onPressed: _selectedAccountIndices.isNotEmpty ? _confirmAccountLinking : null,
-              child: Text('${_selectedAccountIndices.length}개의 계좌 연결하기'),
-            ),
-          ),
-        ],
-      );
-    }
+        ),
+      ],
+    );
   }
 }
