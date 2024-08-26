@@ -1,43 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:gagyebbyu_fe/models/fund/fund_overview.dart';
+import 'package:gagyebbyu_fe/models/couple/couple_response.dart';
+import 'package:gagyebbyu_fe/models/fund/fund_transaction.dart';
 import 'package:http/http.dart' as http;
 import 'package:gagyebbyu_fe/storage/TokenStorage.dart';
+import 'package:fl_chart/fl_chart.dart';
+import 'package:intl/intl.dart';
 import 'dart:convert';
-
-// FundOverViewDto 클래스 정의
-class FundOverViewDto {
-  final int fundId;
-  final String goal;
-  final int targetAmount;
-  final int currentAmount;
-  final int isEmergencyUsed;
-  final int emergencyCount;
-  final DateTime startDate;
-  final DateTime endDate;
-
-  FundOverViewDto({
-    required this.fundId,
-    required this.goal,
-    required this.targetAmount,
-    required this.currentAmount,
-    required this.isEmergencyUsed,
-    required this.emergencyCount,
-    required this.startDate,
-    required this.endDate,
-  });
-
-  factory FundOverViewDto.fromJson(Map<String, dynamic> json) {
-    return FundOverViewDto(
-      fundId: json['fundId'],
-      goal: json['goal'],
-      targetAmount: json['targetAmount'],
-      currentAmount: json['currentAmount'],
-      isEmergencyUsed: json['isEmergencyUsed'],
-      emergencyCount: json['emergencyCount'],
-      startDate: DateTime.parse(json['startDate']),
-      endDate: DateTime.parse(json['endDate']),
-    );
-  }
-}
 
 class FundView extends StatefulWidget {
   @override
@@ -45,21 +14,36 @@ class FundView extends StatefulWidget {
 }
 
 class _FundViewState extends State<FundView> {
-  late Future<FundOverViewDto> _fundOverviewFuture;
+  Future<Map<String, dynamic>>? _initialDataFuture;
   final TokenStorage _tokenStorage = TokenStorage();
 
   @override
   void initState() {
     super.initState();
-    // coupleId를 하드코딩으로 1로 설정
-    _fundOverviewFuture = fetchFundOverview(1);
+    _initialDataFuture = fetchInitialData();
   }
 
-  // API 요청 함수
-  Future<FundOverViewDto> fetchFundOverview(int coupleId) async {
-    final url = Uri.parse('http://10.0.2.2:8080/api/fund/$coupleId');
+  Future<Map<String, dynamic>> fetchInitialData() async {
+    try {
+      final coupleResponse = await fetchCoupleResponse();
+      final fundOverview = await fetchFundOverview(coupleResponse.coupleId);
+      final fundTransactions = await fetchFundTransactions(fundOverview.fundId);
+
+      return {
+        'coupleResponse': coupleResponse,
+        'fundOverview': fundOverview,
+        'fundTransactions': fundTransactions,
+      };
+    } catch (e) {
+      print('Error fetching initial data: $e');
+      throw Exception('Error fetching initial data: $e');
+    }
+  }
+
+  Future<CoupleResponse> fetchCoupleResponse() async {
+    final url = Uri.parse('http://10.0.2.2:8080/api/couple');
     final accessToken = await _tokenStorage.getAccessToken();
-    print(url);
+
     try {
       final response = await http.get(
         url,
@@ -68,20 +52,69 @@ class _FundViewState extends State<FundView> {
           'Authorization': 'Bearer $accessToken',
         },
       );
-      // 응답을 UTF-8로 디코딩
-      final decodedBody = utf8.decode(response.bodyBytes);
 
       if (response.statusCode == 200) {
-        final jsonResponse = json.decode(decodedBody);
-        return FundOverViewDto.fromJson(jsonResponse);
+        final jsonResponse = json.decode(utf8.decode(response.bodyBytes));
+        return CoupleResponse.fromJson(jsonResponse);
+      } else {
+        print('Failed to load couple response. Status code: ${response.statusCode}');
+        throw Exception('Failed to load couple response');
+      }
+    } catch (e) {
+      print('Error fetching couple response: $e');
+      throw Exception('Error fetching couple response: $e');
+    }
+  }
+
+  Future<FundOverview> fetchFundOverview(int coupleId) async {
+    final url = Uri.parse('http://10.0.2.2:8080/api/fund/$coupleId');
+    final accessToken = await _tokenStorage.getAccessToken();
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $accessToken',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final jsonResponse = json.decode(utf8.decode(response.bodyBytes));
+        return FundOverview.fromJson(jsonResponse);
       } else {
         print('Failed to load fund overview. Status code: ${response.statusCode}');
-        print('Response body: $decodedBody');
         throw Exception('Failed to load fund overview');
       }
     } catch (e) {
       print('Error fetching fund overview: $e');
       throw Exception('Error fetching fund overview: $e');
+    }
+  }
+
+  Future<List<FundTransaction>> fetchFundTransactions(int fundId) async {
+    final url = Uri.parse('http://10.0.2.2:8080/api/fund/transaction/$fundId');
+    final accessToken = await _tokenStorage.getAccessToken();
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $accessToken',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> jsonResponse = json.decode(utf8.decode(response.bodyBytes));
+        return jsonResponse.map((data) => FundTransaction.fromJson(data)).toList();
+      } else {
+        print('Failed to load fund transactions. Status code: ${response.statusCode}');
+        throw Exception('Failed to load fund transactions');
+      }
+    } catch (e) {
+      print('Error fetching fund transactions: $e');
+      throw Exception('Error fetching fund transactions: $e');
     }
   }
 
@@ -95,24 +128,34 @@ class _FundViewState extends State<FundView> {
         ),
         backgroundColor: Colors.blueAccent,
       ),
-      body: FutureBuilder<FundOverViewDto>(
-        future: _fundOverviewFuture,
+      body: FutureBuilder<Map<String, dynamic>>(
+        future: _initialDataFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             return Center(child: Text('데이터를 불러오는데 실패했습니다.\n${snapshot.error}'));
           } else if (snapshot.hasData) {
-            final fundData = snapshot.data!;
+            final coupleResponse = snapshot.data!['coupleResponse'] as CoupleResponse;
+            final fundOverview = snapshot.data!['fundOverview'] as FundOverview;
+            final fundTransactions = snapshot.data!['fundTransactions'] as List<FundTransaction>;
+
             return Padding(
               padding: const EdgeInsets.all(16.0),
               child: ListView(
                 children: [
-                  _buildGoalCard(fundData),
+                  Text(
+                    '펀딩: ${fundOverview.goal}',
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black87),
+                  ),
                   SizedBox(height: 16),
-                  _buildEmergencyCard(fundData),
+                  _buildGoalCard(fundOverview, coupleResponse),
                   SizedBox(height: 16),
-                  _buildDateCard(fundData),
+                  _buildLoanCard(),
+                  SizedBox(height: 16),
+                  _buildEmergencyCard(fundOverview),
+                  SizedBox(height: 16),
+                  _buildTransactionChart(fundOverview, fundTransactions),
                 ],
               ),
             );
@@ -124,7 +167,7 @@ class _FundViewState extends State<FundView> {
     );
   }
 
-  Widget _buildGoalCard(FundOverViewDto data) {
+  Widget _buildGoalCard(FundOverview data, CoupleResponse coupleResponse) {
     double progress = (data.currentAmount / data.targetAmount).clamp(0, 1);
 
     return Card(
@@ -135,7 +178,29 @@ class _FundViewState extends State<FundView> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('목표: ${data.goal}', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  '현재 모은 돈 (${coupleResponse.nickname})',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                CircleAvatar(
+                  radius: 20,
+                  backgroundImage: AssetImage('assets/couple_avatar.png'),
+                ),
+              ],
+            ),
+            SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  '${coupleResponse.user1Name} ❤ ${coupleResponse.user2Name}',
+                  style: TextStyle(fontSize: 16, color: Colors.black),
+                ),
+              ],
+            ),
             SizedBox(height: 12),
             Text('목표 금액: ${_formatCurrency(data.targetAmount)}', style: TextStyle(fontSize: 16)),
             SizedBox(height: 8),
@@ -158,7 +223,40 @@ class _FundViewState extends State<FundView> {
     );
   }
 
-  Widget _buildEmergencyCard(FundOverViewDto data) {
+
+  Widget _buildLoanCard() {
+    int loanAmount = 5000000;
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      elevation: 4,
+      color: Colors.redAccent,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  '현재 대출',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+                ),
+                Icon(Icons.account_balance_wallet, color: Colors.white, size: 28),
+              ],
+            ),
+            SizedBox(height: 12),
+            Text(
+              '대출 금액: ${_formatCurrency(loanAmount)}',
+              style: TextStyle(fontSize: 18, color: Colors.white),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmergencyCard(FundOverview data) {
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       elevation: 4,
@@ -190,7 +288,7 @@ class _FundViewState extends State<FundView> {
     );
   }
 
-  Widget _buildDateCard(FundOverViewDto data) {
+  Widget _buildTransactionChart(FundOverview fundOverview, List<FundTransaction> transactions) {
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       elevation: 4,
@@ -199,21 +297,109 @@ class _FundViewState extends State<FundView> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('펀드 기간', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            Text('펀드 거래 내역', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
             SizedBox(height: 12),
-            Text('시작일: ${_formatDate(data.startDate)}', style: TextStyle(fontSize: 16)),
-            SizedBox(height: 8),
-            Text('종료일: ${_formatDate(data.endDate)}', style: TextStyle(fontSize: 16)),
-            SizedBox(height: 8),
-            Text('남은 기간: ${_calculateRemainingDays(data.endDate)}일', style: TextStyle(fontSize: 16)),
+            Container(
+              height: 300,
+              child: LineChart(
+                LineChartData(
+                  gridData: FlGridData(show: true),
+                  titlesData: FlTitlesData(
+                    leftTitles: SideTitles(
+                      showTitles: true,
+                      interval: fundOverview.targetAmount / 5,
+                      getTitles: (value) {
+                        return _formatCurrency(value.toInt());
+                      },
+                    ),
+                    bottomTitles: SideTitles(
+                      showTitles: true,
+                      getTitles: (value) {
+                        int index = value.toInt();
+                        List<DateTime> sortedDates = _getSortedDates(fundOverview, transactions);
+
+                        if (index < sortedDates.length) {
+                          return DateFormat('MM/dd').format(sortedDates[index]);
+                        }
+                        return '';
+                      },
+                    ),
+                  ),
+                  borderData: FlBorderData(show: true),
+                  lineBarsData: [
+                    LineChartBarData(
+                      spots: _generateDataPoints(fundOverview, transactions),
+                      isCurved: true,
+                      colors: [Colors.blueAccent],
+                      barWidth: 3,
+                      dotData: FlDotData(show: true),
+                      belowBarData: BarAreaData(show: false),
+                    ),
+                  ],
+                  minY: 0,
+                  maxY: fundOverview.targetAmount.toDouble(),
+                ),
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 
+  List<DateTime> _getSortedDates(FundOverview fundOverview, List<FundTransaction> transactions) {
+    Map<DateTime, double> dateToAmountMap = {};
+
+    // 첫 번째 데이터 포인트는 펀드 시작 날짜로 설정
+    DateTime startDate = DateTime(fundOverview.startDate.year, fundOverview.startDate.month, fundOverview.startDate.day);
+    dateToAmountMap[startDate] = 0;
+
+    // 날짜별로 amount 합산
+    for (var transaction in transactions) {
+      DateTime date = DateTime(transaction.date.year, transaction.date.month, transaction.date.day);
+      if (dateToAmountMap.containsKey(date)) {
+        dateToAmountMap[date] = dateToAmountMap[date]! + transaction.amount.toDouble();
+      } else {
+        dateToAmountMap[date] = transaction.amount.toDouble();
+      }
+    }
+
+    return dateToAmountMap.keys.toList()..sort();
+  }
+
+  List<FlSpot> _generateDataPoints(FundOverview fundOverview, List<FundTransaction> transactions) {
+    Map<DateTime, double> dateToAmountMap = {};
+
+    // 첫 번째 데이터 포인트는 펀드 시작 날짜로 설정
+    DateTime startDate = DateTime(fundOverview.startDate.year, fundOverview.startDate.month, fundOverview.startDate.day);
+    dateToAmountMap[startDate] = 0;
+
+    // 날짜별로 amount 합산
+    for (var transaction in transactions) {
+      DateTime date = DateTime(transaction.date.year, transaction.date.month, transaction.date.day);
+      if (dateToAmountMap.containsKey(date)) {
+        dateToAmountMap[date] = dateToAmountMap[date]! + transaction.amount.toDouble();
+      } else {
+        dateToAmountMap[date] = transaction.amount.toDouble();
+      }
+    }
+
+    // 누적 합 계산
+    double cumulativeAmount = 0;
+    List<FlSpot> dataPoints = [];
+    List<DateTime> sortedDates = dateToAmountMap.keys.toList()..sort();
+
+    for (int i = 0; i < sortedDates.length; i++) {
+      cumulativeAmount += dateToAmountMap[sortedDates[i]]!;
+      dataPoints.add(FlSpot(i.toDouble(), cumulativeAmount));
+    }
+
+    return dataPoints;
+  }
+
   String _formatCurrency(int amount) {
-    return '${amount.toString().replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (match) => '${match.group(1)},')}원';
+    final formatter = NumberFormat('#,###원');
+    return formatter.format(amount);
   }
 
   String _formatDate(DateTime date) {
