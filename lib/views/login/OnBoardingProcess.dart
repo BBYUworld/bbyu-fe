@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import './AdditionalInfoScreen.dart';
+import 'package:http/http.dart' as http;
 import './AccountLinkScreen.dart';
+import 'dart:convert';
+import 'package:gagyebbyu_fe/storage/TokenStorage.dart';
+
 
 class OnboardingProcess extends StatefulWidget {
   final String email;
@@ -15,6 +19,49 @@ class _OnboardingProcessState extends State<OnboardingProcess> {
   Map<String, dynamic> _additionalInfo = {};
   List<Map<String, dynamic>> _selectedAccounts = [];
   bool _isAccountLinked = false;
+  final TokenStorage _tokenStorage = TokenStorage();
+
+
+  Future<void> _saveAccountToServer() async{
+    print("additional Info = $_additionalInfo");
+    print("selectedAccounts = $_selectedAccounts");
+    final url = Uri.parse("http://10.0.2.2:8080/user/adittional/info");
+    final accessToken = await _tokenStorage.getAccessToken();
+    final jsonData = {
+      "additionalInfo": {
+        "gender": _additionalInfo['gender'],
+        "age": _additionalInfo['age'],
+        "salary": _additionalInfo['salary'],
+        "desiredSpending": _additionalInfo['desiredSpending']
+      },
+      "selectedAccounts": _selectedAccounts,
+    };
+    print('Sending JSON: ${json.encode(jsonData)}');
+    final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': "application/json",
+          'Authorization': "$accessToken"
+        },
+      body: json.encode({
+        "additionalInfo": {
+          "gender": _additionalInfo['gender'],
+          "age": _additionalInfo['age'],
+          "salary": _additionalInfo['salary'],
+          "desiredSpending": _additionalInfo['desiredSpending']
+        },
+        "selectedAccounts": _selectedAccounts,
+      }),
+    );
+
+    if(response.statusCode == 200){
+
+    }
+    else{
+
+    }
+
+  }
 
   void _onAdditionalInfoComplete(Map<String, dynamic> info) {
     setState(() {
@@ -23,11 +70,14 @@ class _OnboardingProcessState extends State<OnboardingProcess> {
     });
   }
 
-  void _onAccountLinked() {
+  void _onAccountLinked(List<Map<String, dynamic>> selectedAccounts) {
     setState(() {
+      _selectedAccounts = selectedAccounts;
+      print('Selected Accounts = $_selectedAccounts');
       _isAccountLinked = true;
     });
     _completeOnboarding();
+    _saveAccountToServer();
   }
 
   void _completeOnboarding() {

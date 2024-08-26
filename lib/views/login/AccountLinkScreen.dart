@@ -5,7 +5,7 @@ import 'package:gagyebbyu_fe/storage/TokenStorage.dart';
 import '../account/CreateAccountScreen.dart';
 
 class AccountLinkScreen extends StatefulWidget {
-  final VoidCallback onComplete;
+  final Function(List<Map<String, dynamic>>) onComplete;
   final Map<String, dynamic> additionalInfo;
 
   AccountLinkScreen({
@@ -166,7 +166,7 @@ class _AccountLinkScreenState extends State<AccountLinkScreen> with WidgetsBindi
                 List<Map<String, dynamic>> selectedAccounts = _selectedAccountIndices
                     .map((index) => _accounts[index])
                     .toList();
-                widget.onComplete();
+                widget.onComplete(selectedAccounts);
               },
             ),
           ],

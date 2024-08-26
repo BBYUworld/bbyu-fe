@@ -6,6 +6,8 @@ import 'register_view.dart';
 import '../test/KakaoAddressScreen.dart';
 import '../login/AdditionalInfoScreen.dart';
 import './OnBoardingProcess.dart';
+import 'package:gagyebbyu_fe/views/home/MainPage.dart';
+
 
 class LoginView extends StatefulWidget {
   @override
@@ -58,6 +60,12 @@ class _LoginViewState extends State<LoginView> {
           );
         } else {
           _showLoginSuccessDialog();
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => MainPage(),
+            ),
+          );
         }
       } else {
         _showErrorDialog('로그인 실패. 다시 시도해주세요.');
@@ -161,10 +169,10 @@ class _LoginViewState extends State<LoginView> {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => KakaoAddressScreen()),
+                      MaterialPageRoute(builder: (context) => MainPage()),
                     );
                   },
-                  child: Text('Sign Up'),
+                  child: Text('메인페이지'),
                 ),
               ],
             ),
