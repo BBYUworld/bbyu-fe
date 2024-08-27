@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import './AccountLinkScreen.dart';
 import 'dart:convert';
 import 'package:gagyebbyu_fe/storage/TokenStorage.dart';
-
+import 'package:gagyebbyu_fe/views/home/MainPage.dart';
 
 class OnboardingProcess extends StatefulWidget {
   final String email;
@@ -55,10 +55,14 @@ class _OnboardingProcessState extends State<OnboardingProcess> {
     );
 
     if(response.statusCode == 200){
-
+      _completeOnboarding();
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => MainPage()),
+      );
     }
     else{
-
+      print('Failed to save account info: ${response.statusCode}');
     }
 
   }
@@ -76,7 +80,6 @@ class _OnboardingProcessState extends State<OnboardingProcess> {
       print('Selected Accounts = $_selectedAccounts');
       _isAccountLinked = true;
     });
-    _completeOnboarding();
     _saveAccountToServer();
   }
 

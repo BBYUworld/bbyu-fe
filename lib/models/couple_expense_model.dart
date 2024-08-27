@@ -58,3 +58,44 @@ class DailyExpense {
     return 'DailyExpense(coupleId: $coupleId, date: $date, totalAmount: $totalAmount)';
   }
 }
+
+
+class ExpenseDay {
+  final String name;
+  final int amount;
+  final String category;
+  final DateTime date;
+  final String memo;
+  final String place;
+
+  ExpenseDay({
+    required this.name,
+    required this.amount,
+    required this.category,
+    required this.date,
+    required this.memo,
+    required this.place,
+  });
+
+  factory ExpenseDay.fromJson(Map<String, dynamic> json) {
+    return ExpenseDay(
+      name: json['name'],
+      amount: json['amount'],
+      category: json['category'],
+      date: DateTime.parse(json['date']),
+      memo: json['memo'],
+      place: json['place'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'amount': amount,
+      'category': category,
+      'date': date.toIso8601String(),
+      'memo': memo,
+      'place': place,
+    };
+  }
+}
