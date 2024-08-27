@@ -106,7 +106,7 @@ class _FundChargeViewState extends State<FundChargeView> {
               child: Text('닫기'),
               onPressed: () {
                 Navigator.of(context).pop(); // 다이얼로그 닫기
-                Navigator.of(context).pop(); // 이전 화면으로 돌아가기
+                Navigator.of(context).pop(true); // 이전 화면으로 돌아가기
               },
             ),
           ],

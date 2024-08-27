@@ -119,6 +119,12 @@ class _FundViewState extends State<FundView> {
     }
   }
 
+  void _reloadData() {
+    setState(() {
+      _initialDataFuture = fetchInitialData();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -172,8 +178,8 @@ class _FundViewState extends State<FundView> {
     double progress = (fundOverview.currentAmount / fundOverview.targetAmount).clamp(0, 1);
 
     return InkWell(
-      onTap: () {
-        Navigator.push(
+      onTap: () async {
+        final result = await Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => FundTransactionView(
@@ -182,6 +188,9 @@ class _FundViewState extends State<FundView> {
             ),
           ),
         );
+        if (result == true) {
+          _reloadData();
+        }
       },
       child: Card(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),

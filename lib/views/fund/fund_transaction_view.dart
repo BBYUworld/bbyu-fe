@@ -67,21 +67,27 @@ class FundTransactionView extends StatelessWidget {
 
   Widget _buildHeaderButton(BuildContext context, String text) {
     return ElevatedButton(
-      onPressed: () {
+      onPressed: () async {
         if (text == '충전하기') {
-          Navigator.push(
+          final result = await Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => FundChargeView(fundId: fundOverview.fundId),
             ),
           );
+          if(result == true) {
+            Navigator.of(context).pop(true);
+          }
         } else if (text == '긴급출금') {
-          Navigator.push(
+          final result = await Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => FundEmergencyWithdrawalView(fundOverview: fundOverview),
             ),
           );
+          if (result == true) {
+            Navigator.of(context).pop(true);  // 이전 화면으로 돌아가면서 데이터를 갱신하도록 신호를 보냄
+          }
         }
       },
       style: ElevatedButton.styleFrom(
