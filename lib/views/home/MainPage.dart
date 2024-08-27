@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gagyebbyu_fe/views/asset/assetloan/LoanInfoPage.dart'; // MyLoanInfoPage를 import
 
 class MainPage extends StatefulWidget {
   @override
@@ -28,10 +29,16 @@ class _MainPageState extends State<MainPage> {
                   crossAxisSpacing: 16,
                   mainAxisSpacing: 16,
                   children: [
-                    _buildMenuCard('뷰 펀딩', Icons.search),
-                    _buildMenuCard('뷰 상품 추천', Icons.message),
-                    _buildMenuCard('가계부', Icons.attach_money),
-                    _buildMenuCard('뷰 자산 리포트', Icons.description),
+                    _buildMenuCard('뷰 펀딩', Icons.search, () {}),
+                    _buildMenuCard('뷰 상품 추천', Icons.message, () {}),
+                    _buildMenuCard('가계부', Icons.attach_money, () {}),
+                    _buildMenuCard('뷰 자산 리포트', Icons.description, () {}),
+                    _buildMenuCard('병주\'s 대출 페이지', Icons.description, () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => LoanInfoPage()),
+                      );
+                    }),
                   ],
                 ),
               ),
@@ -74,15 +81,18 @@ class _MainPageState extends State<MainPage> {
     );
   }
 
-  Widget _buildMenuCard(String title, IconData icon) {
+  Widget _buildMenuCard(String title, IconData icon, VoidCallback onTap) {
     return Card(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, size: 40),
-          SizedBox(height: 8),
-          Text(title, textAlign: TextAlign.center),
-        ],
+      child: InkWell(
+        onTap: onTap,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 40),
+            SizedBox(height: 8),
+            Text(title, textAlign: TextAlign.center),
+          ],
+        ),
       ),
     );
   }

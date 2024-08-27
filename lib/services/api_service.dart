@@ -3,6 +3,8 @@ import 'package:gagyebbyu_fe/storage/TokenStorage.dart';
 import 'package:flutter/material.dart';
 import '../views/login/login_view.dart';
 import '../services/navigation_service.dart';
+import '../models/asset/asset_loan.dart';
+import '../models/loan/recommended_loan.dart';
 
 class ApiService {
   static final ApiService _instance = ApiService._internal();
@@ -30,6 +32,44 @@ class ApiService {
   }
 
 // 다른 HTTP 메서드들도 필요에 따라 추가...
+
+// Loan API 메서드 추가
+  Future<List<AssetLoan>> fetchAssetLoans() async {
+    try {
+      final response = await _dio.get('/api/asset-loans');
+      if (response.statusCode == 200) {
+        // 응답이 List<dynamic>임을 확인
+        if (response.data is List) {
+          return (response.data as List)
+              .map((item) => AssetLoan.fromJson(item as Map<String, dynamic>))
+              .toList();
+        } else {
+          throw Exception('Expected a list of loans but got ${response.data.runtimeType}');
+        }
+      } else {
+        throw Exception('Failed to load asset loans');
+      }
+    } catch (e) {
+      print('Error fetching asset loans: $e');
+      rethrow;
+    }
+  }
+
+  //assetId를 가지고 asset-loans 검색
+  Future<AssetLoan> fetchLoanDetail(int assetId) async {
+    try {
+      final response = await _dio.get('/api/asset-loans/$assetId');
+      if (response.statusCode == 200) {
+        return AssetLoan.fromJson(response.data);
+      } else {
+        throw Exception('Failed to load loan detail');
+      }
+    } catch (e) {
+      print('Error fetching loan detail: $e');
+      rethrow;
+    }
+  }
+
 }
 
 
