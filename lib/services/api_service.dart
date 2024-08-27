@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import '../views/login/login_view.dart';
 import '../services/navigation_service.dart';
 import '../models/asset/asset_loan.dart';
-import '../models/loan/recommended_loan.dart';
+import '../models/loan/loan.dart';
 
 class ApiService {
   static final ApiService _instance = ApiService._internal();
@@ -70,6 +70,21 @@ class ApiService {
     }
   }
 
+  //recommand 하려고 만든건데 일단 전체 보여줌
+  Future<List<Loan>> fetchRecommendedLoans() async {
+    try {
+      final response = await _dio.get('/api/loans');
+      if (response.statusCode == 200) {
+        List<dynamic> loansJson = response.data;
+        return loansJson.map((json) => Loan.fromJson(json)).toList();
+      } else {
+        throw Exception('Failed to load recommended loans');
+      }
+    } catch (e) {
+      print('Error fetching recommended loans: $e');
+      rethrow;
+    }
+  }
 }
 
 

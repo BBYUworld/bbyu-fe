@@ -34,9 +34,9 @@ class _MainPageState extends State<MainPage> {
                     _buildMenuCard('가계부', Icons.attach_money, () {}),
                     _buildMenuCard('뷰 자산 리포트', Icons.description, () {}),
                     _buildMenuCard('병주\'s 대출 페이지', Icons.description, () {
-                      Navigator.push(
+                      Navigator.pushNamed(
                         context,
-                        MaterialPageRoute(builder: (context) => LoanInfoPage()),
+                        '/loan',
                       );
                     }),
                   ],
