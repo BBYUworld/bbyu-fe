@@ -211,4 +211,23 @@ class UserApiService {
       return false;
     }
   }
+
+  Future<void> getUnreadNotificationCnt(BuildContext context) async {
+    final url = Uri.parse('$baseUrl/notify/count');
+    final accessToken = await _tokenStorage.getAccessToken();
+    final response = await http.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': '$accessToken'
+        }
+    );
+
+    if (response.statusCode == 200) {
+      int count = int.parse(response.body);
+      Provider.of<UserStore>(context, listen: false).setUnreadCnt(count);
+    } else {
+      throw Exception('Failed to get unread notification count');
+    }
+  }
 }

@@ -7,11 +7,13 @@ import '../account/CreateAccountScreen.dart';
 class AccountLinkScreen extends StatefulWidget {
   final Function(List<Map<String, dynamic>>) onComplete;
   final Map<String, dynamic> additionalInfo;
+  final VoidCallback onCreateAccount;  // 이 줄을 추가
 
   AccountLinkScreen({
     Key? key,
     required this.onComplete,
-    required this.additionalInfo
+    required this.additionalInfo,
+    required this.onCreateAccount,  // 이 줄을 추가
   }) : super(key: key);
 
   @override
@@ -26,6 +28,10 @@ class _AccountLinkScreenState extends State<AccountLinkScreen> with WidgetsBindi
   List<Map<String, dynamic>> _accounts = [];
   Set<int> _selectedAccountIndices = {};
   final TokenStorage _tokenStorage = TokenStorage();
+
+  void _navigateToCreateAccount() {
+    widget.onCreateAccount();  // 부모 위젯에서 제공한 콜백 호출
+  }
 
   @override
   void initState() {
@@ -87,18 +93,6 @@ class _AccountLinkScreenState extends State<AccountLinkScreen> with WidgetsBindi
     }
   }
 
-  void _navigateToCreateAccount() {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => CreateAccountScreen(
-          onAccountCreated: () {
-            _linkAccount();
-          },
-          additionalInfo: widget.additionalInfo,
-        ),
-      ),
-    );
-  }
 
   void _showAccountDetails(Map<String, dynamic> account) {
     showDialog(
