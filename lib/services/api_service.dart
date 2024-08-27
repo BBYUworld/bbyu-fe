@@ -55,6 +55,28 @@ class ApiService {
     }
   }
 
+  //커플의 대출 정보
+  Future<List<AssetLoan>> fetchCoupleAssetLoans() async {
+    try {
+      final response = await _dio.get('/api/asset-loans/couple');
+      if (response.statusCode == 200) {
+        // 응답이 List<dynamic>임을 확인
+        if (response.data is List) {
+          return (response.data as List)
+              .map((item) => AssetLoan.fromJson(item as Map<String, dynamic>))
+              .toList();
+        } else {
+          throw Exception('Expected a list of loans but got ${response.data.runtimeType}');
+        }
+      } else {
+        throw Exception('Failed to load asset loans');
+      }
+    } catch (e) {
+      print('Error fetching asset loans: $e');
+      rethrow;
+    }
+  }
+
   //assetId를 가지고 asset-loans 검색
   Future<AssetLoan> fetchLoanDetail(int assetId) async {
     try {
@@ -85,6 +107,8 @@ class ApiService {
       rethrow;
     }
   }
+
+
 }
 
 
