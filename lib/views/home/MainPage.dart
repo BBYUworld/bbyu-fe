@@ -6,6 +6,8 @@ import 'package:gagyebbyu_fe/services/user_api_service.dart';
 import 'package:gagyebbyu_fe/views/account/couple_account_screen.dart';
 import 'package:gagyebbyu_fe/views/couple/search_modal.dart';
 import 'package:gagyebbyu_fe/views/home/navbar.dart';
+import 'package:gagyebbyu_fe/storage/user_store.dart';
+import 'package:provider/provider.dart';
 
 class MainPage extends StatefulWidget {
   @override
@@ -18,24 +20,24 @@ class _MainPageState extends State<MainPage> {
   late UserApiService userApiService;
   CoupleResponseDto? _coupleDto;
 
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
-
   @override
   void initState() {
     super.initState();
     userApiService = UserApiService(context);
     _loadData();
+    _updateUnreadNotificationCount();
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (!_isLoaded) {
-      _loadData();
+  void _onFocusGained() {
+    _updateUnreadNotificationCount();
+    _loadData(); // 필요한 경우 다른 데이터도 새로고침
+  }
+
+  Future<void> _updateUnreadNotificationCount() async {
+    try {
+      await userApiService.getUnreadNotificationCnt(context);
+    } catch (e) {
+      print('Failed to update unread notification count: $e');
     }
   }
 
@@ -46,60 +48,73 @@ class _MainPageState extends State<MainPage> {
     });
   }
 
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CustomAppBar(),
-      body: SafeArea(
-        child: _isLoaded
-            ? Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                _coupleDto != null ? _coupleDto!.nickname : "커플 정보 없음",
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 16),
-              _buildCoupleCard(),
-              SizedBox(height: 16),
-              Expanded(
-                child: GridView.count(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 16,
-                  mainAxisSpacing: 16,
-                  children: [
-                    _buildMenuCard('뷰 펀딩', Icons.search),
-                    _buildMenuCard('뷰 상품 추천', Icons.message),
-                    _buildMenuCard('가계부', Icons.attach_money),
-                    _buildMenuCard('뷰 자산 리포트', Icons.description),
-                  ],
+    return FocusScope(
+      onFocusChange: (hasFocus) {
+        if (hasFocus) {
+          _onFocusGained();
+        }
+      },
+      child: Scaffold(
+        appBar: CustomAppBar(),
+        body: SafeArea(
+          child: _isLoaded
+              ? Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  _coupleDto != null ? _coupleDto!.nickname : "커플 정보 없음",
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 ),
-              ),
-            ],
-          ),
-        )
-            : Center(child: CircularProgressIndicator()), // 로딩 중일 때 보여줄 위젯
-      ),
-      bottomNavigationBar: CustomFooter(
-        selectedIndex: 0, // 항상 0으로 설정하여 선택 효과 제거
-        onItemTapped: _onItemTapped,
+                SizedBox(height: 16),
+                _buildCoupleCard(),
+                SizedBox(height: 16),
+                Expanded(
+                  child: GridView.count(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 16,
+                    mainAxisSpacing: 16,
+                    children: [
+                      _buildMenuCard('뷰 펀딩', Icons.search),
+                      _buildMenuCard('뷰 상품 추천', Icons.message),
+                      _buildMenuCard('가계부', Icons.attach_money),
+                      _buildMenuCard('뷰 자산 리포트', Icons.description),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          )
+              : Center(child: CircularProgressIndicator()),
+        ),
+        bottomNavigationBar: CustomFooter(
+          selectedIndex: 0,
+          onItemTapped: _onItemTapped,
+        ),
       ),
     );
   }
 
   Widget _buildCoupleCard() {
     return GestureDetector(
-      onTap: () {
+      onTap: () async {
         if (_coupleDto != null) {
-          Navigator.push(
+          await Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => CoupleAssetsScreen(coupleDto: _coupleDto!)),
           );
+          _onFocusGained();
         } else {
-          // 커플 배우자가 없을 때의 이벤트 처리
-          showSearchDialog(context); // 중앙에 위치한 검색창 띄우기
+          showSearchDialog(context);
         }
       },
       child: Container(
@@ -139,7 +154,7 @@ class _MainPageState extends State<MainPage> {
                     ),
                   ],
                 )
-                    : SizedBox.shrink(), // 커플 정보가 없을 때는 비어있는 상태 유지
+                    : SizedBox.shrink(),
               ],
             ),
           ),
@@ -150,15 +165,16 @@ class _MainPageState extends State<MainPage> {
 
   Widget _buildMenuCard(String title, IconData icon) {
     return AspectRatio(
-      aspectRatio: 1.5, // 카드의 높이를 줄이기 위해 사용 (비율을 조절하여 높낮이를 변경)
+      aspectRatio: 1.5,
       child: Card(
         child: InkWell(
-          onTap: () {
+          onTap: () async {
             if (title == '가계부') {
-              Navigator.push(
+              await Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => HouseholdLedgerScreen()),
               );
+              _onFocusGained();
             }
           },
           child: Column(
@@ -174,15 +190,14 @@ class _MainPageState extends State<MainPage> {
     );
   }
 
-  // 중앙에 위치한 검색창 다이얼로그 띄우기
   void showSearchDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           content: SizedBox(
-            width: MediaQuery.of(context).size.width * 0.7, // 화면 너비의 70%
-            height: MediaQuery.of(context).size.height * 0.5, // 화면 높이의 50%
+            width: MediaQuery.of(context).size.width * 0.7,
+            height: MediaQuery.of(context).size.height * 0.5,
             child: SearchModal(),
           ),
           shape: RoundedRectangleBorder(

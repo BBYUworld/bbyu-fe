@@ -71,12 +71,32 @@ class _SearchModalState extends State<SearchModal> {
 
   Future<void> _selectUser(int userId) async {
     final message = await userApiService.sendConnectNotification(userId);
+    _showSuccessDialog(context);
+  }
+  void _showSuccessDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('성공'),
+          content: Text('전송이 성공적으로 완료되었습니다.'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('확인'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   Future<void> _showConfirmationDialog(int userId) async {
     return showDialog<void>(
       context: context,
-      barrierDismissible: false, // 사용자가 대화 상자 외부를 탭하여 닫는 것을 방지
+      barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text('확인'),
