@@ -3,6 +3,7 @@ import 'package:gagyebbyu_fe/models/fund/fund_overview.dart';
 import 'package:gagyebbyu_fe/models/couple/couple_response.dart';
 import 'package:gagyebbyu_fe/models/fund/fund_transaction.dart';
 import 'package:gagyebbyu_fe/views/fund/fund_transaction_view.dart';
+import 'package:gagyebbyu_fe/views/fund/fund_create_view.dart';
 import 'package:http/http.dart' as http;
 import 'package:gagyebbyu_fe/storage/TokenStorage.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -133,7 +134,7 @@ class _FundViewState extends State<FundView> {
           '펀드 관리',
           style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         ),
-        backgroundColor: Colors.blueAccent,
+        backgroundColor: Colors.pinkAccent,
       ),
       body: FutureBuilder<Map<String, dynamic>>(
         future: _initialDataFuture,
@@ -141,7 +142,14 @@ class _FundViewState extends State<FundView> {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
-            return Center(child: Text('데이터를 불러오는데 실패했습니다.\n${snapshot.error}'));
+            // Navigate to FundCreateView if there is an error
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => FundCreateView()),
+              );
+            });
+            return SizedBox.shrink(); // Return an empty widget until navigation completes
           } else if (snapshot.hasData) {
             final coupleResponse = snapshot.data!['coupleResponse'] as CoupleResponse;
             final fundOverview = snapshot.data!['fundOverview'] as FundOverview;
@@ -151,9 +159,25 @@ class _FundViewState extends State<FundView> {
               padding: const EdgeInsets.all(16.0),
               child: ListView(
                 children: [
-                  Text(
-                    '펀딩: ${fundOverview.goal}',
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black87),
+                  Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          '${coupleResponse.nickname} 펀딩',
+                          style: TextStyle(fontSize: 17, fontWeight: FontWeight.normal, color: Colors.black54),
+                        ),
+                        SizedBox(height: 0), // 두 텍스트 사이의 간격
+                        Text(
+                          '${fundOverview.goal}',
+                          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black87),
+                        ),
+                        Text(
+                          '${coupleResponse.user1Name} 💙 ${coupleResponse.user2Name}',
+                          style: TextStyle(fontSize: 16, color: Colors.black54),
+                        ),
+                      ],
+                    ),
                   ),
                   SizedBox(height: 16),
                   _buildGoalCard(fundOverview, coupleResponse, fundTransactions),
@@ -204,29 +228,21 @@ class _FundViewState extends State<FundView> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    '현재 모은 돈 (${coupleResponse.nickname})',
+                    '현재 모은 돈',
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                   CircleAvatar(
                     radius: 20,
-                    backgroundImage: AssetImage('assets/couple_avatar.png'),
+                    backgroundImage: AssetImage('../../assets/images/heart.png'),
                   ),
                 ],
               ),
               SizedBox(height: 12),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    '사용자: ${coupleResponse.user1Name} & ${coupleResponse.user2Name}',
-                    style: TextStyle(fontSize: 16, color: Colors.black54),
-                  ),
-                ],
               ),
-              SizedBox(height: 12),
-              Text('목표 금액: ${_formatCurrency(fundOverview.targetAmount)}', style: TextStyle(fontSize: 16)),
-              SizedBox(height: 8),
-              Text('현재 모은 금액: ${_formatCurrency(fundOverview.currentAmount)}', style: TextStyle(fontSize: 16)),
+              SizedBox(height: 0),
+              Text('${_formatCurrency(fundOverview.currentAmount)} / ${_formatCurrency(fundOverview.targetAmount)}', style: TextStyle(fontSize: 20)),
               SizedBox(height: 16),
               LinearProgressIndicator(
                 value: progress,

@@ -1,14 +1,14 @@
-class FundOverview {
+class FundCreate {
   final String goal;
   final int targetAmount;
 
-  FundOverview({
+  FundCreate({
     required this.goal,
     required this.targetAmount,
   });
 
-  factory FundOverview.fromJson(Map<String, dynamic> json) {
-    return FundOverview(
+  factory FundCreate.fromJson(Map<String, dynamic> json) {
+    return FundCreate(
       goal: json['goal'],
       targetAmount: json['targetAmount'],
     );
@@ -16,7 +16,7 @@ class FundOverview {
 
   Map<String, dynamic> toJson() {
     return {
-      'fundTransactionId': goal,
+      'goal': goal,
       'targetAmount': targetAmount,
     };
   }
