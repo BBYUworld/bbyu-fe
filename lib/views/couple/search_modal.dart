@@ -70,7 +70,7 @@ class _SearchModalState extends State<SearchModal> {
   }
 
   Future<void> _selectUser(int userId) async {
-    final message = await userApiService.connectCouple(userId);
+    final message = await userApiService.sendConnectNotification(userId);
   }
 
   Future<void> _showConfirmationDialog(int userId) async {

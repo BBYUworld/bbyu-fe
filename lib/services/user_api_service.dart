@@ -57,7 +57,7 @@ class UserApiService {
     }
   }
 
-  Future<String> connectCouple(int receiverId)async {
+  Future<String> sendConnectNotification(int receiverId)async {
     final url = Uri.parse('$baseUrl/notify');
     final accessToken = await _tokenStorage.getAccessToken();
     final response = await http.post(
@@ -103,4 +103,112 @@ class UserApiService {
     }
   }
 
+  Future<String> deleteNotification(int notificationId) async{
+    final url = Uri.parse('$baseUrl/notify');
+    final accessToken = await _tokenStorage.getAccessToken();
+    final response = await http.delete(
+      url,
+      headers: {
+        'Content-Type' : 'application/json',
+        'Authorization' : '$accessToken'
+      }
+    );
+    if(response.statusCode == 200){
+      return "success";
+    }
+    else{
+      throw new Exception();
+    }
+  }
+  Future<String> updateNotification(int notificationId) async{
+    final url = Uri.parse('$baseUrl/notify');
+    final accessToken = await _tokenStorage.getAccessToken();
+    final response = await http.put(
+      url,
+      headers:{
+        'Content-Type' : 'application/json',
+        'Authorization' : '$accessToken'
+      }
+    );
+    if(response.statusCode == 200){
+      return "success";
+    }
+    else{
+      throw new Exception();
+    }
+  }
+  Future<int> createCoupleRequest(int senderId, int receiverId) async{
+    final url = Uri.parse('$baseUrl/api/couple/request');
+    final accessToken = await _tokenStorage.getAccessToken();
+    final response = await http.post(
+      url,
+      headers:{
+        'Content-Type' : 'application/json',
+        'Authorization' : '$accessToken'
+      },
+      body: jsonEncode({
+        'user1Id' : senderId.toString(),
+        'nickname' : '커플입니다',
+        'monthlyTargetAmount' : '0',
+      })
+    );
+    if (response.statusCode == 201) { // CREATED 상태 코드
+      // 응답 본문에서 coupleId를 추출합니다.
+      final coupleId = json.decode(response.body) as int;
+      return coupleId;
+    } else {
+      // 오류 처리
+      throw Exception('Failed to create couple request: ${response.statusCode}');
+    }
+  }
+
+  Future<int> getCoupleId(int senderId, int receiverId) async{
+    await createCoupleRequest(senderId, receiverId);
+    final url = Uri.parse('$baseUrl/api/couple/$senderId');
+    final accessToken = await _tokenStorage.getAccessToken();
+    final response = await http.get(
+        url,
+        headers:{
+          'Content-Type' : 'application/json',
+          'Authorization' : '$accessToken'
+        }
+    );
+    int coupleId = 0;
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> data = json.decode(response.body);
+      final coupleId = data['coupleId'] as int?;
+      print("coupleId = $coupleId");
+      if (coupleId != null) {
+        return coupleId;
+      } else {
+        throw Exception('Couple ID is null');
+      }
+    } else {
+      throw Exception('Failed to get couple ID: ${response.statusCode}');
+    }
+  }
+
+  Future<bool> connectCouple(int senderId, int receiverId) async{
+    int coupleId = await createCoupleRequest(senderId, receiverId);
+    final url = Uri.parse('$baseUrl/api/couple/connect/$coupleId');
+    final accessToken = await _tokenStorage.getAccessToken();
+    final response = await http.post(
+        url,
+        headers:{
+          'Content-Type' : 'application/json',
+          'Authorization' : '$accessToken'
+        },
+      body: jsonEncode({
+        'user2Id' : '$receiverId'
+      })
+    );
+
+    if(response.statusCode == 200){
+      return true;
+    }
+    else{
+      return false;
+    }
+  }
 }
