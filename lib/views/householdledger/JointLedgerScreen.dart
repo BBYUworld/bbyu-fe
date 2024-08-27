@@ -7,7 +7,12 @@ class JointLedgerScreen extends StatefulWidget {
   final Function(int year, int month) onMonthChanged;
   final CoupleExpense? coupleExpense;
   final Function(int year, int month) onRefresh;
-  JointLedgerScreen({required this.onMonthChanged, this.coupleExpense, required this.onRefresh});
+
+  JointLedgerScreen({
+    required this.onMonthChanged,
+    this.coupleExpense,
+    required this.onRefresh,
+  });
 
   @override
   _JointLedgerScreenState createState() => _JointLedgerScreenState();
@@ -16,6 +21,38 @@ class JointLedgerScreen extends StatefulWidget {
 class _JointLedgerScreenState extends State<JointLedgerScreen> {
   DateTime _focusedDay = DateTime.now();
   bool _isRefreshing = false;
+  Map<DateTime, int> _dailyTotalExpenses = {};
+
+  @override
+  void initState() {
+    super.initState();
+    widget.onMonthChanged(_focusedDay.year, _focusedDay.month);
+    _calculateDailyTotalExpenses();
+  }
+
+  @override
+  void didUpdateWidget(JointLedgerScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.coupleExpense != oldWidget.coupleExpense) {
+      _calculateDailyTotalExpenses();
+    }
+  }
+
+  void _calculateDailyTotalExpenses() {
+    _dailyTotalExpenses = {};
+    if (widget.coupleExpense != null) {
+      for (var expense in widget.coupleExpense!.expenses) {
+        final date = DateTime.parse(expense.date);
+        final normalizedDate = DateTime(date.year, date.month, date.day);
+        _dailyTotalExpenses[normalizedDate] =
+            (_dailyTotalExpenses[normalizedDate] ?? 0) + expense.totalAmount;
+
+        // 디버깅을 위해 출력
+        print("Date: $normalizedDate, Total: ${_dailyTotalExpenses[normalizedDate]}");
+      }
+    }
+    setState(() {});
+  }
 
   Future<void> _handleRefresh() async {
     if (!_isRefreshing) {
@@ -23,6 +60,7 @@ class _JointLedgerScreenState extends State<JointLedgerScreen> {
         _isRefreshing = true;
       });
       await widget.onRefresh(_focusedDay.year, _focusedDay.month);
+      _calculateDailyTotalExpenses();
       setState(() {
         _isRefreshing = false;
       });
@@ -32,7 +70,8 @@ class _JointLedgerScreenState extends State<JointLedgerScreen> {
   void _showDailyExpenseDetail(BuildContext context, DateTime date) {
     final expenses = widget.coupleExpense?.expenses
         .where((e) => isSameDay(DateTime.parse(e.date), date))
-        .toList() ?? [];
+        .toList() ??
+        [];
 
     showModalBottomSheet(
       context: context,
@@ -55,12 +94,6 @@ class _JointLedgerScreenState extends State<JointLedgerScreen> {
         );
       },
     );
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    widget.onMonthChanged(_focusedDay.year, _focusedDay.month);
   }
 
   @override
@@ -150,7 +183,8 @@ class _JointLedgerScreenState extends State<JointLedgerScreen> {
         headerStyle: HeaderStyle(
           formatButtonVisible: false,
           titleCentered: true,
-          titleTextFormatter: (date, locale) => '${date.year}년 ${date.month}월',
+          titleTextFormatter: (date, locale) =>
+          '${date.year}년 ${date.month}월',
           titleTextStyle: TextStyle(
             color: Colors.black,
             fontSize: 20,
@@ -174,10 +208,8 @@ class _JointLedgerScreenState extends State<JointLedgerScreen> {
         ),
         calendarBuilders: CalendarBuilders(
           defaultBuilder: (context, day, focusedDay) {
-            final expense = widget.coupleExpense?.expenses.firstWhere(
-                  (e) => isSameDay(DateTime.parse(e.date), day),
-              orElse: () => DailyExpense(coupleId: 0, date: '', totalAmount: 0),
-            );
+            final normalizedDay = DateTime(day.year, day.month, day.day);  // 시간 정보 제거
+            final dailyTotal = _dailyTotalExpenses[normalizedDay] ?? 0;
             return GestureDetector(
               onTap: () => _showDailyExpenseDetail(context, day),
               child: Container(
@@ -196,9 +228,9 @@ class _JointLedgerScreenState extends State<JointLedgerScreen> {
                             : Colors.black,
                       ),
                     ),
-                    if (expense?.totalAmount != 0)
+                    if (dailyTotal != 0)
                       Text(
-                        '-${expense!.totalAmount.abs()}',
+                        '-${dailyTotal.abs()}',
                         style: TextStyle(
                           color: Colors.red,
                           fontSize: 10,
@@ -216,6 +248,7 @@ class _JointLedgerScreenState extends State<JointLedgerScreen> {
 
   int _calculateTotalExpense() {
     return widget.coupleExpense?.expenses
-        .fold(0, (sum, e) => sum! + (e.totalAmount.abs())) ?? 0;
+        .fold(0, (sum, e) => sum! + (e.totalAmount.abs())) ??
+        0;
   }
 }

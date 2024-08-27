@@ -35,7 +35,7 @@ class _HouseholdLedgerScreenState extends State<HouseholdLedgerScreen> {
 
   Future<void> _fetchLedgerData() async {
     try {
-      final data = await _apiService.fetchUserAccountData();
+      final data = await _apiService.fetchCoupleAccountData();
       setState(() {
         userAccount = data;
         print("user Account List = $userAccount");
@@ -54,6 +54,7 @@ class _HouseholdLedgerScreenState extends State<HouseholdLedgerScreen> {
   Future<void> fetchCoupleExpense(int year, int month) async {
     try {
       final data = await _apiService.fetchCoupleExpense(year, month);
+      print("size = ${data.expenses.length}");
       setState(() {
         coupleExpense = data;
       });
@@ -113,9 +114,7 @@ class _HouseholdLedgerScreenState extends State<HouseholdLedgerScreen> {
   }
 
   Widget _buildBody() {
-    if (_currentPageIndex == 0) {
-      return PersonalLedgerScreen();
-    } else if (_currentPageIndex == 1 && coupleExpense != null) {
+    if (coupleExpense != null) {
       return Column(
         children: [
           Expanded(

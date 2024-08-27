@@ -40,6 +40,26 @@ class LedgerApiService {
     }
   }
 
+  Future<List<Account>> fetchCoupleAccountData() async{
+    final accessToken = await _tokenStorage.getAccessToken();
+    final response = await http.get(
+        Uri.parse('$baseUrl/user/couple/account'),
+        headers: {
+          'Content-Type' : 'application/json',
+          'Authorization' : '$accessToken'
+        }
+    );
+    if (response.statusCode == 200) {
+      final decodedResponse = utf8.decode(response.bodyBytes);
+      final List<dynamic> jsonData = json.decode(decodedResponse);
+      List<Account> accounts = jsonData.map((json) => Account.fromJson(json)).toList();
+      print('response Data = $jsonData');
+      return accounts;
+    } else {
+      throw Exception('Failed to load account data');
+    }
+  }
+
   Future<CoupleExpense> fetchCoupleExpense(int year, int month) async {
     final accessToken = await _tokenStorage.getAccessToken();
     print("fetch Couple Expense Access Token : $accessToken");

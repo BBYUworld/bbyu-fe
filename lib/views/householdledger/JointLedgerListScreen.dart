@@ -84,7 +84,7 @@ class _JointLedgerListScreenState extends State<JointLedgerListScreen> {
           child: SizedBox(
             height: constraints.maxHeight - 200, // Adjust this value as needed
             child: Center(
-              child: Text('지출 내역이 없습니다.'),
+              child: Text('현재 지출 내역이 없습니다.'),
             ),
           ),
         ),
