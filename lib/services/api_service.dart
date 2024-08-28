@@ -1,6 +1,7 @@
 import 'dart:ffi';
 
 import 'package:dio/dio.dart';
+import 'package:gagyebbyu_fe/models/couple/couple_response.dart';
 import 'package:gagyebbyu_fe/storage/TokenStorage.dart';
 import 'package:flutter/material.dart';
 import '../views/login/login_view.dart';
@@ -76,6 +77,32 @@ class ApiService {
     } catch (e) {
       print('Error fetching asset loans: $e');
       rethrow;
+    }
+  }
+
+  // couple 정보 가져오기
+  Future<CoupleResponse> findCouple() async {
+    try {
+      final accessToken = await _tokenStorage.getAccessToken();
+      _dio.options.headers['Authorization'] = 'Bearer $accessToken';
+
+      final response = await _dio.get('/api/couple');
+
+      if (response.statusCode == 200) {
+        if (response.data is Map<String, dynamic>) {
+          return CoupleResponse.fromJson(response.data);
+        } else {
+          throw Exception('Unexpected data format: ${response.data.runtimeType}');
+        }
+      } else {
+        throw Exception('Failed to load couple data: ${response.statusCode}');
+      }
+    } on DioError catch (e) {
+      print('Dio error: ${e.message}');
+      throw Exception('Network error: ${e.message}');
+    } catch (e) {
+      print('Error fetching couple data: $e');
+      throw Exception('Failed to fetch couple data: $e');
     }
   }
 
