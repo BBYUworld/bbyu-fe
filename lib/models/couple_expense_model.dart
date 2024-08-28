@@ -33,8 +33,8 @@ class CoupleExpense {
       totalAmount: json['totalAmount'] ?? 0,
       targetAmount: json['targetAmount'] ?? 0,
       amountDifference: json['amountDifference'] ?? 0,
-      category: json['category'],
-      totalAmountFromLastMonth: json['totalAmountFromLastMonth'],
+      category: json['category'] ?? '카테고리 없음',
+      totalAmountFromLastMonth: json['totalAmountFromLastMonth'] ?? 0,
       expenses: expenseObjects,
       dayExpenses: detailExpenseObjects,
     );
@@ -42,7 +42,7 @@ class CoupleExpense {
 
   @override
   String toString() {
-    return 'CoupleExpense(totalAmount: $totalAmount, targetAmount: $targetAmount, amountDifference: $amountDifference, expenses: ${expenses.map((e) => e.toString()).join(', ')}, detailExpenses: ${dayExpenses.map((e) => e.toString()).join(', ')})';
+    return 'CoupleExpense(totalAmount: $totalAmount, targetAmount: $targetAmount, amountDifference: $amountDifference, category: $category, totalAmountFromLastMonth: $totalAmountFromLastMonth, expenses: ${expenses.map((e) => e.toString()).join(', ')}, detailExpenses: ${dayExpenses.map((e) => e.toString()).join(', ')})';
   }
 }
 
@@ -95,57 +95,12 @@ class DailyDetailExpense {
       category: json['category'] ?? '',
       date: json['date'] != null ? DateTime.parse(json['date']) : DateTime.now(),
       memo: json['memo'] ?? '',
-      place: json['place'] ?? '장소없음',
+      place: json['place'] ?? '장소 없음',
     );
   }
 
   @override
   String toString() {
     return 'DailyDetailExpense(name: $name, amount: $amount, category: $category, date: $date, memo: $memo, place: $place)';
-  }
-}
-
-class ExpenseDay {
-  final String name;
-  final int amount;
-  final String category;
-  final DateTime date;
-  final String memo;
-  final String place;
-
-  ExpenseDay({
-    required this.name,
-    required this.amount,
-    required this.category,
-    required this.date,
-    required this.memo,
-    required this.place,
-  });
-
-  factory ExpenseDay.fromJson(Map<String, dynamic> json) {
-    return ExpenseDay(
-      name: json['name'] ?? '',
-      amount: json['amount'] ?? 0,
-      category: json['category'] ?? '',
-      date: json['date'] != null ? DateTime.parse(json['date']) : DateTime.now(),
-      memo: json['memo'] ?? '',
-      place: json['place'] ?? '장소없음',
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'name': name,
-      'amount': amount,
-      'category': category,
-      'date': date.toIso8601String(),
-      'memo': memo,
-      'place': place,
-    };
-  }
-
-  @override
-  String toString() {
-    return 'ExpenseDay(name: $name, amount: $amount, category: $category, date: $date, memo: $memo, place: $place)';
   }
 }

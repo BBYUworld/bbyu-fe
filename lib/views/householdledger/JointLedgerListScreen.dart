@@ -5,10 +5,16 @@ import 'package:intl/intl.dart';
 class JointLedgerListScreen extends StatefulWidget {
   final CoupleExpense? coupleExpense;
   final Future<void> Function(int year, int month) onRefresh;
+  final int currentYear;
+  final int currentMonth;
+  final void Function(int year, int month) onMonthChanged;
 
   JointLedgerListScreen({
     required this.coupleExpense,
     required this.onRefresh,
+    required this.currentYear,
+    required this.currentMonth,
+    required this.onMonthChanged,
   });
 
   @override
@@ -16,16 +22,36 @@ class JointLedgerListScreen extends StatefulWidget {
 }
 
 class _JointLedgerListScreenState extends State<JointLedgerListScreen> {
-  PageController _pageController = PageController(viewportFraction: 0.8);
-  int _currentPage = 0;
+  late int displayedYear;
+  late int displayedMonth;
+
+  @override
+  void initState() {
+    super.initState();
+    displayedYear = widget.currentYear;
+    displayedMonth = widget.currentMonth;
+  }
+
+  void _changeMonth(int increment) {
+    setState(() {
+      displayedMonth += increment;
+      if (displayedMonth > 12) {
+        displayedMonth = 1;
+        displayedYear++;
+      } else if (displayedMonth < 1) {
+        displayedMonth = 12;
+        displayedYear--;
+      }
+      widget.onMonthChanged(displayedYear, displayedMonth);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: RefreshIndicator(
         onRefresh: () async {
-          final now = DateTime.now();
-          await widget.onRefresh(now.year, now.month);
+          await widget.onRefresh(displayedYear, displayedMonth);
         },
         child: Column(
           children: [
@@ -47,17 +73,10 @@ class _JointLedgerListScreenState extends State<JointLedgerListScreen> {
           children: [
             IconButton(
               icon: Icon(Icons.arrow_back_ios),
-              onPressed: () {
-                if (_currentPage > 0) {
-                  _pageController.previousPage(
-                    duration: Duration(milliseconds: 300),
-                    curve: Curves.easeInOut,
-                  );
-                }
-              },
+              onPressed: () => _changeMonth(-1),
             ),
             Text(
-              '${DateFormat('MMMM').format(DateTime.now())}',
+              '${DateFormat('MMMM').format(DateTime(displayedYear, displayedMonth))}',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -65,24 +84,14 @@ class _JointLedgerListScreenState extends State<JointLedgerListScreen> {
             ),
             IconButton(
               icon: Icon(Icons.arrow_forward_ios),
-              onPressed: () {
-                _pageController.nextPage(
-                  duration: Duration(milliseconds: 300),
-                  curve: Curves.easeInOut,
-                );
-              },
+              onPressed: () => _changeMonth(1),
             ),
           ],
         ),
         Container(
           height: 150,
           child: PageView(
-            controller: _pageController,
-            onPageChanged: (index) {
-              setState(() {
-                _currentPage = index;
-              });
-            },
+            onPageChanged: (index) {},
             children: [
               _buildComparisonCard(),
               _buildSavingsCard(),
