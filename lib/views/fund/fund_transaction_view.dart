@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:gagyebbyu_fe/models/fund/fund_overview.dart';
 import 'package:gagyebbyu_fe/models/fund/fund_transaction.dart';
+import 'package:gagyebbyu_fe/views/fund/fund_charge_view.dart';
 import 'package:intl/intl.dart';
+import 'fund_emergency_withdrawal_view.dart';
 
 class FundTransactionView extends StatelessWidget {
   final List<FundTransaction> transactions;
@@ -18,7 +20,7 @@ class FundTransactionView extends StatelessWidget {
       ),
       body: Column(
         children: [
-          _buildHeader(fundOverview),
+          _buildHeader(context, fundOverview),
           Expanded(
             child: _buildTransactionList(),
           ),
@@ -27,7 +29,7 @@ class FundTransactionView extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader(FundOverview fundOverview) {
+  Widget _buildHeader(BuildContext context, FundOverview fundOverview) {
     return Container(
       color: Colors.pinkAccent,
       padding: EdgeInsets.all(20),
@@ -54,8 +56,8 @@ class FundTransactionView extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              _buildHeaderButton('충전하기'),
-              _buildHeaderButton('긴급출금'),
+              _buildHeaderButton(context, '충전하기'),
+              _buildHeaderButton(context, '긴급출금'),
             ],
           ),
         ],
@@ -63,9 +65,31 @@ class FundTransactionView extends StatelessWidget {
     );
   }
 
-  Widget _buildHeaderButton(String text) {
+  Widget _buildHeaderButton(BuildContext context, String text) {
     return ElevatedButton(
-      onPressed: () {},
+      onPressed: () async {
+        if (text == '충전하기') {
+          final result = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => FundChargeView(fundId: fundOverview.fundId),
+            ),
+          );
+          if(result == true) {
+            Navigator.of(context).pop(true);
+          }
+        } else if (text == '긴급출금') {
+          final result = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => FundEmergencyWithdrawalView(fundOverview: fundOverview),
+            ),
+          );
+          if (result == true) {
+            Navigator.of(context).pop(true);  // 이전 화면으로 돌아가면서 데이터를 갱신하도록 신호를 보냄
+          }
+        }
+      },
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.white,
         foregroundColor: Colors.pinkAccent,
@@ -79,7 +103,6 @@ class FundTransactionView extends StatelessWidget {
   }
 
   Widget _buildTransactionList() {
-
     return ListView.builder(
       itemCount: transactions.length,
       itemBuilder: (context, index) {

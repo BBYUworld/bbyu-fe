@@ -74,19 +74,21 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
     }
   }
 
-  void _navigateToProductDetail(BankProduct product) {
-    Navigator.of(context).push(
+  void _navigateToProductDetail(BankProduct product) async {
+    final result = await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => ProductDetailScreen(
           product: product,
-          onCreateAccount: () {
-            widget.onAccountCreated();
-            Navigator.of(context).popUntil((route) => route.isFirst);
-          },
+          onCreateAccount: widget.onAccountCreated,
           additionalInfo: widget.additionalInfo,
         ),
       ),
     );
+
+    if (result == true) {
+      // 계좌가 성공적으로 생성됨
+      Navigator.of(context).pop(true);  // CreateAccountScreen을 종료하고 true를 반환
+    }
   }
 
   @override

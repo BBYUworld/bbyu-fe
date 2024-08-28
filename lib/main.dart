@@ -3,16 +3,15 @@ import 'package:gagyebbyu_fe/views/asset/assetloan/LoanMainPage.dart';
 import 'package:provider/provider.dart';
 import 'app/app.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-
-// void main() {
-//   WebView.platform = AndroidWebView();
-//   runApp(
-//     ChangeNotifierProvider(
-//       create: (context) => LoanInfoTabPage(),
-//       child: MyApp(),
-//     ),
-//   );
-// }
+import 'storage/user_store.dart';
 void main() {
-  runApp(MyApp());
+  WebView.platform = AndroidWebView();
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => UserStore()),
+      ],
+      child: MyApp(),
+    ),
+  );
 }

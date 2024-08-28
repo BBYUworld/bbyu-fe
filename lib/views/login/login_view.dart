@@ -70,6 +70,7 @@ class _LoginViewState extends State<LoginView> {
         }
       } else {
         _showErrorDialog('로그인 실패. 다시 시도해주세요.');
+
         print('Login failed');
         print('Status code: ${response.statusCode}');
         print('Response body: ${response.body}');

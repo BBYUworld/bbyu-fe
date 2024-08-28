@@ -3,7 +3,7 @@ import 'package:intl/intl.dart';
 class Asset {
   final int assetId;
   final int userId;
-  final int coupleId;
+  final int? coupleId;
   final String type;
   final String bankName;
   final String bankCode;
