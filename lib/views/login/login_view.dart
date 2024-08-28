@@ -22,6 +22,7 @@ class _LoginViewState extends State<LoginView> {
 
   Future<void> _login() async {
     print("로그인 함수 호출");
+    // final url = Uri.parse('http://3.39.19.140:8080/user/login');
     final url = Uri.parse('http://10.0.2.2:8080/user/login');
     print("아이디 = "+_idController.text);
     print("비밀번호 = "+_passwordController.text);

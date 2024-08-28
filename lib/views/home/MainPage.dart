@@ -85,7 +85,9 @@ class _MainPageState extends State<MainPage> {
                     mainAxisSpacing: 16,
                     children: [
                       _buildMenuCard('뷰 펀딩', Icons.search, () {}),
-                      _buildMenuCard('뷰 상품 추천', Icons.message, () {}),
+                      _buildMenuCard('뷰 상품 추천', Icons.message, () {
+                        Navigator.pushNamed(context, '/asset');
+                      }),
                       _buildMenuCard('가계부', Icons.attach_money, () async {
                         await Navigator.push(
                           context,

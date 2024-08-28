@@ -46,7 +46,7 @@ class _LoanRecommendationPageState extends State<LoanRecommendationPage> {
                   ElevatedButton(
                     child: Text('대출 조회하기'),
                     onPressed: () {
-                      // 대출 조회 로직 구현
+                      Navigator.pushNamed(context, '/loading');
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blue,

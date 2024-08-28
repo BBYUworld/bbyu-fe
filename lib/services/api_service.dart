@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:dio/dio.dart';
 import 'package:gagyebbyu_fe/storage/TokenStorage.dart';
 import 'package:flutter/material.dart';
@@ -108,7 +110,21 @@ class ApiService {
     }
   }
 
-
+  //대출 총 남은 잔액 가져오는 api
+  Future<int> fetchSumRemainAmount() async {
+    try {
+      final response = await _dio.get('/api/asset-loans/sum-user');
+      if (response.statusCode == 200) {
+        // API가 단일 Long 값을 반환하므로, 직접 정수로 변환
+        return response.data as int;
+      } else {
+        throw Exception('Failed to load total remained amount');
+      }
+    } catch (e) {
+      print('Error fetching total remained amount: $e');
+      rethrow;
+    }
+  }
 }
 
 
