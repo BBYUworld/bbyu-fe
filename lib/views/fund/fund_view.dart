@@ -172,9 +172,23 @@ class _FundViewState extends State<FundView> {
                           '${fundOverview.goal}',
                           style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black87),
                         ),
-                        Text(
-                          '${coupleResponse.user1Name} 💙 ${coupleResponse.user2Name}',
-                          style: TextStyle(fontSize: 16, color: Colors.black54),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center, // 가운데 정렬
+                          children: [
+                            Text(
+                              '${coupleResponse.user1Name} ',
+                              style: TextStyle(fontSize: 16, color: Colors.black54),
+                            ),
+                            Image.asset(
+                              'assets/images/heart.png', // 이미지 경로
+                              width: 25, // 원하는 크기로 조정
+                              height: 25,
+                            ),
+                            Text(
+                              ' ${coupleResponse.user2Name}',
+                              style: TextStyle(fontSize: 16, color: Colors.black54),
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -218,6 +232,7 @@ class _FundViewState extends State<FundView> {
       },
       child: Card(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        color: Colors.pinkAccent[100],
         elevation: 4,
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -233,7 +248,12 @@ class _FundViewState extends State<FundView> {
                   ),
                   CircleAvatar(
                     radius: 20,
-                    backgroundImage: AssetImage('../../assets/images/heart.png'),
+                    child: Icon(
+                      Icons.attach_money, // 돈 아이콘
+                      size: 24, // 아이콘 크기
+                      color: Colors.pinkAccent[100], // 아이콘 색상
+                    ),
+                    backgroundColor: Colors.white, // 배경색
                   ),
                 ],
               ),
@@ -248,7 +268,7 @@ class _FundViewState extends State<FundView> {
                 value: progress,
                 minHeight: 12,
                 backgroundColor: Colors.grey[300],
-                color: Colors.blueAccent,
+                color: Colors.pink,
               ),
               SizedBox(height: 8),
               Text(
@@ -368,7 +388,7 @@ class _FundViewState extends State<FundView> {
                     LineChartBarData(
                       spots: _generateDataPoints(fundOverview, transactions),
                       isCurved: true,
-                      colors: [Colors.blueAccent],
+                      colors: [Colors.pinkAccent],
                       barWidth: 3,
                       dotData: FlDotData(show: true),
                       belowBarData: BarAreaData(show: false),
