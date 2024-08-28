@@ -78,4 +78,26 @@ class LedgerApiService {
       throw Exception('Failed to load couple expense data');
     }
   }
+
+  Future<void> fetchUpdateMemo(String memo, int expenseId) async {
+    final accessToken = await _tokenStorage.getAccessToken();
+    final body = jsonEncode({
+      'memo': memo,
+    });
+    print("fetch Couple Expense Access Token : $accessToken");
+    final response = await http.post(
+      Uri.parse('$baseUrl/api/expense/$expenseId'),
+      headers:{
+        'Content-Type' : 'application/json',
+        'Authorization' : '$accessToken'
+      },
+      body: body,
+    );
+    if (response.statusCode == 200) {
+      final decodedBody = utf8.decode(response.bodyBytes);
+      final jsonResponse = json.decode(decodedBody);
+    } else {
+      throw Exception('Failed to load couple expense data');
+    }
+  }
 }
