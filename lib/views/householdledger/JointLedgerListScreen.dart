@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gagyebbyu_fe/models/couple_expense_model.dart';
+import 'package:gagyebbyu_fe/widgets/expense/joint_ledger_header.dart';
 import 'package:intl/intl.dart';
 
 class JointLedgerListScreen extends StatefulWidget {
@@ -46,6 +47,10 @@ class _JointLedgerListScreenState extends State<JointLedgerListScreen> {
     });
   }
 
+  String _formatCurrency(int amount) {
+    return NumberFormat.currency(locale: 'ko_KR', symbol: '', decimalDigits: 0).format(amount);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -55,191 +60,14 @@ class _JointLedgerListScreenState extends State<JointLedgerListScreen> {
         },
         child: Column(
           children: [
-            _buildCarousel(),
+            JointLedgerHeader(
+              coupleExpense: widget.coupleExpense,
+              displayedYear: displayedYear,
+              displayedMonth: displayedMonth,
+              onMonthChanged: _changeMonth,
+            ),
             Expanded(
               child: _buildGroupedExpenseList(),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCarousel() {
-    return Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            IconButton(
-              icon: Icon(Icons.arrow_back_ios),
-              onPressed: () => _changeMonth(-1),
-            ),
-            Text(
-              '${DateFormat('MMMM').format(DateTime(displayedYear, displayedMonth))}',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            IconButton(
-              icon: Icon(Icons.arrow_forward_ios),
-              onPressed: () => _changeMonth(1),
-            ),
-          ],
-        ),
-        Container(
-          height: 150,
-          child: PageView(
-            onPageChanged: (index) {},
-            children: [
-              _buildComparisonCard(),
-              _buildSavingsCard(),
-              _buildCategoryCard(),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildComparisonCard() {
-    int expenseDifference = widget.coupleExpense?.totalAmountFromLastMonth ?? 0;
-    String expenseComparisonMessage;
-    Color comparisonColor;
-    if (expenseDifference > 0) {
-      expenseComparisonMessage = '저번달보다 ${expenseDifference.abs()}원 덜 썼어요.';
-      comparisonColor = Colors.green;
-    } else {
-      expenseComparisonMessage = '저번달보다 ${expenseDifference.abs()}원 더 썼어요.';
-      comparisonColor = Colors.red;
-    }
-
-    return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15),
-      ),
-      elevation: 4,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              '지난달보다',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Colors.grey[600],
-              ),
-            ),
-            SizedBox(height: 8),
-            Text(
-              expenseComparisonMessage,
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: comparisonColor,
-              ),
-            ),
-            Expanded(child: SizedBox()), // Spacer 대신 Expanded 사용
-            Text(
-              '더보기 >',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: Colors.blue,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSavingsCard() {
-    String savingsMessage;
-    if ((widget.coupleExpense?.amountDifference ?? 0) > 0) {
-      savingsMessage = '잘 절약하고 계시네요! 오늘은 배우자와 함께 맛있는 외식을 해보시는건 어떤가요?';
-    } else {
-      savingsMessage = '절약이 필요할 거 같아요! 오늘은 배우자와 함께 맛있는 집밥을 만들어 먹어봐요.';
-    }
-
-    return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15),
-      ),
-      elevation: 4,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              savingsMessage,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: (widget.coupleExpense?.amountDifference ?? 0) > 0 ? Colors.green : Colors.red,
-              ),
-            ),
-            Expanded(child: SizedBox()), // Spacer 대신 Expanded 사용
-            Text(
-              '더보기 >',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: Colors.blue,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCategoryCard() {
-    return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15),
-      ),
-      elevation: 4,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              '이번 달 최다 소비',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Colors.grey[600],
-              ),
-            ),
-            SizedBox(height: 8),
-            Row(
-              children: [
-                _getCategoryIcon(widget.coupleExpense?.category ?? ''),
-                SizedBox(width: 8),
-                Text(
-                  '${widget.coupleExpense?.category ?? '카테고리 없음'}',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.blue,
-                  ),
-                ),
-              ],
-            ),
-            Expanded(child: SizedBox()), // Spacer 대신 Expanded 사용
-            Text(
-              '더보기 >',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: Colors.blue,
-              ),
             ),
           ],
         ),
@@ -293,11 +121,11 @@ class _JointLedgerListScreenState extends State<JointLedgerListScreen> {
                   ),
                 ),
                 subtitle: Text(
-                  '${expense.place} - ${expense.memo}\n${expense.name}',
+                  '${expense.name}\n메모 - ${expense.memo}',
                   style: TextStyle(fontSize: 14), // 서브 타이틀 텍스트 크기
                 ),
                 trailing: Text(
-                  '-${expense.amount}원',
+                  '-${_formatCurrency(expense.amount)}원',
                   style: TextStyle(
                     color: Colors.black,
                     fontSize: 18, // 금액 텍스트 크기 키움
