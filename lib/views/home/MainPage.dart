@@ -84,10 +84,19 @@ class _MainPageState extends State<MainPage> {
                     crossAxisSpacing: 16,
                     mainAxisSpacing: 16,
                     children: [
-                      _buildMenuCard('뷰 펀딩', Icons.search),
-                      _buildMenuCard('뷰 상품 추천', Icons.message),
-                      _buildMenuCard('가계부', Icons.attach_money),
-                      _buildMenuCard('뷰 자산 리포트', Icons.description),
+                      _buildMenuCard('뷰 펀딩', Icons.search, () {}),
+                      _buildMenuCard('뷰 상품 추천', Icons.message, () {}),
+                      _buildMenuCard('가계부', Icons.attach_money, () async {
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => HouseholdLedgerScreen()),
+                        );
+                        _onFocusGained();
+                      }),
+                      _buildMenuCard('뷰 자산 리포트', Icons.description, () {}),
+                      _buildMenuCard('병주\'s 대출 페이지', Icons.description, () {
+                        Navigator.pushNamed(context, '/loan');
+                      }),
                     ],
                   ),
                 ),
@@ -163,20 +172,12 @@ class _MainPageState extends State<MainPage> {
     );
   }
 
-  Widget _buildMenuCard(String title, IconData icon) {
+  Widget _buildMenuCard(String title, IconData icon, VoidCallback onTap) {
     return AspectRatio(
       aspectRatio: 1.5,
       child: Card(
         child: InkWell(
-          onTap: () async {
-            if (title == '가계부') {
-              await Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => HouseholdLedgerScreen()),
-              );
-              _onFocusGained();
-            }
-          },
+          onTap: onTap,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [

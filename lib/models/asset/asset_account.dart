@@ -1,4 +1,5 @@
 import 'package:gagyebbyu_fe/models/asset/asset.dart';
+import 'package:intl/intl.dart';
 
 class AssetAccount extends Asset {
   final String accountNumber;
