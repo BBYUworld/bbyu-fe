@@ -3,19 +3,19 @@ class CoupleExpense {
   final int targetAmount;
   final int amountDifference;
   final List<DailyExpense> expenses;
-  final List<DailyDetailExpense> detailExpenses;
+  final List<DailyDetailExpense> dayExpenses;
 
   CoupleExpense({
     required this.totalAmount,
     required this.targetAmount,
     required this.amountDifference,
     required this.expenses,
-    required this.detailExpenses,
+    required this.dayExpenses,
   });
 
   factory CoupleExpense.fromJson(Map<String, dynamic> json) {
     var expenseList = (json['expenses'] as List?) ?? [];
-    var detailExpenseList = (json['detailExpenses'] as List?) ?? [];
+    var detailExpenseList = (json['dayExpenses'] as List?) ?? [];
 
     List<DailyExpense> expenseObjects = expenseList
         .map((expenseJson) => DailyExpense.fromJson(expenseJson))
@@ -30,13 +30,13 @@ class CoupleExpense {
       targetAmount: json['targetAmount'] ?? 0,
       amountDifference: json['amountDifference'] ?? 0,
       expenses: expenseObjects,
-      detailExpenses: detailExpenseObjects,
+      dayExpenses: detailExpenseObjects,
     );
   }
 
   @override
   String toString() {
-    return 'CoupleExpense(totalAmount: $totalAmount, targetAmount: $targetAmount, amountDifference: $amountDifference, expenses: ${expenses.map((e) => e.toString()).join(', ')}, detailExpenses: ${detailExpenses.map((e) => e.toString()).join(', ')})';
+    return 'CoupleExpense(totalAmount: $totalAmount, targetAmount: $targetAmount, amountDifference: $amountDifference, expenses: ${expenses.map((e) => e.toString()).join(', ')}, detailExpenses: ${dayExpenses.map((e) => e.toString()).join(', ')})';
   }
 }
 

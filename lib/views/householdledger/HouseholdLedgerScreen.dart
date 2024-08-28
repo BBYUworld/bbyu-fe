@@ -54,6 +54,9 @@ class _HouseholdLedgerScreenState extends State<HouseholdLedgerScreen> {
   Future<void> fetchCoupleExpense(int year, int month) async {
     try {
       final data = await _apiService.fetchCoupleExpense(year, month);
+      print(data);
+      print(data.dayExpenses);
+      print("@@@@@@@@@@@@");
       print("size = ${data.expenses.length}");
       setState(() {
         coupleExpense = data;

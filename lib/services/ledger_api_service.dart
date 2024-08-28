@@ -73,7 +73,6 @@ class LedgerApiService {
     if (response.statusCode == 200) {
       final decodedBody = utf8.decode(response.bodyBytes);
       final jsonResponse = json.decode(decodedBody);
-      print("json Response about expense = $jsonResponse");
       return CoupleExpense.fromJson(jsonResponse);
     } else {
       throw Exception('Failed to load couple expense data');

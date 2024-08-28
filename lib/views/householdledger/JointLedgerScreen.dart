@@ -73,7 +73,7 @@ class _JointLedgerScreenState extends State<JointLedgerScreen> {
         .toList() ??
         [];
 
-    final detailExpenses = widget.coupleExpense?.detailExpenses
+    final detailExpenses = widget.coupleExpense?.dayExpenses
         .where((e) => isSameDay(e.date, date))
         .toList() ??
         [];
