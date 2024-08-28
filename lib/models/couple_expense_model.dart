@@ -72,14 +72,16 @@ class DailyExpense {
 }
 
 class DailyDetailExpense {
+  final int expenseId;
   final String name;
   final int amount;
   final String category;
   final DateTime date;
-  final String memo;
+  late final String memo;
   final String place;
 
   DailyDetailExpense({
+    required this.expenseId,
     required this.name,
     required this.amount,
     required this.category,
@@ -90,6 +92,7 @@ class DailyDetailExpense {
 
   factory DailyDetailExpense.fromJson(Map<String, dynamic> json) {
     return DailyDetailExpense(
+      expenseId: json['expenseId'] ?? 0,
       name: json['name'] ?? '',
       amount: json['amount'] ?? 0,
       category: json['category'] ?? '',

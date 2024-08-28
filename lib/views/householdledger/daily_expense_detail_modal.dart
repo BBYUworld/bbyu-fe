@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gagyebbyu_fe/models/couple_expense_model.dart';
+import 'package:gagyebbyu_fe/services/ledger_api_service.dart';
 import 'package:intl/intl.dart';
 
 class DailyExpenseDetailModal extends StatelessWidget {
@@ -132,10 +133,10 @@ class DailyExpenseDetailModal extends StatelessWidget {
     return DateFormat('yyyy-MM-dd HH:mm').format(dateTime);
   }
 
-  void _editMemo(BuildContext context, DailyDetailExpense expense) {
+  Future<void> _editMemo(BuildContext context, DailyDetailExpense expense) async {
     TextEditingController controller = TextEditingController(text: expense.memo);
 
-    showDialog(
+    final result = await showDialog<String>(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
@@ -154,15 +155,32 @@ class DailyExpenseDetailModal extends StatelessWidget {
             TextButton(
               child: Text('저장'),
               onPressed: () {
-                // 메모 업데이트 로직을 추가하세요
-                // expense.memo = controller.text;
-                Navigator.of(context).pop();
+                Navigator.of(context).pop(controller.text);
               },
             ),
           ],
         );
       },
     );
+
+    if (result != null) {
+      // print('aaaa');
+      // print(result);
+      // print(expense.expenseId);
+      try {
+        print("하이");
+        // await _apiService.fetchUpdateMemo(result, expense.expenseId);
+        print("업데이트 메모 성공");
+        expense.memo = result; // Update the memo locally if API call succeeds
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('메모가 업데이트되었습니다.')),
+        );
+      } catch (error) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('메모 업데이트에 실패했습니다.')),
+        );
+      }
+    }
   }
 
   Icon _getCategoryIcon(String category) {
