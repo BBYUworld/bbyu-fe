@@ -56,7 +56,6 @@ class _HouseholdLedgerScreenState extends State<HouseholdLedgerScreen> {
       final data = await _apiService.fetchCoupleExpense(year, month);
       print(data);
       print(data.dayExpenses);
-      print("@@@@@@@@@@@@");
       print("size = ${data.expenses.length}");
       setState(() {
         coupleExpense = data;

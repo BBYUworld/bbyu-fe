@@ -1,7 +1,9 @@
 class CoupleExpense {
-  final int totalAmount;
-  final int targetAmount;
-  final int amountDifference;
+  final int totalAmount; //현재 이번달에 내가 쓴 금액
+  final int targetAmount; //내가 한 달에 쓰고자하는 목표 금액
+  final int amountDifference; // 월간 타겟 소비금액에서 얼만큼 덜 썼는지
+  final String category; //이번달에 내가 많이 쓴 카테고리
+  final int totalAmountFromLastMonth; //저번달보다 얼마 더 썼는지 (-면 더 저번달보다 많이 쓴것임)
   final List<DailyExpense> expenses;
   final List<DailyDetailExpense> dayExpenses;
 
@@ -9,6 +11,8 @@ class CoupleExpense {
     required this.totalAmount,
     required this.targetAmount,
     required this.amountDifference,
+    required this.category,
+    required this.totalAmountFromLastMonth,
     required this.expenses,
     required this.dayExpenses,
   });
@@ -29,6 +33,8 @@ class CoupleExpense {
       totalAmount: json['totalAmount'] ?? 0,
       targetAmount: json['targetAmount'] ?? 0,
       amountDifference: json['amountDifference'] ?? 0,
+      category: json['category'],
+      totalAmountFromLastMonth: json['totalAmountFromLastMonth'],
       expenses: expenseObjects,
       dayExpenses: detailExpenseObjects,
     );

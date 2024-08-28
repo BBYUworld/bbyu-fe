@@ -16,6 +16,9 @@ class JointLedgerListScreen extends StatefulWidget {
 }
 
 class _JointLedgerListScreenState extends State<JointLedgerListScreen> {
+  PageController _pageController = PageController(viewportFraction: 0.8);
+  int _currentPage = 0;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -26,7 +29,7 @@ class _JointLedgerListScreenState extends State<JointLedgerListScreen> {
         },
         child: Column(
           children: [
-            _buildAccountInfo(),
+            _buildCarousel(),
             Expanded(
               child: _buildGroupedExpenseList(),
             ),
@@ -36,79 +39,201 @@ class _JointLedgerListScreenState extends State<JointLedgerListScreen> {
     );
   }
 
-  Widget _buildAccountInfo() {
-    // 목표와 실제 지출 차이에 따른 메시지 생성
-    String differenceMessage;
-    Color differenceColor;
-    if (widget.coupleExpense!.amountDifference > 0) {
-      differenceMessage = '목표 소비량보다 ${widget.coupleExpense!.amountDifference}원 아끼고 있어요!';
-      differenceColor = Colors.green;
-    } else if (widget.coupleExpense!.amountDifference < 0) {
-      differenceMessage = '목표 소비량보다 ${widget.coupleExpense!.amountDifference.abs()}원 더 썼어요!';
-      differenceColor = Colors.red;
-    } else {
-      differenceMessage = '목표 소비량과 일치합니다!';
-      differenceColor = Colors.blue;
-    }
+  Widget _buildCarousel() {
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            IconButton(
+              icon: Icon(Icons.arrow_back_ios),
+              onPressed: () {
+                if (_currentPage > 0) {
+                  _pageController.previousPage(
+                    duration: Duration(milliseconds: 300),
+                    curve: Curves.easeInOut,
+                  );
+                }
+              },
+            ),
+            Text(
+              '${DateFormat('MMMM').format(DateTime.now())}',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            IconButton(
+              icon: Icon(Icons.arrow_forward_ios),
+              onPressed: () {
+                _pageController.nextPage(
+                  duration: Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                );
+              },
+            ),
+          ],
+        ),
+        Container(
+          height: 150,
+          child: PageView(
+            controller: _pageController,
+            onPageChanged: (index) {
+              setState(() {
+                _currentPage = index;
+              });
+            },
+            children: [
+              _buildComparisonCard(),
+              _buildSavingsCard(),
+              _buildCategoryCard(),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
 
-    // 저번달과의 비교를 위한 가상의 저번달 지출 금액
-    // 실제로는 이전 달 데이터를 받아와야 합니다.
-    int previousMonthExpense = 150000; // 예를 들어
-    int expenseDifference = previousMonthExpense - widget.coupleExpense!.totalAmount;
+  Widget _buildComparisonCard() {
+    int expenseDifference = widget.coupleExpense?.totalAmountFromLastMonth ?? 0;
     String expenseComparisonMessage;
+    Color comparisonColor;
     if (expenseDifference > 0) {
-      expenseComparisonMessage = '저번달보다 ${expenseDifference}원 덜 썼어요.';
-    } else if (expenseDifference < 0) {
-      expenseComparisonMessage = '저번달보다 ${expenseDifference.abs()}원 더 썼어요.';
+      expenseComparisonMessage = '저번달보다 ${expenseDifference.abs()}원 덜 썼어요.';
+      comparisonColor = Colors.green;
     } else {
-      expenseComparisonMessage = '저번달과 동일한 금액을 썼어요!';
+      expenseComparisonMessage = '저번달보다 ${expenseDifference.abs()}원 더 썼어요.';
+      comparisonColor = Colors.red;
     }
 
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // 월별 지출 금액
-          Text(
-            '${DateFormat('MMMM').format(DateTime.now())}월의 지출 금액',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
+    return Card(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(15),
+      ),
+      elevation: 4,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '지난달보다',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.grey[600],
+              ),
             ),
-          ),
-          SizedBox(height: 8),
-          // 이번 달 지출 금액
-          Text(
-            '${widget.coupleExpense?.totalAmount ?? 0}원',
-            style: TextStyle(
-              fontSize: 32,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
+            SizedBox(height: 8),
+            Text(
+              expenseComparisonMessage,
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: comparisonColor,
+              ),
             ),
-          ),
-          SizedBox(height: 16),
-          // 목표 소비량과의 비교 메시지
-          Text(
-            differenceMessage,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: differenceColor,
+            Expanded(child: SizedBox()), // Spacer 대신 Expanded 사용
+            Text(
+              '더보기 >',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                color: Colors.blue,
+              ),
             ),
-          ),
-          SizedBox(height: 8),
-          // 저번달과의 지출 비교 메시지
-          Text(
-            expenseComparisonMessage,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Colors.grey[600],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSavingsCard() {
+    String savingsMessage;
+    if ((widget.coupleExpense?.amountDifference ?? 0) > 0) {
+      savingsMessage = '잘 절약하고 계시네요! 오늘은 배우자와 함께 맛있는 외식을 해보시는건 어떤가요?';
+    } else {
+      savingsMessage = '절약이 필요할 거 같아요! 오늘은 배우자와 함께 맛있는 집밥을 만들어 먹어봐요.';
+    }
+
+    return Card(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(15),
+      ),
+      elevation: 4,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              savingsMessage,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: (widget.coupleExpense?.amountDifference ?? 0) > 0 ? Colors.green : Colors.red,
+              ),
             ),
-          ),
-        ],
+            Expanded(child: SizedBox()), // Spacer 대신 Expanded 사용
+            Text(
+              '더보기 >',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                color: Colors.blue,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCategoryCard() {
+    return Card(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(15),
+      ),
+      elevation: 4,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '이번 달 최다 소비',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.grey[600],
+              ),
+            ),
+            SizedBox(height: 8),
+            Row(
+              children: [
+                _getCategoryIcon(widget.coupleExpense?.category ?? ''),
+                SizedBox(width: 8),
+                Text(
+                  '${widget.coupleExpense?.category ?? '카테고리 없음'}',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blue,
+                  ),
+                ),
+              ],
+            ),
+            Expanded(child: SizedBox()), // Spacer 대신 Expanded 사용
+            Text(
+              '더보기 >',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                color: Colors.blue,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
