@@ -233,7 +233,7 @@ class _FundViewState extends State<FundView> {
                   ),
                   CircleAvatar(
                     radius: 20,
-                    backgroundImage: AssetImage('../../assets/images/heart.png'),
+                    backgroundImage: AssetImage('assets/images/heart.png'),
                   ),
                 ],
               ),
