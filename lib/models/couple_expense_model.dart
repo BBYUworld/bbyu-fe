@@ -3,30 +3,40 @@ class CoupleExpense {
   final int targetAmount;
   final int amountDifference;
   final List<DailyExpense> expenses;
+  final List<DailyDetailExpense> detailExpenses;
 
   CoupleExpense({
     required this.totalAmount,
     required this.targetAmount,
     required this.amountDifference,
     required this.expenses,
+    required this.detailExpenses,
   });
 
   factory CoupleExpense.fromJson(Map<String, dynamic> json) {
-    var expenseList = json['expenses'] as List;
+    var expenseList = (json['expenses'] as List?) ?? [];
+    var detailExpenseList = (json['detailExpenses'] as List?) ?? [];
+
     List<DailyExpense> expenseObjects = expenseList
         .map((expenseJson) => DailyExpense.fromJson(expenseJson))
         .toList();
 
+    List<DailyDetailExpense> detailExpenseObjects = detailExpenseList
+        .map((detailExpenseJson) => DailyDetailExpense.fromJson(detailExpenseJson))
+        .toList();
+
     return CoupleExpense(
-      totalAmount: json['totalAmount'],
-      targetAmount: json['targetAmount'],
-      amountDifference: json['amountDifference'],
+      totalAmount: json['totalAmount'] ?? 0,
+      targetAmount: json['targetAmount'] ?? 0,
+      amountDifference: json['amountDifference'] ?? 0,
       expenses: expenseObjects,
+      detailExpenses: detailExpenseObjects,
     );
   }
+
   @override
   String toString() {
-    return 'CoupleExpense(totalAmount: $totalAmount, targetAmount: $targetAmount, amountDifference: $amountDifference, expenses: ${expenses.map((e) => e.toString()).join(', ')})';
+    return 'CoupleExpense(totalAmount: $totalAmount, targetAmount: $targetAmount, amountDifference: $amountDifference, expenses: ${expenses.map((e) => e.toString()).join(', ')}, detailExpenses: ${detailExpenses.map((e) => e.toString()).join(', ')})';
   }
 }
 
@@ -49,16 +59,45 @@ class DailyExpense {
     );
   }
 
-  get description => null;
-
-  get category => null;
-  
   @override
   String toString() {
     return 'DailyExpense(coupleId: $coupleId, date: $date, totalAmount: $totalAmount)';
   }
 }
 
+class DailyDetailExpense {
+  final String name;
+  final int amount;
+  final String category;
+  final DateTime date;
+  final String memo;
+  final String place;
+
+  DailyDetailExpense({
+    required this.name,
+    required this.amount,
+    required this.category,
+    required this.date,
+    required this.memo,
+    required this.place,
+  });
+
+  factory DailyDetailExpense.fromJson(Map<String, dynamic> json) {
+    return DailyDetailExpense(
+      name: json['name'] ?? '',
+      amount: json['amount'] ?? 0,
+      category: json['category'] ?? '',
+      date: json['date'] != null ? DateTime.parse(json['date']) : DateTime.now(),
+      memo: json['memo'] ?? '',
+      place: json['place'] ?? '장소없음',
+    );
+  }
+
+  @override
+  String toString() {
+    return 'DailyDetailExpense(name: $name, amount: $amount, category: $category, date: $date, memo: $memo, place: $place)';
+  }
+}
 
 class ExpenseDay {
   final String name;
@@ -79,12 +118,12 @@ class ExpenseDay {
 
   factory ExpenseDay.fromJson(Map<String, dynamic> json) {
     return ExpenseDay(
-      name: json['name'],
-      amount: json['amount'],
-      category: json['category'],
-      date: DateTime.parse(json['date']),
-      memo: json['memo'],
-      place: json['place'],
+      name: json['name'] ?? '',
+      amount: json['amount'] ?? 0,
+      category: json['category'] ?? '',
+      date: json['date'] != null ? DateTime.parse(json['date']) : DateTime.now(),
+      memo: json['memo'] ?? '',
+      place: json['place'] ?? '장소없음',
     );
   }
 
@@ -97,5 +136,10 @@ class ExpenseDay {
       'memo': memo,
       'place': place,
     };
+  }
+
+  @override
+  String toString() {
+    return 'ExpenseDay(name: $name, amount: $amount, category: $category, date: $date, memo: $memo, place: $place)';
   }
 }

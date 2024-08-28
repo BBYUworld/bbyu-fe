@@ -73,6 +73,22 @@ class _JointLedgerScreenState extends State<JointLedgerScreen> {
         .toList() ??
         [];
 
+    final detailExpenses = widget.coupleExpense?.detailExpenses
+        .where((e) => isSameDay(e.date, date))
+        .toList() ??
+        [];
+
+    if (detailExpenses != null) {
+      print('Detail Expenses: $detailExpenses');
+      final filteredExpenses = detailExpenses
+          .where((e) => isSameDay(e.date, date))
+          .toList();
+      print('Filtered Detail Expenses for $date: $filteredExpenses');
+    } else {
+      print('Detail Expenses is null');
+    }
+
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -88,7 +104,7 @@ class _JointLedgerScreenState extends State<JointLedgerScreen> {
                 color: Colors.white,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
               ),
-              child: DailyExpenseDetailModal(date: date, expenses: expenses),
+              child: DailyExpenseDetailModal(date: date, expenses: detailExpenses),
             );
           },
         );

@@ -3,7 +3,7 @@ import 'package:gagyebbyu_fe/models/couple_expense_model.dart';
 
 class DailyExpenseDetailModal extends StatelessWidget {
   final DateTime date;
-  final List<DailyExpense> expenses;
+  final List<DailyDetailExpense> expenses;
 
   DailyExpenseDetailModal({required this.date, required this.expenses});
 
@@ -44,10 +44,10 @@ class DailyExpenseDetailModal extends StatelessWidget {
                     backgroundColor: Colors.grey[200],
                     child: Icon(Icons.store, color: Colors.black),
                   ),
-                  title: Text(expense.description ?? '설명 없음'),
+                  title: Text(expense.memo ?? '설명 없음'),
                   subtitle: Text(expense.category ?? '카테고리 없음'),
                   trailing: Text(
-                    '-${expense.totalAmount.abs()}원',
+                    '-${expense.amount.abs()}원',
                     style: TextStyle(color: Colors.red),
                   ),
                 );
@@ -65,6 +65,6 @@ class DailyExpenseDetailModal extends StatelessWidget {
   }
 
   int _calculateTotalExpense() {
-    return expenses.fold(0, (sum, expense) => sum + expense.totalAmount.abs());
+    return expenses.fold(0, (sum, expense) => sum + expense.amount.abs());
   }
 }
