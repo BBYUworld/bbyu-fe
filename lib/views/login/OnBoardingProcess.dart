@@ -4,7 +4,8 @@ import 'package:http/http.dart' as http;
 import './AccountLinkScreen.dart';
 import 'dart:convert';
 import 'package:gagyebbyu_fe/storage/TokenStorage.dart';
-
+import 'package:gagyebbyu_fe/views/home/MainPage.dart';
+import 'package:gagyebbyu_fe/views/account/CreateAccountScreen.dart';
 
 class OnboardingProcess extends StatefulWidget {
   final String email;
@@ -21,7 +22,25 @@ class _OnboardingProcessState extends State<OnboardingProcess> {
   bool _isAccountLinked = false;
   final TokenStorage _tokenStorage = TokenStorage();
 
+  void _navigateToCreateAccount() async {
+    final result = await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => CreateAccountScreen(
+          onAccountCreated: () {
+            // 이 콜백은 더 이상 필요하지 않을 수 있습니다.
+          },
+          additionalInfo: _additionalInfo,
+        ),
+      ),
+    );
 
+    if (result == true) {
+      // 계좌가 성공적으로 생성됨
+      setState(() {
+        _currentStep = 1;  // AccountLinkScreen을 다시 로드
+      });
+    }
+  }
   Future<void> _saveAccountToServer() async{
     print("additional Info = $_additionalInfo");
     print("selectedAccounts = $_selectedAccounts");
@@ -55,10 +74,14 @@ class _OnboardingProcessState extends State<OnboardingProcess> {
     );
 
     if(response.statusCode == 200){
-
+      _completeOnboarding();
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => MainPage()),
+      );
     }
     else{
-
+      print('Failed to save account info: ${response.statusCode}');
     }
 
   }
@@ -76,7 +99,6 @@ class _OnboardingProcessState extends State<OnboardingProcess> {
       print('Selected Accounts = $_selectedAccounts');
       _isAccountLinked = true;
     });
-    _completeOnboarding();
     _saveAccountToServer();
   }
 
@@ -130,9 +152,10 @@ class _OnboardingProcessState extends State<OnboardingProcess> {
       body: _currentStep == 0
           ? AdditionalInfoScreen(onComplete: _onAdditionalInfoComplete)
           : AccountLinkScreen(
-        key: ValueKey(_currentStep),
+        key: UniqueKey(),  // 이를 통해 AccountLinkScreen을 강제로 다시 로드
         onComplete: _onAccountLinked,
         additionalInfo: _additionalInfo,
+        onCreateAccount: _navigateToCreateAccount,  // 이 콜백을 추가
       ),
     );
   }

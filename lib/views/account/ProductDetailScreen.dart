@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:gagyebbyu_fe/storage/TokenStorage.dart';
 import 'package:gagyebbyu_fe/models/BankProduct.dart';
+import 'package:gagyebbyu_fe/views/login/AccountLinkScreen.dart';
 
 class ProductDetailScreen extends StatefulWidget {
   final BankProduct product;
@@ -69,7 +70,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             SnackBar(content: Text('계좌가 성공적으로 생성되었습니다.')),
           );
           widget.onCreateAccount();
-          Navigator.of(context).popUntil((route) => route.isFirst);
+          Navigator.of(context).pop(true);
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('계좌 생성에 실패했습니다. 다시 시도해주세요.')),
