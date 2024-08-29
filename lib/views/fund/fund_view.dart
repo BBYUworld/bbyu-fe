@@ -136,7 +136,7 @@ class _FundViewState extends State<FundView> {
           '펀드 관리',
           style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         ),
-        backgroundColor: Colors.pinkAccent,
+        backgroundColor: Color(0xFFFC8D94),
       ),
       body: FutureBuilder<Map<String, dynamic>>(
         future: _initialDataFuture,

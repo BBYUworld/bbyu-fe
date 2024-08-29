@@ -11,6 +11,7 @@ class EmergencyCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      color: Color(0xFFFFCDD0),
       elevation: 4,
       child: Padding(
         padding: const EdgeInsets.all(16.0),

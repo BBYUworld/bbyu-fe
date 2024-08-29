@@ -49,7 +49,7 @@ class _GoalCardState extends State<GoalCard> {
       },
       child: Card(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        color: Colors.pinkAccent[100],
+        color: Color(0xffffb6b6),
         elevation: 4,
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -68,7 +68,7 @@ class _GoalCardState extends State<GoalCard> {
                     child: Icon(
                       Icons.attach_money,
                       size: 24,
-                      color: Colors.pinkAccent[100],
+                      color: Color(0xffffdcd6),
                     ),
                     backgroundColor: Colors.white,
                   ),
@@ -81,7 +81,7 @@ class _GoalCardState extends State<GoalCard> {
                 value: progress,
                 minHeight: 12,
                 backgroundColor: Colors.grey[300],
-                color: Colors.pink,
+                color: Color(0xffff481f),
               ),
               SizedBox(height: 8),
               Text(
