@@ -199,9 +199,10 @@ class _MainPageState extends State<MainPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
+          contentPadding: EdgeInsets.zero,
           content: SizedBox(
-            width: MediaQuery.of(context).size.width * 0.7,
-            height: MediaQuery.of(context).size.height * 0.5,
+            width: MediaQuery.of(context).size.width * 0.8,
+            height: MediaQuery.of(context).size.height * 0.6,
             child: SearchModal(),
           ),
           shape: RoundedRectangleBorder(
