@@ -5,6 +5,7 @@ import 'package:gagyebbyu_fe/storage/TokenStorage.dart';
 import 'package:gagyebbyu_fe/models/BankProduct.dart';
 import 'package:gagyebbyu_fe/views/login/AccountLinkScreen.dart';
 
+
 class ProductDetailScreen extends StatefulWidget {
   final BankProduct product;
   final VoidCallback onCreateAccount;
@@ -49,7 +50,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
     if (confirm == true) {
       try {
-        final url = Uri.parse("http://10.0.2.2:8080/user/account");
+        final url = Uri.parse("http://3.39.19.140:8080/user/account");
         final accessToken = await _tokenStorage.getAccessToken();
         final response = await http.post(
           url,
