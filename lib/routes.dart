@@ -6,6 +6,6 @@ import 'package:gagyebbyu_fe/views/loan/loan_loading_screen.dart';
 
 final Map<String, WidgetBuilder> routes = {
   '/loan': (context) => LoanMainPage(),
-  '/asset': (context) => LoanOverviewPage(),
+  '/asset': (context) => AssetRecommendedPage(),
   '/loading': (context) => LoanLoadingScreen(),
 };

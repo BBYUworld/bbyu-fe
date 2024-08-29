@@ -1,6 +1,7 @@
 import 'dart:ffi';
 
 import 'package:dio/dio.dart';
+import 'package:gagyebbyu_fe/models/account/account_recommendation.dart';
 import 'package:gagyebbyu_fe/models/couple/couple_response.dart';
 import 'package:gagyebbyu_fe/storage/TokenStorage.dart';
 import 'package:flutter/material.dart';
@@ -20,8 +21,8 @@ class ApiService {
   ApiService._internal() : _navigationService = NavigationService() {
     _dio = Dio(BaseOptions(
       baseUrl: 'http://10.0.2.2:8080',
-      connectTimeout: Duration(seconds: 5),
-      receiveTimeout: Duration(seconds: 3),
+      connectTimeout: Duration(seconds: 15),
+      receiveTimeout: Duration(seconds: 15),
     ));
     _dio.interceptors.add(TokenInterceptor(_tokenStorage, _dio, _navigationService));
   }
@@ -121,22 +122,6 @@ class ApiService {
     }
   }
 
-  //recommand 하려고 만든건데 일단 전체 보여줌
-  Future<List<Loan>> fetchRecommendedLoans() async {
-    try {
-      final response = await _dio.get('/api/loans');
-      if (response.statusCode == 200) {
-        List<dynamic> loansJson = response.data;
-        return loansJson.map((json) => Loan.fromJson(json)).toList();
-      } else {
-        throw Exception('Failed to load recommended loans');
-      }
-    } catch (e) {
-      print('Error fetching recommended loans: $e');
-      rethrow;
-    }
-  }
-
   //대출 총 남은 잔액 가져오는 api
   Future<int> fetchSumRemainAmount() async {
     try {
@@ -177,6 +162,45 @@ class ApiService {
         List<dynamic> loansJson = response.data;
         print("-----loansJson loading is done!----");
         return loansJson.map((json) => AssetLoan.fromJson(json)).toList();
+      } else {
+        throw Exception('Failed to load recommended loans');
+      }
+    } catch (e) {
+      print('Error fetching recommended loans: $e');
+      rethrow;
+    }
+  }
+
+  // 커플 적금 추천을 위한 api
+  Future<AccountRecommendation> fetchAccountRecommendations() async {
+    try {
+      final depositResponse = await _dio.post('/api/recommend/deposit', data: {});
+      final savingsResponse = await _dio.post('/api/recommend/savings', data: {});
+
+      if (depositResponse.statusCode == 200 && savingsResponse.statusCode == 200) {
+        return AccountRecommendation(
+          depositAccounts: (depositResponse.data as List)
+              .map((item) => RecommendedAccount.fromJson(item as Map<String, dynamic>))
+              .toList(),
+          savingsAccounts: (savingsResponse.data as List)
+              .map((item) => RecommendedAccount.fromJson(item as Map<String, dynamic>))
+              .toList(),
+        );
+      } else {
+        throw Exception('Failed to load account recommendations');
+      }
+    } catch (e) {
+      print('Error fetching account recommendations: $e');
+      rethrow;
+    }
+  }
+  //recommand 하려고 만든건데 일단 전체 보여줌
+  Future<List<Loan>> fetchRecommendedLoans() async {
+    try {
+      final response = await _dio.post('/api/recommend/loan',data: {});
+      if (response.statusCode == 200) {
+        List<dynamic> loansJson = response.data;
+        return loansJson.map((json) => Loan.fromJson(json)).toList();
       } else {
         throw Exception('Failed to load recommended loans');
       }

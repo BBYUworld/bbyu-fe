@@ -17,32 +17,58 @@ class _LoanLoadingScreenState extends State<LoanLoadingScreen> {
   Timer? _textTimer;
   Timer? _progressTimer;
   late Future<List<Loan>> futureRecommendedLoans;
+  bool _isDataLoaded = false;
 
   @override
   void initState() {
     super.initState();
     _startTextRotation();
     _startProgressAnimation();
-    futureRecommendedLoans = ApiService().fetchRecommendedLoans();
+    _loadData();
+  }
+
+  void _loadData() async {
+    try {
+      final loans = await ApiService().fetchRecommendedLoans();
+      setState(() {
+        futureRecommendedLoans = Future.value(loans);
+        _isDataLoaded = true;
+      });
+    } catch (e) {
+      print('Error loading data: $e');
+      setState(() {
+        futureRecommendedLoans = Future.error(e);
+        _isDataLoaded = true;
+      });
+    }
   }
 
   void _startTextRotation() {
     _textTimer = Timer.periodic(Duration(seconds: 3), (timer) {
-      setState(() {
-        _currentTextIndex = (_currentTextIndex + 1) % _loadingTexts.length;
-      });
+      if (mounted) {
+        setState(() {
+          _currentTextIndex = (_currentTextIndex + 1) % _loadingTexts.length;
+        });
+      }
     });
   }
 
   void _startProgressAnimation() {
-    _progressTimer = Timer.periodic(Duration(milliseconds: 50), (timer) {
-      setState(() {
-        if (_progress < 1.0) {
-          _progress += 0.01;
-        } else {
-          _progressTimer?.cancel();
-        }
-      });
+    const totalDuration = Duration(seconds: 15);
+    const updateInterval = Duration(milliseconds: 100);
+    final stepValue = 1 / (totalDuration.inMilliseconds / updateInterval.inMilliseconds);
+
+    _progressTimer = Timer.periodic(updateInterval, (timer) {
+      if (mounted) {
+        setState(() {
+          if (_progress < 0.95) {  // 95%까지만 자동으로 증가
+            _progress += stepValue;
+          } else if (_isDataLoaded) {  // 데이터가 로드되면 100%로 설정
+            _progress = 1.0;
+            _progressTimer?.cancel();
+          }
+        });
+      }
     });
   }
 
@@ -66,20 +92,20 @@ class _LoanLoadingScreenState extends State<LoanLoadingScreen> {
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
-      body: FutureBuilder<List<Loan>>(
+      body: _isDataLoaded && _progress >= 1.0
+          ? FutureBuilder<List<Loan>>(
         future: futureRecommendedLoans,
         builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting || _progress < 1.0) {
-            return _buildLoadingView();
-          } else if (snapshot.hasError) {
+          if (snapshot.hasError) {
             return _buildErrorView(snapshot.error.toString());
-          } else if (snapshot.hasData && _progress >= 1.0) {
+          } else if (snapshot.hasData) {
             return _buildLoanListView(snapshot.data!);
           } else {
             return _buildEmptyView();
           }
         },
-      ),
+      )
+          : _buildLoadingView(),
     );
   }
 
