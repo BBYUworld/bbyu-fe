@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:gagyebbyu_fe/widgets/asset/assetloan/LoanComparisonCard.dart';
+import 'package:gagyebbyu_fe/widgets/asset/assetloan/loan_comparison_widget.dart';
 import '/models/loan/loan.dart';
 import '/services/api_service.dart';
 import 'package:intl/intl.dart';
@@ -12,24 +12,24 @@ class LoanLoadingScreen extends StatefulWidget {
 
 class _LoanLoadingScreenState extends State<LoanLoadingScreen> {
   double _progress = 0.0;
-  List<String> _images = ['image1.jpg', 'image2.jpg', 'image3.jpg'];
-  int _currentImageIndex = 0;
-  Timer? _imageTimer;
+  List<String> _loadingTexts = ['최적의 대출 상품을 찾고 있어요', '거의 다 왔어요!', '조금만 더 기다려주세요'];
+  int _currentTextIndex = 0;
+  Timer? _textTimer;
   Timer? _progressTimer;
   late Future<List<Loan>> futureRecommendedLoans;
 
   @override
   void initState() {
     super.initState();
-    _startImageRotation();
+    _startTextRotation();
     _startProgressAnimation();
     futureRecommendedLoans = ApiService().fetchRecommendedLoans();
   }
 
-  void _startImageRotation() {
-    _imageTimer = Timer.periodic(Duration(seconds: 3), (timer) {
+  void _startTextRotation() {
+    _textTimer = Timer.periodic(Duration(seconds: 3), (timer) {
       setState(() {
-        _currentImageIndex = (_currentImageIndex + 1) % _images.length;
+        _currentTextIndex = (_currentTextIndex + 1) % _loadingTexts.length;
       });
     });
   }
@@ -48,7 +48,7 @@ class _LoanLoadingScreenState extends State<LoanLoadingScreen> {
 
   @override
   void dispose() {
-    _imageTimer?.cancel();
+    _textTimer?.cancel();
     _progressTimer?.cancel();
     super.dispose();
   }
@@ -56,10 +56,13 @@ class _LoanLoadingScreenState extends State<LoanLoadingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text('대출받기'),
+        elevation: 0,
+        backgroundColor: Colors.white,
+        title: Text('대출받기', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
@@ -85,11 +88,20 @@ class _LoanLoadingScreenState extends State<LoanLoadingScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Image.asset('assets/loading/${_images[_currentImageIndex]}', height: 200),
+          CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF3182F6)),
+            strokeWidth: 5,
+          ),
+          SizedBox(height: 40),
+          Text(
+            _loadingTexts[_currentTextIndex],
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Colors.black87),
+          ),
           SizedBox(height: 20),
-          Text('화면을 나가지 않고 기다려주세요!'),
-          SizedBox(height: 20),
-          Text('${(_progress * 100).toInt()}%'),
+          Text(
+            '${(_progress * 100).toInt()}%',
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Color(0xFF3182F6)),
+          ),
         ],
       ),
     );
@@ -97,24 +109,55 @@ class _LoanLoadingScreenState extends State<LoanLoadingScreen> {
 
   Widget _buildErrorView(String error) {
     return Center(
-      child: Text('오류가 발생했습니다: $error', style: TextStyle(color: Colors.red)),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.error_outline, size: 60, color: Colors.red),
+          SizedBox(height: 20),
+          Text(
+            '오류가 발생했습니다',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87),
+          ),
+          SizedBox(height: 10),
+          Text(
+            error,
+            style: TextStyle(fontSize: 14, color: Colors.red),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
     );
   }
 
   Widget _buildEmptyView() {
     return Center(
-      child: Text('대출 정보가 없습니다.'),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.info_outline, size: 60, color: Color(0xFF3182F6)),
+          SizedBox(height: 20),
+          Text(
+            '대출 정보가 없습니다',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87),
+          ),
+        ],
+      ),
     );
   }
 
   Widget _buildLoanListView(List<Loan> loans) {
     return ListView(
+      padding: EdgeInsets.all(16),
       children: [
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Text('대출 순위 보기', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        Text(
+          '대출 순위 보기',
+          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.black87),
         ),
-        ...loans.map((loan) => LoanComparisonCard(loan: loan)).toList(),
+        SizedBox(height: 20),
+        ...loans.map((loan) => Padding(
+          padding: const EdgeInsets.only(bottom: 16),
+          child: LoanComparisonCard(loan: loan),
+        )).toList(),
       ],
     );
   }

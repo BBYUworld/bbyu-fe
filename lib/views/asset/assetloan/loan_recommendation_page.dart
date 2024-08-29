@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import '/services/api_service.dart';
 import '/models/loan/loan.dart';
 import '/widgets/asset/assetloan/RecommendedLoanCard.dart';
-import '/widgets/asset/assetloan/LoanComparisonCard.dart';
+import '/widgets/asset/assetloan/loan_comparison_widget.dart';
+import '/widgets/loan/loan_amount_widget.dart';
 
 class LoanRecommendationPage extends StatefulWidget {
   @override
@@ -11,6 +12,7 @@ class LoanRecommendationPage extends StatefulWidget {
 
 class _LoanRecommendationPageState extends State<LoanRecommendationPage> {
   late Future<List<Loan>> futureRecommendedLoans;
+  final TextEditingController _loanAmountController = TextEditingController();
 
   @override
   void initState() {
@@ -18,9 +20,20 @@ class _LoanRecommendationPageState extends State<LoanRecommendationPage> {
     futureRecommendedLoans = ApiService().fetchRecommendedLoans();
   }
 
+  void _onSubmitLoanAmount() {
+    String amount = _loanAmountController.text;
+    if (amount.isNotEmpty) {
+      Navigator.pushNamed(context, '/loading', arguments: amount);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('대출 금액을 입력해주세요.')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    print('recomand page build');
+    print('recommend page build');
     return FutureBuilder<List<Loan>>(
       future: futureRecommendedLoans,
       builder: (context, snapshot) {
@@ -40,18 +53,9 @@ class _LoanRecommendationPageState extends State<LoanRecommendationPage> {
                   SizedBox(height: 16),
                   RecommendedLoanCard(loan: loans.first),
                   SizedBox(height: 24),
-                  Text('대출 순위 보기', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  ...loans.map((loan) => LoanComparisonCard(loan: loan)).toList(),
-                  SizedBox(height: 24),
-                  ElevatedButton(
-                    child: Text('대출 조회하기'),
-                    onPressed: () {
-                      Navigator.pushNamed(context, '/loading');
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
-                      padding: EdgeInsets.symmetric(vertical: 16),
-                    ),
+                  LoanAmountInputWidget(
+                    controller: _loanAmountController,
+                    onSubmit: _onSubmitLoanAmount,
                   ),
                 ],
               ),
@@ -62,5 +66,11 @@ class _LoanRecommendationPageState extends State<LoanRecommendationPage> {
         }
       },
     );
+  }
+
+  @override
+  void dispose() {
+    _loanAmountController.dispose();
+    super.dispose();
   }
 }

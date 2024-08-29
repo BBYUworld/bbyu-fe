@@ -1,4 +1,4 @@
-// views/loan/CreditScorePage.dart
+// views/loan/credit_score_page.dart
 
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';

@@ -2,8 +2,8 @@ import 'dart:ffi';
 
 import 'package:flutter/material.dart';
 import 'package:gagyebbyu_fe/services/api_service.dart';
-import '../../../widgets/asset/assetloan/LoanBalanceCard.dart';
-import '../../../widgets/asset/assetloan/CardSelectionWidget.dart';
+import '../../../widgets/asset/assetloan/loan_balance_widget.dart';
+import '../../../widgets/asset/assetloan/card_recommendation_widget.dart';
 
 class LoanOverviewPage extends StatefulWidget {
   @override
@@ -23,7 +23,7 @@ class _LoanOverviewPageState extends State<LoanOverviewPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('부부를 위한 상품(평생워치)'),
+        title: Text('부부를 위한 상품 추천!'),
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
         elevation: 0,
@@ -53,7 +53,7 @@ class _LoanOverviewPageState extends State<LoanOverviewPage> {
                   ElevatedButton(
                     child: Text('내 대출 상황 보러가기'),
                     onPressed: () {
-                      // 내 대출 상황 페이지로 이동하는 로직
+                      Navigator.pushNamed(context, '/loan');
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blue,

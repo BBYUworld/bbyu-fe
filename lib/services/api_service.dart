@@ -152,6 +152,39 @@ class ApiService {
       rethrow;
     }
   }
+
+  //loan_info_page에서 사용하는 커플 정보
+  Future<CoupleResponse> fetchCoupleInfo() async {
+    try {
+      final response = await _dio.get('/api/couple/loan');
+      if (response.statusCode == 200) {
+        return CoupleResponse.fromJson(response.data);
+      } else {
+        throw Exception('Failed to load total remained amount');
+      }
+    } catch (e) {
+      print('Error fetching total remained amount: $e');
+      rethrow;
+    }
+  }
+
+
+  // 커플 대출 정보 출력
+  Future<List<AssetLoan>> fetchgetCoupleLoan() async {
+    try {
+      final response = await _dio.get('/api/asset-loans/couple');
+      if (response.statusCode == 200) {
+        List<dynamic> loansJson = response.data;
+        print("-----loansJson loading is done!----");
+        return loansJson.map((json) => AssetLoan.fromJson(json)).toList();
+      } else {
+        throw Exception('Failed to load recommended loans');
+      }
+    } catch (e) {
+      print('Error fetching recommended loans: $e');
+      rethrow;
+    }
+  }
 }
 
 
