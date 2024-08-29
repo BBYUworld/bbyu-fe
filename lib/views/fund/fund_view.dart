@@ -4,6 +4,8 @@ import 'package:gagyebbyu_fe/models/couple/couple_response.dart';
 import 'package:gagyebbyu_fe/models/fund/fund_transaction.dart';
 import 'package:gagyebbyu_fe/views/fund/fund_transaction_view.dart';
 import 'package:gagyebbyu_fe/views/fund/fund_create_view.dart';
+import 'package:gagyebbyu_fe/views/fund/fund_charge_view.dart';
+import 'package:gagyebbyu_fe/views/fund/fund_emergency_withdrawal_view.dart';
 import 'package:http/http.dart' as http;
 import 'package:gagyebbyu_fe/storage/TokenStorage.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -18,6 +20,7 @@ class FundView extends StatefulWidget {
 class _FundViewState extends State<FundView> {
   Future<Map<String, dynamic>>? _initialDataFuture;
   final TokenStorage _tokenStorage = TokenStorage();
+  bool _isHovered = false;  // 호버 상태를 관리하기 위한 변수
 
   @override
   void initState() {
@@ -258,10 +261,6 @@ class _FundViewState extends State<FundView> {
                 ],
               ),
               SizedBox(height: 12),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              ),
-              SizedBox(height: 0),
               Text('${_formatCurrency(fundOverview.currentAmount)} / ${_formatCurrency(fundOverview.targetAmount)}', style: TextStyle(fontSize: 20)),
               SizedBox(height: 16),
               LinearProgressIndicator(
@@ -274,6 +273,65 @@ class _FundViewState extends State<FundView> {
               Text(
                 '달성률: ${(progress * 100).toStringAsFixed(2)}%',
                 style: TextStyle(fontSize: 14, color: Colors.grey[700]),
+              ),
+              SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  MouseRegion(
+                    onEnter: (_) {
+                      setState(() {
+                        _isHovered = true;
+                      });
+                    },
+                    onExit: (_) {
+                      setState(() {
+                        _isHovered = false;
+                      });
+                    },
+                    child: Transform.scale(
+                      scale: _isHovered ? 1.05 : 1.0, // 호버 시 살짝 커짐
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => FundChargeView(fundId: fundOverview.fundId), // 충전하기 화면으로 이동
+                            ),
+                          ).then((_) {
+                            _reloadData();
+                          });
+                        },
+                        child: Text('충전하기'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blue, // 버튼 배경색
+                          foregroundColor: Colors.white, // 버튼 텍스트 색상
+                          padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+                          textStyle: TextStyle(fontSize: 16),
+                        ),
+                      ),
+                    ),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => FundEmergencyWithdrawalView(fundOverview: fundOverview), // 긴급 출금 화면으로 이동
+                        ),
+                      ).then((_) {
+                        _reloadData();
+                      });
+                    },
+                    child: Text('긴급 출금'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.redAccent,
+                      foregroundColor: Colors.white,
+                      padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+                      textStyle: TextStyle(fontSize: 16),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
