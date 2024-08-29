@@ -73,6 +73,15 @@ class _JointLedgerScreenState extends State<JointLedgerScreen> {
         .where((e) => isSameDay(DateTime.parse(e.date), date))
         .toList() ?? [];
 
+    final coupleExpense = widget.coupleExpense;
+    if (coupleExpense == null) {
+      // Optionally show a message or handle the null case
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('No expense data available')),
+      );
+      return;
+    }
+
     final detailExpenses = widget.coupleExpense?.dayExpenses
         .where((e) => isSameDay(e.date, date))
         .toList() ?? [];
@@ -94,7 +103,7 @@ class _JointLedgerScreenState extends State<JointLedgerScreen> {
               ),
               child: DailyExpenseDetailModal(
                 date: date,
-                expenses: detailExpenses,
+                coupleExpense: coupleExpense,
                 apiService: apiService,
               ),
             );

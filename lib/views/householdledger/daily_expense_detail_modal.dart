@@ -4,12 +4,12 @@ import 'package:gagyebbyu_fe/services/ledger_api_service.dart';
 
 class DailyExpenseDetailModal extends StatefulWidget {
   final DateTime date;
-  final List<DailyDetailExpense> expenses;
+  final CoupleExpense coupleExpense; // coupleExpense를 사용하도록 변경
   final LedgerApiService apiService;
 
   DailyExpenseDetailModal({
     required this.date,
-    required this.expenses,
+    required this.coupleExpense, // CoupleExpense로 변경
     required this.apiService,
   });
 
@@ -18,9 +18,13 @@ class DailyExpenseDetailModal extends StatefulWidget {
 }
 
 class _DailyExpenseDetailModalState extends State<DailyExpenseDetailModal> {
-
   @override
   Widget build(BuildContext context) {
+    // Filter expenses for the selected date
+    final filteredExpenses = widget.coupleExpense.dayExpenses
+        .where((expense) => isSameDay(expense.date, widget.date))
+        .toList();
+
     return Container(
       padding: EdgeInsets.all(16),
       child: Column(
@@ -42,15 +46,15 @@ class _DailyExpenseDetailModalState extends State<DailyExpenseDetailModal> {
           ),
           SizedBox(height: 8),
           Text(
-            '총 ${widget.expenses.length}건 -${_calculateTotalExpense()}원',
+            '총 ${filteredExpenses.length}건 -${_calculateTotalExpense(filteredExpenses)}원',
             style: TextStyle(fontSize: 16, color: Colors.red),
           ),
           SizedBox(height: 16),
           Expanded(
             child: ListView.builder(
-              itemCount: widget.expenses.length,
+              itemCount: filteredExpenses.length,
               itemBuilder: (context, index) {
-                final expense = widget.expenses[index];
+                final expense = filteredExpenses[index];
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8.0),
                   child: Row(
@@ -130,13 +134,20 @@ class _DailyExpenseDetailModalState extends State<DailyExpenseDetailModal> {
     );
   }
 
+  // Helper method to check if two dates are the same day
+  bool isSameDay(DateTime date1, DateTime date2) {
+    return date1.year == date2.year &&
+        date1.month == date2.month &&
+        date1.day == date2.day;
+  }
+
   String _getWeekdayName(int weekday) {
     const weekdays = ['월', '화', '수', '목', '금', '토', '일'];
     return weekdays[weekday - 1];
   }
 
-  int _calculateTotalExpense() {
-    return widget.expenses.fold(0, (sum, expense) => sum + expense.amount.abs());
+  int _calculateTotalExpense(List<DailyDetailExpense> expenses) {
+    return expenses.fold(0, (sum, expense) => sum + expense.amount.abs());
   }
 
   Future<void> _editMemo(BuildContext context, DailyDetailExpense expense) async {
@@ -173,7 +184,7 @@ class _DailyExpenseDetailModalState extends State<DailyExpenseDetailModal> {
       try {
         await widget.apiService.fetchUpdateMemo(result, expense.expenseId);
         setState(() {
-          expense.memo = result; // Update the memo locally if API call succeeds
+          expense.memo = result;
         });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('메모가 업데이트되었습니다.')),

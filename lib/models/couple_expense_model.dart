@@ -102,6 +102,26 @@ class DailyDetailExpense {
     );
   }
 
+  DailyDetailExpense copyWith({
+    int? expenseId,
+    String? name,
+    int? amount,
+    String? category,
+    DateTime? date,
+    String? memo,
+    String? place,
+  }) {
+    return DailyDetailExpense(
+      expenseId: expenseId ?? this.expenseId,
+      name: name ?? this.name,
+      amount: amount ?? this.amount,
+      category: category ?? this.category,
+      date: date ?? this.date,
+      memo: memo ?? this.memo,
+      place: place ?? this.place,
+    );
+  }
+
   @override
   String toString() {
     return 'DailyDetailExpense(name: $name, amount: $amount, category: $category, date: $date, memo: $memo, place: $place)';
