@@ -1,13 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:gagyebbyu_fe/models/couple_expense_model.dart';
 import 'package:gagyebbyu_fe/services/ledger_api_service.dart';
-import 'package:intl/intl.dart';
 
-class DailyExpenseDetailModal extends StatelessWidget {
+class DailyExpenseDetailModal extends StatefulWidget {
   final DateTime date;
   final List<DailyDetailExpense> expenses;
+  final LedgerApiService apiService;
 
-  DailyExpenseDetailModal({required this.date, required this.expenses});
+  DailyExpenseDetailModal({
+    required this.date,
+    required this.expenses,
+    required this.apiService,
+  });
+
+  @override
+  _DailyExpenseDetailModalState createState() => _DailyExpenseDetailModalState();
+}
+
+class _DailyExpenseDetailModalState extends State<DailyExpenseDetailModal> {
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +31,7 @@ class DailyExpenseDetailModal extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                '${date.month}월 ${date.day}일 ${_getWeekdayName(date.weekday)}',
+                '${widget.date.month}월 ${widget.date.day}일 ${_getWeekdayName(widget.date.weekday)}',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               IconButton(
@@ -32,15 +42,15 @@ class DailyExpenseDetailModal extends StatelessWidget {
           ),
           SizedBox(height: 8),
           Text(
-            '총 ${expenses.length}건 -${_calculateTotalExpense()}원',
+            '총 ${widget.expenses.length}건 -${_calculateTotalExpense()}원',
             style: TextStyle(fontSize: 16, color: Colors.red),
           ),
           SizedBox(height: 16),
           Expanded(
             child: ListView.builder(
-              itemCount: expenses.length,
+              itemCount: widget.expenses.length,
               itemBuilder: (context, index) {
-                final expense = expenses[index];
+                final expense = widget.expenses[index];
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8.0),
                   child: Row(
@@ -126,11 +136,7 @@ class DailyExpenseDetailModal extends StatelessWidget {
   }
 
   int _calculateTotalExpense() {
-    return expenses.fold(0, (sum, expense) => sum + expense.amount.abs());
-  }
-
-  String _formatDateTime(DateTime dateTime) {
-    return DateFormat('yyyy-MM-dd HH:mm').format(dateTime);
+    return widget.expenses.fold(0, (sum, expense) => sum + expense.amount.abs());
   }
 
   Future<void> _editMemo(BuildContext context, DailyDetailExpense expense) async {
@@ -164,14 +170,11 @@ class DailyExpenseDetailModal extends StatelessWidget {
     );
 
     if (result != null) {
-      // print('aaaa');
-      // print(result);
-      // print(expense.expenseId);
       try {
-        print("하이");
-        // await _apiService.fetchUpdateMemo(result, expense.expenseId);
-        print("업데이트 메모 성공");
-        expense.memo = result; // Update the memo locally if API call succeeds
+        await widget.apiService.fetchUpdateMemo(result, expense.expenseId);
+        setState(() {
+          expense.memo = result; // Update the memo locally if API call succeeds
+        });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('메모가 업데이트되었습니다.')),
         );

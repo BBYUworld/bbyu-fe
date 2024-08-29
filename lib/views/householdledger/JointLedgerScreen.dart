@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:gagyebbyu_fe/services/ledger_api_service.dart'; // Ensure you have this import
 import 'package:table_calendar/table_calendar.dart';
 import 'package:gagyebbyu_fe/models/couple_expense_model.dart';
 import 'package:gagyebbyu_fe/views/householdledger/daily_expense_detail_modal.dart';
-import 'package:gagyebbyu_fe/widgets/expense/joint_ledger_header.dart'; // JointLedgerHeader import
+import 'package:gagyebbyu_fe/widgets/expense/joint_ledger_header.dart';
 
 class JointLedgerScreen extends StatefulWidget {
   final Function(int year, int month) onMonthChanged;
   final CoupleExpense? coupleExpense;
   final Function(int year, int month) onRefresh;
+  final LedgerApiService apiService;
 
   JointLedgerScreen({
     required this.onMonthChanged,
     this.coupleExpense,
     required this.onRefresh,
+    required this.apiService,
   });
 
   @override
@@ -65,7 +68,7 @@ class _JointLedgerScreenState extends State<JointLedgerScreen> {
     }
   }
 
-  void _showDailyExpenseDetail(BuildContext context, DateTime date) {
+  void _showDailyExpenseDetail(BuildContext context, DateTime date, LedgerApiService apiService) {
     final expenses = widget.coupleExpense?.expenses
         .where((e) => isSameDay(DateTime.parse(e.date), date))
         .toList() ?? [];
@@ -89,7 +92,11 @@ class _JointLedgerScreenState extends State<JointLedgerScreen> {
                 color: Colors.white,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
               ),
-              child: DailyExpenseDetailModal(date: date, expenses: detailExpenses),
+              child: DailyExpenseDetailModal(
+                date: date,
+                expenses: detailExpenses,
+                apiService: apiService,
+              ),
             );
           },
         );
@@ -174,7 +181,7 @@ class _JointLedgerScreenState extends State<JointLedgerScreen> {
             final normalizedDay = DateTime(day.year, day.month, day.day);  // 시간 정보 제거
             final dailyTotal = _dailyTotalExpenses[normalizedDay] ?? 0;
             return GestureDetector(
-              onTap: () => _showDailyExpenseDetail(context, day),
+              onTap: () => _showDailyExpenseDetail(context, day, widget.apiService), // Pass apiService here
               child: Container(
                 margin: const EdgeInsets.all(4.0),
                 alignment: Alignment.topCenter,
