@@ -8,10 +8,10 @@ import 'package:gagyebbyu_fe/widgets/fund/goal_card.dart';
 import 'package:gagyebbyu_fe/widgets/fund/emergency_card.dart';
 import 'package:gagyebbyu_fe/widgets/fund/loan_card.dart';
 import 'package:gagyebbyu_fe/views/fund/fund_create_view.dart';
+import 'package:gagyebbyu_fe/views/home/Fotter.dart';
 import 'package:http/http.dart' as http;
 import 'package:gagyebbyu_fe/storage/TokenStorage.dart';
 import 'dart:convert';
-
 class FundView extends StatefulWidget {
   @override
   _FundViewState createState() => _FundViewState();
@@ -20,6 +20,7 @@ class FundView extends StatefulWidget {
 class _FundViewState extends State<FundView> {
   Future<Map<String, dynamic>>? _initialDataFuture;
   final TokenStorage _tokenStorage = TokenStorage();
+  int _selectedIndex = 3; // '펀딩' 탭의 인덱스
 
   @override
   void initState() {
@@ -128,6 +129,12 @@ class _FundViewState extends State<FundView> {
     });
   }
 
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -209,6 +216,10 @@ class _FundViewState extends State<FundView> {
             return Center(child: Text('표시할 데이터가 없습니다.'));
           }
         },
+      ),
+      bottomNavigationBar: CustomFooter(
+        selectedIndex: _selectedIndex,
+        onItemTapped: _onItemTapped,
       ),
     );
   }
