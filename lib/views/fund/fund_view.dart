@@ -1,15 +1,17 @@
+// fund_view.dart
 import 'package:flutter/material.dart';
 import 'package:gagyebbyu_fe/models/fund/fund_overview.dart';
 import 'package:gagyebbyu_fe/models/couple/couple_response.dart';
 import 'package:gagyebbyu_fe/models/fund/fund_transaction.dart';
-import 'package:gagyebbyu_fe/views/fund/fund_transaction_view.dart';
+import 'package:gagyebbyu_fe/widgets/fund/transaction_chart.dart';
+import 'package:gagyebbyu_fe/widgets/fund/goal_card.dart';
+import 'package:gagyebbyu_fe/widgets/fund/emergency_card.dart';
+import 'package:gagyebbyu_fe/widgets/fund/loan_card.dart';
 import 'package:gagyebbyu_fe/views/fund/fund_create_view.dart';
+import 'package:gagyebbyu_fe/views/home/Fotter.dart';
 import 'package:http/http.dart' as http;
 import 'package:gagyebbyu_fe/storage/TokenStorage.dart';
-import 'package:fl_chart/fl_chart.dart';
-import 'package:intl/intl.dart';
 import 'dart:convert';
-
 class FundView extends StatefulWidget {
   @override
   _FundViewState createState() => _FundViewState();
@@ -18,6 +20,7 @@ class FundView extends StatefulWidget {
 class _FundViewState extends State<FundView> {
   Future<Map<String, dynamic>>? _initialDataFuture;
   final TokenStorage _tokenStorage = TokenStorage();
+  int _selectedIndex = 3; // '펀딩' 탭의 인덱스
 
   @override
   void initState() {
@@ -126,6 +129,12 @@ class _FundViewState extends State<FundView> {
     });
   }
 
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -134,7 +143,7 @@ class _FundViewState extends State<FundView> {
           '펀드 관리',
           style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         ),
-        backgroundColor: Colors.pinkAccent,
+        backgroundColor: Color(0xFFFC8D94),
       ),
       body: FutureBuilder<Map<String, dynamic>>(
         future: _initialDataFuture,
@@ -142,14 +151,13 @@ class _FundViewState extends State<FundView> {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
-            // Navigate to FundCreateView if there is an error
             WidgetsBinding.instance.addPostFrameCallback((_) {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(builder: (context) => FundCreateView()),
               );
             });
-            return SizedBox.shrink(); // Return an empty widget until navigation completes
+            return SizedBox.shrink();
           } else if (snapshot.hasData) {
             final coupleResponse = snapshot.data!['coupleResponse'] as CoupleResponse;
             final fundOverview = snapshot.data!['fundOverview'] as FundOverview;
@@ -167,21 +175,21 @@ class _FundViewState extends State<FundView> {
                           '${coupleResponse.nickname} 펀딩',
                           style: TextStyle(fontSize: 17, fontWeight: FontWeight.normal, color: Colors.black54),
                         ),
-                        SizedBox(height: 0), // 두 텍스트 사이의 간격
+                        SizedBox(height: 0),
                         Text(
                           '${fundOverview.goal}',
                           style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black87),
                         ),
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.center, // 가운데 정렬
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
                               '${coupleResponse.user1Name} ',
                               style: TextStyle(fontSize: 16, color: Colors.black54),
                             ),
                             Image.asset(
-                              'assets/images/heart.png', // 이미지 경로
-                              width: 25, // 원하는 크기로 조정
+                              'assets/images/heart.png',
+                              width: 25,
                               height: 25,
                             ),
                             Text(
@@ -194,13 +202,13 @@ class _FundViewState extends State<FundView> {
                     ),
                   ),
                   SizedBox(height: 16),
-                  _buildGoalCard(fundOverview, coupleResponse, fundTransactions),
+                  GoalCard(fundOverview: fundOverview, coupleResponse: coupleResponse, fundTransactions: fundTransactions, reloadData: _reloadData),
                   SizedBox(height: 16),
-                  _buildLoanCard(),
+                  LoanCard(),
                   SizedBox(height: 16),
-                  _buildEmergencyCard(fundOverview),
+                  EmergencyCard(fundOverview: fundOverview),
                   SizedBox(height: 16),
-                  _buildTransactionChart(fundOverview, fundTransactions),
+                  TransactionChart(fundOverview: fundOverview, fundTransactions: fundTransactions),
                 ],
               ),
             );
@@ -209,264 +217,10 @@ class _FundViewState extends State<FundView> {
           }
         },
       ),
-    );
-  }
-
-  Widget _buildGoalCard(FundOverview fundOverview, CoupleResponse coupleResponse, List<FundTransaction> fundTransactions) {
-    double progress = (fundOverview.currentAmount / fundOverview.targetAmount).clamp(0, 1);
-
-    return InkWell(
-      onTap: () async {
-        final result = await Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => FundTransactionView(
-              transactions: fundTransactions,
-              fundOverview: fundOverview,
-            ),
-          ),
-        );
-        if (result == true) {
-          _reloadData();
-        }
-      },
-      child: Card(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        color: Colors.pinkAccent[100],
-        elevation: 4,
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    '현재 모은 돈',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                  CircleAvatar(
-                    radius: 20,
-                    child: Icon(
-                      Icons.attach_money, // 돈 아이콘
-                      size: 24, // 아이콘 크기
-                      color: Colors.pinkAccent[100], // 아이콘 색상
-                    ),
-                    backgroundColor: Colors.white, // 배경색
-                  ),
-                ],
-              ),
-              SizedBox(height: 12),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              ),
-              SizedBox(height: 0),
-              Text('${_formatCurrency(fundOverview.currentAmount)} / ${_formatCurrency(fundOverview.targetAmount)}', style: TextStyle(fontSize: 20)),
-              SizedBox(height: 16),
-              LinearProgressIndicator(
-                value: progress,
-                minHeight: 12,
-                backgroundColor: Colors.grey[300],
-                color: Colors.pink,
-              ),
-              SizedBox(height: 8),
-              Text(
-                '달성률: ${(progress * 100).toStringAsFixed(2)}%',
-                style: TextStyle(fontSize: 14, color: Colors.grey[700]),
-              ),
-            ],
-          ),
-        ),
+      bottomNavigationBar: CustomFooter(
+        selectedIndex: _selectedIndex,
+        onItemTapped: _onItemTapped,
       ),
     );
-  }
-
-  Widget _buildLoanCard() {
-    int loanAmount = 5000000;
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      elevation: 4,
-      color: Colors.redAccent,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  '현재 대출',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
-                ),
-                Icon(Icons.account_balance_wallet, color: Colors.white, size: 28),
-              ],
-            ),
-            SizedBox(height: 12),
-            Text(
-              '대출 금액: ${_formatCurrency(loanAmount)}',
-              style: TextStyle(fontSize: 18, color: Colors.white),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildEmergencyCard(FundOverview data) {
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      elevation: 4,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('비상금 사용 현황', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-            SizedBox(height: 12),
-            Row(
-              children: [
-                Text('사용 여부: ', style: TextStyle(fontSize: 16)),
-                Text(
-                  data.isEmergencyUsed > 0 ? '사용함' : '사용 안함',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: data.isEmergencyUsed > 0 ? Colors.red : Colors.green,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 8),
-            Text('비상금 사용 횟수: ${data.emergencyCount}회', style: TextStyle(fontSize: 16)),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTransactionChart(FundOverview fundOverview, List<FundTransaction> transactions) {
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      elevation: 4,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('펀드 거래 내역', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-            SizedBox(height: 12),
-            Container(
-              height: 300,
-              child: LineChart(
-                LineChartData(
-                  gridData: FlGridData(show: true),
-                  titlesData: FlTitlesData(
-                    leftTitles: SideTitles(
-                      showTitles: true,
-                      interval: fundOverview.targetAmount / 5,
-                      getTitles: (value) {
-                        return _formatCurrency(value.toInt());
-                      },
-                    ),
-                    bottomTitles: SideTitles(
-                      showTitles: true,
-                      getTitles: (value) {
-                        int index = value.toInt();
-                        List<DateTime> sortedDates = _getSortedDates(fundOverview, transactions);
-
-                        if (index < sortedDates.length) {
-                          return DateFormat('MM/dd').format(sortedDates[index]);
-                        }
-                        return '';
-                      },
-                    ),
-                  ),
-                  borderData: FlBorderData(show: true),
-                  lineBarsData: [
-                    LineChartBarData(
-                      spots: _generateDataPoints(fundOverview, transactions),
-                      isCurved: true,
-                      colors: [Colors.pinkAccent],
-                      barWidth: 3,
-                      dotData: FlDotData(show: true),
-                      belowBarData: BarAreaData(show: false),
-                    ),
-                  ],
-                  minY: 0,
-                  maxY: fundOverview.targetAmount.toDouble(),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  List<DateTime> _getSortedDates(FundOverview fundOverview, List<FundTransaction> transactions) {
-    Map<DateTime, double> dateToAmountMap = {};
-
-    // 첫 번째 데이터 포인트는 펀드 시작 날짜로 설정
-    DateTime startDate = DateTime(fundOverview.startDate.year, fundOverview.startDate.month, fundOverview.startDate.day);
-    dateToAmountMap[startDate] = 0;
-
-    // 날짜별로 amount 합산
-    for (var transaction in transactions) {
-      DateTime date = DateTime(transaction.date.year, transaction.date.month, transaction.date.day);
-      if (dateToAmountMap.containsKey(date)) {
-        dateToAmountMap[date] = dateToAmountMap[date]! + transaction.amount.toDouble();
-      } else {
-        dateToAmountMap[date] = transaction.amount.toDouble();
-      }
-    }
-
-    return dateToAmountMap.keys.toList()..sort();
-  }
-
-  List<FlSpot> _generateDataPoints(FundOverview fundOverview, List<FundTransaction> transactions) {
-    Map<DateTime, double> dateToAmountMap = {};
-
-    // 첫 번째 데이터 포인트는 펀드 시작 날짜로 설정
-    DateTime startDate = DateTime(fundOverview.startDate.year, fundOverview.startDate.month, fundOverview.startDate.day);
-    dateToAmountMap[startDate] = 0;
-
-    // 날짜별로 amount 합산
-    for (var transaction in transactions) {
-      DateTime date = DateTime(transaction.date.year, transaction.date.month, transaction.date.day);
-      if (dateToAmountMap.containsKey(date)) {
-        dateToAmountMap[date] = dateToAmountMap[date]! + transaction.amount.toDouble();
-      } else {
-        dateToAmountMap[date] = transaction.amount.toDouble();
-      }
-    }
-
-    // 누적 합 계산
-    double cumulativeAmount = 0;
-    List<FlSpot> dataPoints = [];
-    List<DateTime> sortedDates = dateToAmountMap.keys.toList()..sort();
-
-    for (int i = 0; i < sortedDates.length; i++) {
-      cumulativeAmount += dateToAmountMap[sortedDates[i]]!;
-      dataPoints.add(FlSpot(i.toDouble(), cumulativeAmount));
-    }
-
-    return dataPoints;
-  }
-
-  String _formatCurrency(int amount) {
-    final formatter = NumberFormat('#,###원');
-    return formatter.format(amount);
-  }
-
-  String _formatDate(DateTime date) {
-    return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
-  }
-
-  int _calculateRemainingDays(DateTime endDate) {
-    final now = DateTime.now();
-    final difference = endDate.difference(now).inDays;
-    return difference > 0 ? difference : 0;
   }
 }

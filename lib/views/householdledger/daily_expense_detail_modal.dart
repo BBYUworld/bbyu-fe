@@ -1,16 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:gagyebbyu_fe/models/couple_expense_model.dart';
 import 'package:gagyebbyu_fe/services/ledger_api_service.dart';
-import 'package:intl/intl.dart';
 
-class DailyExpenseDetailModal extends StatelessWidget {
+class DailyExpenseDetailModal extends StatefulWidget {
   final DateTime date;
-  final List<DailyDetailExpense> expenses;
+  final CoupleExpense coupleExpense; // coupleExpense를 사용하도록 변경
+  final LedgerApiService apiService;
 
-  DailyExpenseDetailModal({required this.date, required this.expenses});
+  DailyExpenseDetailModal({
+    required this.date,
+    required this.coupleExpense, // CoupleExpense로 변경
+    required this.apiService,
+  });
 
   @override
+  _DailyExpenseDetailModalState createState() => _DailyExpenseDetailModalState();
+}
+
+class _DailyExpenseDetailModalState extends State<DailyExpenseDetailModal> {
+  @override
   Widget build(BuildContext context) {
+    // Filter expenses for the selected date
+    final filteredExpenses = widget.coupleExpense.dayExpenses
+        .where((expense) => isSameDay(expense.date, widget.date))
+        .toList();
+
     return Container(
       padding: EdgeInsets.all(16),
       child: Column(
@@ -21,7 +35,7 @@ class DailyExpenseDetailModal extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                '${date.month}월 ${date.day}일 ${_getWeekdayName(date.weekday)}',
+                '${widget.date.month}월 ${widget.date.day}일 ${_getWeekdayName(widget.date.weekday)}',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               IconButton(
@@ -32,15 +46,15 @@ class DailyExpenseDetailModal extends StatelessWidget {
           ),
           SizedBox(height: 8),
           Text(
-            '총 ${expenses.length}건 -${_calculateTotalExpense()}원',
+            '총 ${filteredExpenses.length}건 -${_calculateTotalExpense(filteredExpenses)}원',
             style: TextStyle(fontSize: 16, color: Colors.red),
           ),
           SizedBox(height: 16),
           Expanded(
             child: ListView.builder(
-              itemCount: expenses.length,
+              itemCount: filteredExpenses.length,
               itemBuilder: (context, index) {
-                final expense = expenses[index];
+                final expense = filteredExpenses[index];
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8.0),
                   child: Row(
@@ -120,17 +134,20 @@ class DailyExpenseDetailModal extends StatelessWidget {
     );
   }
 
+  // Helper method to check if two dates are the same day
+  bool isSameDay(DateTime date1, DateTime date2) {
+    return date1.year == date2.year &&
+        date1.month == date2.month &&
+        date1.day == date2.day;
+  }
+
   String _getWeekdayName(int weekday) {
     const weekdays = ['월', '화', '수', '목', '금', '토', '일'];
     return weekdays[weekday - 1];
   }
 
-  int _calculateTotalExpense() {
+  int _calculateTotalExpense(List<DailyDetailExpense> expenses) {
     return expenses.fold(0, (sum, expense) => sum + expense.amount.abs());
-  }
-
-  String _formatDateTime(DateTime dateTime) {
-    return DateFormat('yyyy-MM-dd HH:mm').format(dateTime);
   }
 
   Future<void> _editMemo(BuildContext context, DailyDetailExpense expense) async {
@@ -164,14 +181,11 @@ class DailyExpenseDetailModal extends StatelessWidget {
     );
 
     if (result != null) {
-      // print('aaaa');
-      // print(result);
-      // print(expense.expenseId);
       try {
-        print("하이");
-        // await _apiService.fetchUpdateMemo(result, expense.expenseId);
-        print("업데이트 메모 성공");
-        expense.memo = result; // Update the memo locally if API call succeeds
+        await widget.apiService.fetchUpdateMemo(result, expense.expenseId);
+        setState(() {
+          expense.memo = result;
+        });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('메모가 업데이트되었습니다.')),
         );

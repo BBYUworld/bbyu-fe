@@ -133,6 +133,7 @@ class _HouseholdLedgerScreenState extends State<HouseholdLedgerScreen> {
               onMonthChanged: _onMonthChanged,
               coupleExpense: coupleExpense,
               onRefresh: _onRefresh,
+              apiService: _apiService,
             ),
           ),
           _buildCustomFooter(),
