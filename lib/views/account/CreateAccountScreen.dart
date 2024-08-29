@@ -1,5 +1,3 @@
-// file: lib/screens/create_account_screen.dart
-
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -11,7 +9,6 @@ class CreateAccountScreen extends StatefulWidget {
   final VoidCallback onAccountCreated;
   final Map<String, dynamic> additionalInfo;
 
-
   CreateAccountScreen({required this.onAccountCreated, required this.additionalInfo});
 
   @override
@@ -22,6 +19,28 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
   bool _isLoading = false;
   Map<String, List<BankProduct>> _groupedBankProducts = {};
   final TokenStorage _tokenStorage = TokenStorage();
+
+  // 은행 이름과 이미지 파일 이름 매핑
+  final Map<String, String> _bankImageMap = {
+    '한국은행': '금융아이콘_PNG_한국.png',
+    '산업은행': '금융아이콘_PNG_산업.png',
+    '기업은행': '금융아이콘_PNG_IBK.png',
+    '국민은행': '금융아이콘_PNG_KB.png',
+    '농협은행': '금융아이콘_PNG_농협.png',
+    '우리은행': '금융아이콘_PNG_우리.png',
+    'SC제일은행': '금융아이콘_PNG_SC제일.png',
+    '시티은행': '금융아이콘_PNG_시티.png',
+    '대구은행': '금융아이콘_PNG_대구.png',
+    '광주은행': '금융아이콘_PNG_광주.png',
+    '제주은행': '금융아이콘_PNG_제주.png',
+    '전북은행': '금융아이콘_PNG_전북.png',
+    '경남은행': '금융아이콘_PNG_경남.png',
+    '새마을금고': '금융아이콘_PNG_MG새마을금고.png',
+    'KEB하나은행': '금융아이콘_PNG_하나.png',
+    '신한은행': '금융아이콘_PNG_신한.png',
+    '카카오뱅크': '금융아이콘_PNG_카카오뱅크.png',
+    '싸피은행': '금융아이콘_PNG_싸피.png',
+  };
 
   @override
   void initState() {
@@ -111,12 +130,18 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
   }
 
   Widget _buildBankExpansionTile(String bankCode, List<BankProduct> products) {
+    String bankName = products.first.bankName;
+    String imageName = _bankImageMap[bankName] ?? '금융아이콘_PNG_default.png';
+
     return ExpansionTile(
+      leading: Image.asset(
+        'assets/images/$imageName',
+        width: 40,
+        height: 40,
+      ),
       title: Row(
         children: [
-          Icon(Icons.account_balance),
-          SizedBox(width: 10),
-          Text(products.first.bankName),
+          Text(bankName),
           Spacer(),
           Text('상품 ${products.length}개'),
         ],

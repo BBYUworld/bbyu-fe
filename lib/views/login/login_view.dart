@@ -9,7 +9,6 @@ import '../login/AdditionalInfoScreen.dart';
 import './OnBoardingProcess.dart';
 import 'package:gagyebbyu_fe/views/home/MainPage.dart';
 
-
 class LoginView extends StatefulWidget {
   @override
   _LoginViewState createState() => _LoginViewState();
@@ -139,7 +138,6 @@ class _LoginViewState extends State<LoginView> {
             SizedBox(height: 50),
             Image.asset(
               'assets/images/logo1-removebg-preview.png',
-              // 'assets/images/logo1-removebg-preview.png',
               height: 150,
               fit: BoxFit.contain,
             ),
@@ -153,7 +151,7 @@ class _LoginViewState extends State<LoginView> {
                 Expanded(
                   child: ElevatedButton(
                     onPressed: _login,
-                    child: Text('로그인', style: TextStyle(color: Colors.white)),
+                    child: Text('로그인', style: TextStyle(color: Colors.black)),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: mainColor,
                       padding: EdgeInsets.symmetric(vertical: 16),
@@ -169,7 +167,7 @@ class _LoginViewState extends State<LoginView> {
                         MaterialPageRoute(builder: (context) => RegisterView()),
                       );
                     },
-                    child: Text('회원가입', style: TextStyle(color: mainColor)),
+                    child: Text('회원가입', style: TextStyle(color: Colors.black)),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.white,
                       side: BorderSide(color: mainColor),

@@ -39,7 +39,7 @@ class _OnboardingProcessState extends State<OnboardingProcess> {
             borderRadius: BorderRadius.circular(20),
           ),
           elevation: 0,
-          backgroundColor: Colors.transparent,
+          backgroundColor: Colors.white,
           child: Container(
             padding: EdgeInsets.all(20),
             decoration: BoxDecoration(
@@ -62,7 +62,7 @@ class _OnboardingProcessState extends State<OnboardingProcess> {
                   style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.w600,
-                    color: Color(0xFF0046FF), // 신한은행 파란색
+                    color: Colors.black, // 신한은행 파란색
                   ),
                 ),
                 SizedBox(height: 15),
@@ -77,7 +77,7 @@ class _OnboardingProcessState extends State<OnboardingProcess> {
                     '확인',
                     style: TextStyle(
                       fontSize: 18,
-                      color: Color(0xFF0046FF), // 신한은행 파란색
+                      color: Colors.black, // 신한은행 파란색
                     ),
                   ),
                   onPressed: () {
@@ -213,6 +213,7 @@ class _OnboardingProcessState extends State<OnboardingProcess> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.white,
         leading: _currentStep == 0 ? null : IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
