@@ -96,7 +96,9 @@ class _MainPageState extends State<MainPage> {
                         );
                         _onFocusGained();
                       }),
-                      _buildMenuCard('뷰 자산 리포트', Icons.description, () {}),
+                      _buildMenuCard('뷰 자산 리포트', Icons.description, () {
+                        Navigator.pushNamed(context, '/report');
+                      }),
                       _buildMenuCard('병주\'s 대출 페이지', Icons.description, () {
                         Navigator.pushNamed(context, '/loan');
                       }),
