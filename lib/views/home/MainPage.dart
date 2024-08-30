@@ -6,8 +6,6 @@ import 'package:gagyebbyu_fe/services/user_api_service.dart';
 import 'package:gagyebbyu_fe/views/account/couple_account_screen.dart';
 import 'package:gagyebbyu_fe/views/couple/search_modal.dart';
 import 'package:gagyebbyu_fe/views/home/navbar.dart';
-import 'package:gagyebbyu_fe/storage/user_store.dart';
-import 'package:provider/provider.dart';
 
 class MainPage extends StatefulWidget {
   @override
@@ -20,6 +18,12 @@ class _MainPageState extends State<MainPage> {
   late UserApiService userApiService;
   CoupleResponseDto? _coupleDto;
 
+  final Color primaryColor = Color(0xFFFF6B6B);
+  final Color backgroundColor = Color(0xFFF9FAFB);
+  final Color cardColor = Colors.white;
+  final Color textColor = Color(0xFF191F28);
+  final Color subtextColor = Color(0xFF8B95A1);
+
   @override
   void initState() {
     super.initState();
@@ -30,7 +34,7 @@ class _MainPageState extends State<MainPage> {
 
   void _onFocusGained() {
     _updateUnreadNotificationCount();
-    _loadData(); // 필요한 경우 다른 데이터도 새로고침
+    _loadData();
   }
 
   Future<void> _updateUnreadNotificationCount() async {
@@ -63,51 +67,34 @@ class _MainPageState extends State<MainPage> {
         }
       },
       child: Scaffold(
+        backgroundColor: backgroundColor,
         appBar: CustomAppBar(),
         body: SafeArea(
           child: _isLoaded
-              ? Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  _coupleDto != null ? _coupleDto!.nickname : "커플 정보 없음",
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 16),
-                _buildCoupleCard(),
-                SizedBox(height: 16),
-                Expanded(
-                  child: GridView.count(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 16,
-                    mainAxisSpacing: 16,
-                    children: [
-                      _buildMenuCard('뷰 상품 추천', Icons.message, () {
-                        Navigator.pushNamed(context, '/asset');
-                      }),
-                      _buildMenuCard('쀼 펀딩', Icons.search, () {
-                        Navigator.pushNamed(context, '/fund');
-                      }),
-                      _buildMenuCard('가계부', Icons.attach_money, () async {
-                        await Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => HouseholdLedgerScreen()),
-                        );
-                        _onFocusGained();
-                      }),
-                      _buildMenuCard('뷰 자산 리포트', Icons.description, () {}),
-                    ],
+
+              ? SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildCoupleCard(),
+                  SizedBox(height: 24),
+                  Text(
+                    '금융 서비스',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: textColor),
+
                   ),
-                ),
-              ],
+                  SizedBox(height: 16),
+                  _buildMenuGrid(),
+                ],
+              ),
             ),
           )
-              : Center(child: CircularProgressIndicator()),
+              : Center(child: CircularProgressIndicator(color: primaryColor)),
         ),
         bottomNavigationBar: CustomFooter(
-          selectedIndex: 0,
+          selectedIndex: _selectedIndex,
           onItemTapped: _onItemTapped,
         ),
       ),
@@ -129,64 +116,115 @@ class _MainPageState extends State<MainPage> {
       },
       child: Container(
         height: 160,
-        child: Card(
-          color: Colors.pink[100],
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              children: [
-                Text(
-                  _coupleDto != null ? _coupleDto!.nickname : "현재 연결된 커플 배우자가 없습니다.",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 8),
-                _coupleDto != null
-                    ? Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(_coupleDto!.user1Name, style: TextStyle(fontWeight: FontWeight.bold)),
-                        Text('1,234,567원', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                      ],
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text(_coupleDto!.user2Name, style: TextStyle(fontWeight: FontWeight.bold)),
-                        CircleAvatar(
-                          radius: 25,
-                          backgroundColor: Colors.grey[300],
-                          child: Icon(Icons.person, size: 30),
-                        ),
-                      ],
-                    ),
-                  ],
-                )
-                    : SizedBox.shrink(),
-              ],
+        decoration: BoxDecoration(
+          color: cardColor,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: Offset(0, 4),
             ),
+          ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                _coupleDto != null ? _coupleDto!.nickname : "현재 연결된 커플 배우자가 없습니다.",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: textColor),
+              ),
+              SizedBox(height: 16),
+              _coupleDto != null
+                  ? Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(_coupleDto!.user1Name, style: TextStyle(color: subtextColor)),
+                      SizedBox(height: 4),
+                      Text('1,234,567원', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: textColor)),
+                    ],
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(_coupleDto!.user2Name, style: TextStyle(color: subtextColor)),
+                      SizedBox(height: 4),
+                      CircleAvatar(
+                        radius: 24,
+                        backgroundColor: backgroundColor,
+                        child: Icon(Icons.person, size: 24, color: primaryColor),
+                      ),
+                    ],
+                  ),
+                ],
+              )
+                  : SizedBox.shrink(),
+            ],
           ),
         ),
       ),
     );
   }
 
+  Widget _buildMenuGrid() {
+    return GridView.count(
+      crossAxisCount: 2,
+      crossAxisSpacing: 16,
+      mainAxisSpacing: 16,
+      shrinkWrap: true,
+      physics: NeverScrollableScrollPhysics(),
+      children: [
+        _buildMenuCard('상품 추천', Icons.lightbulb_outline, () {
+          Navigator.pushNamed(context, '/product');
+        }),
+        _buildMenuCard('펀딩', Icons.monetization_on_outlined, () {
+          Navigator.pushNamed(context, '/fund');
+        }),
+        _buildMenuCard('가계부', Icons.account_balance_wallet_outlined, () async {
+          await Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => HouseholdLedgerScreen()),
+          );
+          _onFocusGained();
+        }),
+        _buildMenuCard('자산 리포트', Icons.bar_chart, () {
+          Navigator.pushNamed(context, '/report');
+        }),
+      ],
+    );
+  }
+
   Widget _buildMenuCard(String title, IconData icon, VoidCallback onTap) {
-    return AspectRatio(
-      aspectRatio: 1.5,
-      child: Card(
-        child: InkWell(
-          onTap: onTap,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(icon, size: 40),
-              SizedBox(height: 8),
-              Text(title, textAlign: TextAlign.center),
-            ],
-          ),
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          color: cardColor,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 32, color: primaryColor),
+            SizedBox(height: 8),
+            Text(
+              title,
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: textColor),
+              textAlign: TextAlign.center,
+            ),
+          ],
         ),
       ),
     );
