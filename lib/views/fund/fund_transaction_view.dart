@@ -68,7 +68,7 @@ class FundTransactionView extends StatelessWidget {
   Widget _buildHeaderButton(BuildContext context, String text) {
     return ElevatedButton(
       onPressed: () async {
-        if (text == '충전하기') {
+        if (text == '입금하기') {
           final result = await Navigator.push(
             context,
             MaterialPageRoute(
