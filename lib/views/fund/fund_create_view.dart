@@ -159,7 +159,8 @@ class _FundCreateViewState extends State<FundCreateView> {
               TextFormField(
                 decoration: InputDecoration(
                   border: OutlineInputBorder(),
-                  labelText: '목표 금액 입력',
+                  labelText: '목표 금액 입력(원)',
+                  suffixText: '원', // '원' 단위 추가
                 ),
                 keyboardType: TextInputType.number,
                 validator: (value) {

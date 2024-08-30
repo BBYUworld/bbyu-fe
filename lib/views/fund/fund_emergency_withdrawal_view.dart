@@ -12,7 +12,7 @@ class FundEmergencyWithdrawalView extends StatefulWidget {
   final FundOverview fundOverview;
   final String baseURL;
 
-  FundEmergencyWithdrawalView({required this.fundOverview, this.baseURL = 'http://3.39.19.140:8080/api'});
+  FundEmergencyWithdrawalView({required this.fundOverview, this.baseURL = 'http://10.0.2.2:8080/api'});
 
   @override
   _FundEmergencyWithdrawalViewState createState() => _FundEmergencyWithdrawalViewState();
@@ -93,9 +93,7 @@ class _FundEmergencyWithdrawalViewState extends State<FundEmergencyWithdrawalVie
       if (response.statusCode == 201) {
         _showCompletionDialog();
       } else {
-        final decodedResponse = json.decode(utf8.decode(response.bodyBytes));
-        final errorMessage = decodedResponse['errorMessage'];
-        _showErrorDialog(errorMessage);
+        print('Failed to create transaction. Status code: ${response.statusCode}');
       }
     } catch (e) {
       print('Error creating transaction: $e');
@@ -115,26 +113,6 @@ class _FundEmergencyWithdrawalViewState extends State<FundEmergencyWithdrawalVie
               onPressed: () {
                 Navigator.of(context).pop();
                 Navigator.of(context).pop(true);
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _showErrorDialog(String errorMessage) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('출금 실패'),
-          content: Text(errorMessage),
-          actions: <Widget>[
-            TextButton(
-              child: Text('닫기'),
-              onPressed: () {
-                Navigator.of(context).pop();
               },
             ),
           ],
@@ -184,7 +162,8 @@ class _FundEmergencyWithdrawalViewState extends State<FundEmergencyWithdrawalVie
               TextFormField(
                 decoration: InputDecoration(
                   border: OutlineInputBorder(),
-                  labelText: '금액 입력',
+                  labelText: '금액 입력(원)',
+                  suffixText: '원',  // '원' 단위 추가
                 ),
                 keyboardType: TextInputType.number,
                 validator: (value) {
@@ -229,10 +208,6 @@ class _FundEmergencyWithdrawalViewState extends State<FundEmergencyWithdrawalVie
               ),
               if (_selectedBankName != null) ...[
                 SizedBox(height: 10),
-                Text(
-                  '은행 이름: $_selectedBankName',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-                ),
               ],
               SizedBox(height: 20),
               Center(

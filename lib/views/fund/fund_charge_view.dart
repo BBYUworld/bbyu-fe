@@ -163,7 +163,8 @@ class _FundChargeViewState extends State<FundChargeView> {
               TextFormField(
                 decoration: InputDecoration(
                   border: OutlineInputBorder(),
-                  labelText: '금액 입력',
+                  labelText: '금액 입력(원)',
+                  suffixText: '원', // '원' 단위 추가
                 ),
                 keyboardType: TextInputType.number,
                 validator: (value) {
