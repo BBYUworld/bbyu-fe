@@ -5,13 +5,14 @@ import 'package:gagyebbyu_fe/storage/TokenStorage.dart';
 import 'package:http/http.dart' as http;
 
 import '../../models/fund/fund_overview.dart';
-import '../../models/fund/fund_transaction_create.dart'; // FundTransactionCreate 모델 추가
+import '../../models/fund/fund_transaction_create.dart';
 import '../../models/asset/asset_account.dart';
 
 class FundEmergencyWithdrawalView extends StatefulWidget {
   final FundOverview fundOverview;
+  final String baseURL;
 
-  FundEmergencyWithdrawalView({required this.fundOverview});
+  FundEmergencyWithdrawalView({required this.fundOverview, this.baseURL = 'http://10.0.2.2:8080/api'});
 
   @override
   _FundEmergencyWithdrawalViewState createState() => _FundEmergencyWithdrawalViewState();
@@ -26,6 +27,9 @@ class _FundEmergencyWithdrawalViewState extends State<FundEmergencyWithdrawalVie
   bool _isLoading = true;
   int _withdrawAmount = 0;
 
+  final TextEditingController _amountController = TextEditingController();
+  final NumberFormat _numberFormat = NumberFormat('#,##0');
+
   final Color _primaryColor = Color(0xFFFF6B6B);
   final Color _backgroundColor = Color(0xFFF9FAFB);
   final Color _cardColor = Colors.white;
@@ -38,10 +42,33 @@ class _FundEmergencyWithdrawalViewState extends State<FundEmergencyWithdrawalVie
   void initState() {
     super.initState();
     _fetchAccounts();
+    _amountController.addListener(_formatAmount);
+  }
+
+  @override
+  void dispose() {
+    _amountController.dispose();
+    super.dispose();
+  }
+
+  void _formatAmount() {
+    String text = _amountController.text.replaceAll(',', '');
+    if (text.isEmpty) return;
+
+    int? value = int.tryParse(text);
+    if (value == null) return;
+
+    String formatted = _numberFormat.format(value);
+    if (formatted != _amountController.text) {
+      _amountController.value = TextEditingValue(
+        text: formatted,
+        selection: TextSelection.collapsed(offset: formatted.length),
+      );
+    }
   }
 
   Future<void> _fetchAccounts() async {
-    final url = Uri.parse('http://3.39.19.140:8080/api/asset-accounts');
+    final url = Uri.parse('${widget.baseURL}/asset-accounts');
     final accessToken = await _tokenStorage.getAccessToken();
 
     try {
@@ -78,13 +105,13 @@ class _FundEmergencyWithdrawalViewState extends State<FundEmergencyWithdrawalVie
   }
 
   Future<void> createEmergencyWithdrawalTransaction() async {
-    final url = Uri.parse('http://3.39.19.140:8080/api/fund/transaction/${widget.fundOverview.fundId}');
+    final url = Uri.parse('${widget.baseURL}/fund/transaction/${widget.fundOverview.fundId}');
     final accessToken = await _tokenStorage.getAccessToken();
 
-    // FundTransactionCreate 객체 생성
     FundTransactionCreate transaction = FundTransactionCreate(
       amount: _withdrawAmount,
       type: 'MINUS',
+      accountNo: _selectedAccount!,
     );
 
     try {
@@ -118,8 +145,8 @@ class _FundEmergencyWithdrawalViewState extends State<FundEmergencyWithdrawalVie
             TextButton(
               child: Text('닫기'),
               onPressed: () {
-                Navigator.of(context).pop(); // 다이얼로그 닫기
-                Navigator.of(context).pop(true); // 이전 화면으로 돌아가기
+                Navigator.of(context).pop();
+                Navigator.of(context).pop(true);
               },
             ),
           ],
@@ -133,223 +160,117 @@ class _FundEmergencyWithdrawalViewState extends State<FundEmergencyWithdrawalVie
     final int remainingWithdrawals = 2 - widget.fundOverview.emergencyCount;
 
     return Scaffold(
-      backgroundColor: _backgroundColor,
       appBar: AppBar(
-        title: Text('긴급 출금', style: TextStyle(color: _textColor, fontWeight: FontWeight.bold)),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        iconTheme: IconThemeData(color: _textColor),
+        title: Text('긴급 출금'),
+        backgroundColor: Colors.pinkAccent,
       ),
-      body: _isLoading
-          ? Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(_primaryColor)))
-          : SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.all(20.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildAvailableAmountCard(),
-                SizedBox(height: 20),
-                _buildWithdrawalLimitInfo(remainingWithdrawals),
-                SizedBox(height: 20),
-                if (remainingWithdrawals > 0) ...[
-                  _buildWithdrawAmountInput(),
-                  SizedBox(height: 20),
-                  _buildAccountSelection(),
-                  SizedBox(height: 32),
-                  _buildWithdrawButton(remainingWithdrawals),
-                ] else
-                  _buildWithdrawalNotAvailableMessage(),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildAvailableAmountCard() {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: _cardColor,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: Offset(0, 5),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            '출금 가능한 금액',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: _textColor),
-          ),
-          SizedBox(height: 8),
-          Text(
-            _formatCurrency(widget.fundOverview.currentAmount),
-            style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: _primaryColor),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildWithdrawalLimitInfo(int remainingWithdrawals) {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: remainingWithdrawals > 0 ? _primaryColor.withOpacity(0.1) : _warningColor.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: [
-          Icon(
-            remainingWithdrawals > 0 ? Icons.info_outline : Icons.warning_amber_rounded,
-            color: remainingWithdrawals > 0 ? _primaryColor : _warningColor,
-          ),
-          SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              remainingWithdrawals > 0
-                  ? '긴급 출금 가능 횟수: $remainingWithdrawals'
-                  : '긴급 출금 가능 횟수를 모두 사용했습니다.',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: remainingWithdrawals > 0 ? _primaryColor : _warningColor,
+      body: Padding(
+        padding: EdgeInsets.all(16.0),
+        child: _isLoading
+            ? Center(child: CircularProgressIndicator())
+            : Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '출금 가능한 금액',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildWithdrawalNotAvailableMessage() {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: _warningColor.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Text(
-        '출금이 불가능합니다. \n 긴급 출금 횟수를 모두 사용했습니다.',
-        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: _warningColor),
-        textAlign: TextAlign.center,
-      ),
-    );
-  }
-
-  Widget _buildWithdrawAmountInput() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          '출금할 금액',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: _textColor),
-        ),
-        SizedBox(height: 8),
-        TextFormField(
-          decoration: InputDecoration(
-            hintText: '금액 입력',
-            hintStyle: TextStyle(color: _subTextColor),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide.none,
-            ),
-            filled: true,
-            fillColor: _cardColor,
-            suffixText: '원',
-            suffixStyle: TextStyle(color: _textColor, fontWeight: FontWeight.bold),
-          ),
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: _textColor),
-          keyboardType: TextInputType.number,
-          validator: (value) {
-            if (value == null || value.isEmpty) {
-              return '금액을 입력해주세요';
-            }
-            int inputAmount = int.parse(value);
-            if (inputAmount > widget.fundOverview.currentAmount) {
-              return '출금 가능한 금액을 초과했습니다';
-            }
-            return null;
-          },
-          onSaved: (value) {
-            _withdrawAmount = int.parse(value!);
-          },
-        ),
-      ],
-    );
-  }
-
-  Widget _buildAccountSelection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          '환급받을 계좌',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: _textColor),
-        ),
-        SizedBox(height: 8),
-        DropdownButtonFormField<String>(
-          decoration: InputDecoration(
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide.none,
-            ),
-            filled: true,
-            fillColor: _cardColor,
-          ),
-          value: _selectedAccount,
-          items: _accounts.map((account) {
-            return DropdownMenuItem<String>(
-              value: account.accountNumber,
-              child: Text('${account.bankName} ${account.accountNumber}', style: TextStyle(color: _textColor)),
-            );
-          }).toList(),
-          onChanged: (value) {
-            setState(() {
-              _selectedAccount = value;
-              _selectedBankName = _accounts
-                  .firstWhere((account) => account.accountNumber == value)
-                  .bankName;
-            });
-          },
-        ),
-      ],
-    );
-  }
-
-  Widget _buildWithdrawButton(int remainingWithdrawals) {
-    return SizedBox(
-      width: double.infinity,
-      child: ElevatedButton(
-        onPressed: remainingWithdrawals > 0
-            ? () {
-          if (_formKey.currentState!.validate()) {
-            _formKey.currentState!.save();
-            createEmergencyWithdrawalTransaction();
-          }
-        }
-            : null,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: remainingWithdrawals > 0 ? _primaryColor : _subTextColor,
-          padding: EdgeInsets.symmetric(vertical: 16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+              SizedBox(height: 8),
+              Text(
+                '${_formatCurrency(widget.fundOverview.currentAmount)}',
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.redAccent),
+              ),
+              SizedBox(height: 20),
+              Text(
+                '긴급 출금 가능 횟수: $remainingWithdrawals',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 20),
+              Text(
+                '출금할 금액 입력',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 8),
+              TextFormField(
+                controller: _amountController,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: '금액 입력(원)',
+                  suffixText: '원',  // '원' 단위 추가
+                ),
+                keyboardType: TextInputType.number,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return '금액을 입력해주세요';
+                  }
+                  String numericString = value.replaceAll(',', '');
+                  int inputAmount = int.parse(numericString);
+                  if (inputAmount > widget.fundOverview.currentAmount) {
+                    return '출금 가능한 금액을 초과했습니다';
+                  }
+                  return null;
+                },
+                onSaved: (value) {
+                  String numericString = value!.replaceAll(',', '');
+                  _withdrawAmount = int.parse(numericString);
+                },
+              ),
+              SizedBox(height: 20),
+              Text(
+                '환급받을 계좌 선택',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 8),
+              DropdownButtonFormField<String>(
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                ),
+                value: _selectedAccount,
+                items: _accounts.map((account) {
+                  return DropdownMenuItem<String>(
+                    value: account.accountNumber,
+                    child: Text('${account.accountNumber} (${account.bankName})'),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  setState(() {
+                    _selectedAccount = value;
+                    _selectedBankName = _accounts
+                        .firstWhere((account) => account.accountNumber == value)
+                        .bankName;
+                  });
+                },
+              ),
+              if (_selectedBankName != null) ...[
+                SizedBox(height: 10),
+                Text(
+                  '은행 이름: $_selectedBankName',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                ),
+              ],
+              SizedBox(height: 20),
+              Center(
+                child: ElevatedButton(
+                  onPressed: remainingWithdrawals > 0
+                      ? () {
+                    if (_formKey.currentState!.validate()) {
+                      _formKey.currentState!.save();
+                      createEmergencyWithdrawalTransaction();
+                    }
+                  }
+                      : null,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: remainingWithdrawals > 0 ? Colors.pinkAccent : Colors.grey,
+                    padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                  ),
+                  child: Text('출금하기', style: TextStyle(fontSize: 16)),
+                ),
+              ),
+            ],
           ),
         ),
-        child: Text('출금하기', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
       ),
     );
   }

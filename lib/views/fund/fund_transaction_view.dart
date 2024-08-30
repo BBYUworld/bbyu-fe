@@ -65,6 +65,8 @@ class FundTransactionView extends StatelessWidget {
           SizedBox(height: 16),
           Row(
             children: [
+              _buildHeaderButton(context, '입금하기'),
+              _buildHeaderButton(context, '긴급출금'),
               Expanded(child: _buildHeaderButton(context, '충전하기')),
               SizedBox(width: 12),
               Expanded(child: _buildHeaderButton(context, '긴급출금', isOutlined: true)),
@@ -78,7 +80,7 @@ class FundTransactionView extends StatelessWidget {
   Widget _buildHeaderButton(BuildContext context, String text, {bool isOutlined = false}) {
     return ElevatedButton(
       onPressed: () async {
-        if (text == '충전하기') {
+        if (text == '입금하기') {
           final result = await Navigator.push(
             context,
             MaterialPageRoute(

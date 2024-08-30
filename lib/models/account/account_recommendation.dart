@@ -49,6 +49,7 @@ class AccountDto {
   final String name;
   final String bankName;
   final String description;
+  final String accountTypeUniqueNo;
 
   AccountDto({
     required this.id,
@@ -60,6 +61,7 @@ class AccountDto {
     required this.name,
     required this.bankName,
     required this.description,
+    required this.accountTypeUniqueNo
   });
 
   factory AccountDto.fromJson(Map<String, dynamic> json) {
@@ -73,6 +75,7 @@ class AccountDto {
       name: json['depositName'] ?? json['savingsName'],
       bankName: json['bankName'],
       description: json['description'],
+      accountTypeUniqueNo: json['accountTypeUniqueNo']
     );
   }
 }

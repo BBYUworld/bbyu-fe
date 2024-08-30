@@ -1,3 +1,4 @@
+// goal_card.dart
 import 'package:flutter/material.dart';
 import 'package:gagyebbyu_fe/models/fund/fund_overview.dart';
 import 'package:gagyebbyu_fe/models/couple/couple_response.dart';
@@ -88,6 +89,8 @@ class _GoalCardState extends State<GoalCard> {
                 '목표: ${_formatCurrency(widget.fundOverview.targetAmount)}',
                 style: TextStyle(fontSize: 14, color: _subTextColor),
               ),
+              SizedBox(height: 12),
+              Text('${_formatCurrency(widget.fundOverview.currentAmount)} / ${_formatCurrency(widget.fundOverview.targetAmount)}', style: TextStyle(fontSize: 20)),
               SizedBox(height: 16),
               LinearProgressIndicator(
                 value: progress,
@@ -102,8 +105,9 @@ class _GoalCardState extends State<GoalCard> {
               ),
               SizedBox(height: 24),
               Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  Expanded(child: _buildActionButton('충전하기', _primaryColor, FundChargeView(fundId: widget.fundOverview.fundId))),
+                  Expanded(child: _buildActionButton('입금하기', _primaryColor, FundChargeView(fundId: widget.fundOverview.fundId))),
                   SizedBox(width: 12),
                   Expanded(child: _buildActionButton('긴급 출금', _warningColor, FundEmergencyWithdrawalView(fundOverview: widget.fundOverview), isOutlined: true)),
                 ],

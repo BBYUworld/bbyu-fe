@@ -4,7 +4,12 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'OnBoardingProcess.dart';
 import 'register_view.dart';
+import '../test/KakaoAddressScreen.dart';
+import '../fund/fund_view.dart';
+import '../login/AdditionalInfoScreen.dart';
+import './OnBoardingProcess.dart';
 import 'package:gagyebbyu_fe/views/home/MainPage.dart';
+
 
 class LoginView extends StatefulWidget {
   @override
