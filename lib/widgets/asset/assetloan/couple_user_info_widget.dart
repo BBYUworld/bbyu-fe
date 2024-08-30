@@ -94,7 +94,7 @@ class CoupleUserInfoCard extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: Colors.blue,
+                        color: Color(0xFFFF6B6B),
                       ),
                     ),
                   ],
@@ -107,7 +107,7 @@ class CoupleUserInfoCard extends StatelessWidget {
                 },
                 style: ElevatedButton.styleFrom(
                   foregroundColor: Colors.white,
-                  backgroundColor: Colors.blue,
+                  backgroundColor: Color(0xFFFF6B6B),
                 ),
               ),
             ],

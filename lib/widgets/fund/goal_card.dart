@@ -26,13 +26,19 @@ class GoalCard extends StatefulWidget {
 }
 
 class _GoalCardState extends State<GoalCard> {
-  bool _isHovered = false;
+
+  final Color _primaryColor = Color(0xFFFF6B6B);
+  final Color _backgroundColor = Color(0xFFF9FAFB);
+  final Color _cardColor = Colors.white;
+  final Color _textColor = Color(0xFF191F28);
+  final Color _subTextColor = Color(0xFF8B95A1);
+  final Color _warningColor = Color(0xFFFF3B30);
 
   @override
   Widget build(BuildContext context) {
     double progress = (widget.fundOverview.currentAmount / widget.fundOverview.targetAmount).clamp(0, 1);
 
-    return InkWell(
+    return GestureDetector(
       onTap: () async {
         final result = await Navigator.push(
           context,
@@ -47,12 +53,20 @@ class _GoalCardState extends State<GoalCard> {
           widget.reloadData();
         }
       },
-      child: Card(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        color: Color(0xffffb6b6),
-        elevation: 4,
+      child: Container(
+        decoration: BoxDecoration(
+          color: _cardColor,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: Offset(0, 5),
+            ),
+          ],
+        ),
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(20.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -60,96 +74,71 @@ class _GoalCardState extends State<GoalCard> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    '현재 모은 돈',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    widget.fundOverview.goal,
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: _textColor),
                   ),
-                  CircleAvatar(
-                    radius: 20,
-                    child: Icon(
-                      Icons.attach_money,
-                      size: 24,
-                      color: Color(0xffffdcd6),
-                    ),
-                    backgroundColor: Colors.white,
-                  ),
+                  Icon(Icons.savings, color: _primaryColor, size: 28),
                 ],
+              ),
+              SizedBox(height: 16),
+              Text(
+                '${_formatCurrency(widget.fundOverview.currentAmount)}',
+                style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: _primaryColor),
+              ),
+              Text(
+                '목표: ${_formatCurrency(widget.fundOverview.targetAmount)}',
+                style: TextStyle(fontSize: 14, color: _subTextColor),
               ),
               SizedBox(height: 12),
               Text('${_formatCurrency(widget.fundOverview.currentAmount)} / ${_formatCurrency(widget.fundOverview.targetAmount)}', style: TextStyle(fontSize: 20)),
               SizedBox(height: 16),
               LinearProgressIndicator(
                 value: progress,
-                minHeight: 12,
-                backgroundColor: Colors.grey[300],
-                color: Color(0xffff481f),
+                minHeight: 8,
+                backgroundColor: _backgroundColor,
+                valueColor: AlwaysStoppedAnimation<Color>(_primaryColor),
               ),
               SizedBox(height: 8),
               Text(
-                '달성률: ${(progress * 100).toStringAsFixed(2)}%',
-                style: TextStyle(fontSize: 14, color: Colors.grey[700]),
+                '달성률: ${(progress * 100).toStringAsFixed(1)}%',
+                style: TextStyle(fontSize: 14, color: _subTextColor),
               ),
-              SizedBox(height: 16),
+              SizedBox(height: 24),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  MouseRegion(
-                    onEnter: (_) {
-                      setState(() {
-                        _isHovered = true;
-                      });
-                    },
-                    onExit: (_) {
-                      setState(() {
-                        _isHovered = false;
-                      });
-                    },
-                    child: Transform.scale(
-                      scale: _isHovered ? 1.05 : 1.0,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => FundChargeView(fundId: widget.fundOverview.fundId),
-                            ),
-                          ).then((_) {
-                            widget.reloadData();
-                          });
-                        },
-                        child: Text('충전하기'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue,
-                          foregroundColor: Colors.white,
-                          padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
-                          textStyle: TextStyle(fontSize: 16),
-                        ),
-                      ),
-                    ),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => FundEmergencyWithdrawalView(fundOverview: widget.fundOverview),
-                        ),
-                      ).then((_) {
-                        widget.reloadData();
-                      });
-                    },
-                    child: Text('긴급 출금'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.redAccent,
-                      foregroundColor: Colors.white,
-                      padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
-                      textStyle: TextStyle(fontSize: 16),
-                    ),
-                  ),
+                  Expanded(child: _buildActionButton('입금하기', _primaryColor, FundChargeView(fundId: widget.fundOverview.fundId))),
+                  SizedBox(width: 12),
+                  Expanded(child: _buildActionButton('긴급 출금', _warningColor, FundEmergencyWithdrawalView(fundOverview: widget.fundOverview), isOutlined: true)),
                 ],
               ),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildActionButton(String text, Color color, Widget destination, {bool isOutlined = false}) {
+    return ElevatedButton(
+      onPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => destination),
+        ).then((_) {
+          widget.reloadData();
+        });
+      },
+      child: Text(text),
+      style: ElevatedButton.styleFrom(
+        foregroundColor: isOutlined ? color : _cardColor,
+        backgroundColor: isOutlined ? _cardColor : color,
+        padding: EdgeInsets.symmetric(vertical: 16),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: isOutlined ? BorderSide(color: color) : BorderSide.none,
+        ),
+        elevation: 0,
       ),
     );
   }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gagyebbyu_fe/storage/TokenStorage.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'OnBoardingProcess.dart';
 import 'register_view.dart';
 import '../test/KakaoAddressScreen.dart';
 import '../fund/fund_view.dart';
@@ -15,16 +16,41 @@ class LoginView extends StatefulWidget {
   _LoginViewState createState() => _LoginViewState();
 }
 
-class _LoginViewState extends State<LoginView> {
+class _LoginViewState extends State<LoginView> with SingleTickerProviderStateMixin {
   final TextEditingController _idController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TokenStorage _tokenStorage = TokenStorage();
+  late AnimationController _animationController;
+  late Animation<double> _animation;
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 300),
+    );
+    _animation = Tween<double>(begin: 0, end: 1).animate(_animationController);
+    _animationController.forward();
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    _idController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   Future<void> _login() async {
-    print("로그인 함수 호출");
+    if (_isLoading) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+
     final url = Uri.parse('http://3.39.19.140:8080/user/login');
-    print("아이디 = "+_idController.text);
-    print("비밀번호 = "+_passwordController.text);
     try {
       final response = await http.post(
         url,
@@ -34,24 +60,16 @@ class _LoginViewState extends State<LoginView> {
           'password': _passwordController.text,
         }),
       );
+
       final decodedBody = utf8.decode(response.bodyBytes);
       final jsonResponse = json.decode(decodedBody);
 
-      print('json Response : $jsonResponse');
-      print('json Response Token : ${jsonResponse['token']}');
-      print('json Response AccessToken : ${jsonResponse['token']?['accessToken']}');
-      print('json Response RefreshToken : ${jsonResponse['token']?['refreshToken']}');
-      print('json Response isLogin : ${jsonResponse['_first_login']}');
-
-      await _tokenStorage.saveTokens(
-          jsonResponse['token']['accessToken'],
-          jsonResponse['token']['refreshToken']
-      );
-      final accessToken = _tokenStorage.getAccessToken();
-      final refreshToken = _tokenStorage.getRefreshToken();
-      print('accessToken = $accessToken');
-      print('refreshToken = $refreshToken');
       if (response.statusCode == 200) {
+        await _tokenStorage.saveTokens(
+            jsonResponse['token']['accessToken'],
+            jsonResponse['token']['refreshToken']
+        );
+
         if (jsonResponse['_first_login'] == true) {
           Navigator.pushReplacement(
             context,
@@ -61,23 +79,16 @@ class _LoginViewState extends State<LoginView> {
           );
         } else {
           _showLoginSuccessDialog();
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => MainPage(),
-            ),
-          );
         }
       } else {
-        _showErrorDialog('로그인 실패. 다시 시도해주세요.');
-
-        print('Login failed');
-        print('Status code: ${response.statusCode}');
-        print('Response body: ${response.body}');
+        _showErrorDialog('로그인 실패. 아이디와 비밀번호를 확인해주세요.');
       }
     } catch (e) {
-      print('Error occurred: $e');
       _showErrorDialog('오류가 발생했습니다. 다시 시도해주세요.');
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
@@ -92,8 +103,11 @@ class _LoginViewState extends State<LoginView> {
             TextButton(
               child: Text('확인'),
               onPressed: () {
-                Navigator.of(context).pop(); // 다이얼로그 닫기
-                // TODO: 여기에 로그인 성공 후 처리 (예: 홈 화면으로 이동) 추가
+                Navigator.of(context).pop();
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => MainPage()),
+                );
               },
             ),
           ],
@@ -113,7 +127,7 @@ class _LoginViewState extends State<LoginView> {
             TextButton(
               child: Text('확인'),
               onPressed: () {
-                Navigator.of(context).pop(); // 다이얼로그 닫기
+                Navigator.of(context).pop();
               },
             ),
           ],
@@ -124,91 +138,115 @@ class _LoginViewState extends State<LoginView> {
 
   @override
   Widget build(BuildContext context) {
-    final Color mainColor = Color(0xFFF5E7E0);
+    final Color primaryColor = Color(0xFFFF6B6B);
+    final Color backgroundColor = Color(0xFFF9FAFB);
+
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-      ),
-      backgroundColor: Colors.white,
-      body: SingleChildScrollView(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            SizedBox(height: 50),
-            Image.asset(
-              'assets/images/logo1-removebg-preview.png',
-              height: 150,
-              fit: BoxFit.contain,
-            ),
-            SizedBox(height: 30),
-            _buildInputField('아이디', _idController),
-            SizedBox(height: 16),
-            _buildInputField('비밀번호', _passwordController, isPassword: true),
-            SizedBox(height: 24),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: _login,
-                    child: Text('로그인', style: TextStyle(color: Colors.black)),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: mainColor,
-                      padding: EdgeInsets.symmetric(vertical: 16),
-                    ),
+      backgroundColor: backgroundColor,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 40.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(height: 40),
+              Text(
+                '안녕하세요\n가계쀼에 오신 것을\n환영합니다',
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFFFF6B6B),
+                  height: 1.3,
+                ),
+              ),
+              SizedBox(height: 40),
+              _buildAnimatedInputField('아이디', _idController),
+              SizedBox(height: 16),
+              _buildAnimatedInputField('비밀번호', _passwordController, isPassword: true),
+              SizedBox(height: 40),
+              ElevatedButton(
+                onPressed: _isLoading ? null : _login,
+                child: _isLoading
+                    ? CircularProgressIndicator(color: Colors.white)
+                    : Text('로그인', style: TextStyle(fontSize: 18)),
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.white, backgroundColor: primaryColor,
+                  padding: EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  minimumSize: Size(double.infinity, 55),
+                ),
+              ),
+              SizedBox(height: 16),
+              Center(
+                child: TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => RegisterView()),
+                    );
+                  },
+                  child: Text(
+                    '새로운 계정 만들기',
+                    style: TextStyle(color: primaryColor, fontSize: 16),
                   ),
                 ),
-                SizedBox(width: 16),
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => RegisterView()),
-                      );
-                    },
-                    child: Text('회원가입', style: TextStyle(color: Colors.black)),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      side: BorderSide(color: mainColor),
-                      padding: EdgeInsets.symmetric(vertical: 16),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildInputField(String label, TextEditingController controller, {bool isPassword = false}) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black)),
-        SizedBox(height: 8),
-        TextField(
-          controller: controller,
-          obscureText: isPassword,
-          decoration: InputDecoration(
-            filled: true,
-            fillColor: Colors.white,
-            border: OutlineInputBorder(
-              borderSide: BorderSide(color: Colors.grey),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: Colors.grey),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: Color(0xFFF5E7E0)),
+  Widget _buildAnimatedInputField(String label, TextEditingController controller, {bool isPassword = false}) {
+    return AnimatedBuilder(
+      animation: _animation,
+      builder: (context, child) {
+        return Transform.translate(
+          offset: Offset(0, 50 * (1 - _animation.value)),
+          child: Opacity(
+            opacity: _animation.value,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black87,
+                    fontSize: 16,
+                  ),
+                ),
+                SizedBox(height: 8),
+                TextField(
+                  controller: controller,
+                  obscureText: isPassword,
+                  style: TextStyle(fontSize: 18),
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: Colors.white,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: Color(0xFFFF6B6B), width: 2),
+                    ),
+                    contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  ),
+                ),
+              ],
             ),
           ),
-        ),
-      ],
+        );
+      },
     );
   }
 }

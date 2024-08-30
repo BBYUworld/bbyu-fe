@@ -19,6 +19,7 @@ class FundView extends StatefulWidget {
 }
 
 class _FundViewState extends State<FundView> {
+  final String baseURL = 'http://10.0.2.2:8080/api'; // baseURL 정의
   Future<Map<String, dynamic>>? _initialDataFuture;
   final TokenStorage _tokenStorage = TokenStorage();
   int _selectedIndex = 3; // '펀딩' 탭의 인덱스
@@ -47,7 +48,7 @@ class _FundViewState extends State<FundView> {
   }
 
   Future<CoupleResponse> fetchCoupleResponse() async {
-    final url = Uri.parse('http://3.39.19.140:8080/api/couple');
+    final url = Uri.parse('$baseURL/couple'); // baseURL과 엔드포인트 결합
     final accessToken = await _tokenStorage.getAccessToken();
 
     try {
@@ -73,7 +74,7 @@ class _FundViewState extends State<FundView> {
   }
 
   Future<FundOverview> fetchFundOverview(int coupleId) async {
-    final url = Uri.parse('http://3.39.19.140:8080/api/fund/$coupleId');
+    final url = Uri.parse('$baseURL/fund/$coupleId'); // baseURL과 엔드포인트 결합
     final accessToken = await _tokenStorage.getAccessToken();
 
     try {
@@ -99,7 +100,7 @@ class _FundViewState extends State<FundView> {
   }
 
   Future<List<FundTransaction>> fetchFundTransactions(int fundId) async {
-    final url = Uri.parse('http://3.39.19.140:8080/api/fund/transaction/$fundId');
+    final url = Uri.parse('$baseURL/fund/transaction/$fundId'); // baseURL과 엔드포인트 결합
     final accessToken = await _tokenStorage.getAccessToken();
 
     try {
@@ -144,7 +145,6 @@ class _FundViewState extends State<FundView> {
           '펀드 관리',
           style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         ),
-        backgroundColor: Color(0xFFFC8D94),
       ),
       body: FutureBuilder<Map<String, dynamic>>(
         future: _initialDataFuture,
