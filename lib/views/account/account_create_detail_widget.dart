@@ -18,6 +18,7 @@ class _DetailPageState extends State<DetailPage> {
   late TextEditingController _amountInputController;
   List<Account> list = [];
   Account? selectedAccount;
+  int? accountBalance; // Variable to hold the current account balance
 
   final Color primaryColor = Color(0xFFFF6B6B);
   final Color textColor = Color(0xFF191F28);
@@ -41,6 +42,7 @@ class _DetailPageState extends State<DetailPage> {
         list = accounts;
         if (list.isNotEmpty) {
           selectedAccount = list[0]; // Select the first account by default
+          accountBalance = selectedAccount?.accountBalance; // Set the initial balance
         }
       });
       print("list = $list");
@@ -57,29 +59,70 @@ class _DetailPageState extends State<DetailPage> {
 
   String _formatCurrency(int amount) {
     final formatter = NumberFormat('#,###');
-    return '${formatter.format(amount * 10000)}원';
+    return '${formatter.format(amount)}원';
   }
 
-  void _submitForm() {
+  void _submitForm() async {
     if (_amountInputController.text.isNotEmpty) {
       final amount = int.tryParse(_amountInputController.text);
-      if (amount != null && amount > 0 && amount <= 10000) {
+      if (amount != null && amount > 0 && amount <= 100000000) {
         print("Selected Account: ${selectedAccount?.bankName} - ${selectedAccount?.accountNo}");
-        print("Entered Amount: $amount 만원");
+        print("Entered Amount: $amount 원");
         print("${widget.accountDto.accountTypeUniqueNo}");
-        String message = ApiService().createDepositAccount(selectedAccount!.accountNo, amount, widget.accountDto.accountTypeUniqueNo) as String;
+
+        try {
+          String message = await ApiService().createDepositAccount(
+            selectedAccount!.accountNo,
+            amount,
+            widget.accountDto.accountTypeUniqueNo,
+          );
+
+          if (message == "ok") {
+            _showSuccessDialog();
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text("상품 가입에 실패하였습니다: $message")),
+            );
+          }
+        } catch (e) {
+          // Handle any errors that occur during the API call
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("상품 가입 중 오류가 발생했습니다. 다시 시도해주세요.")),
+          );
+        }
       } else {
-        // 잘못된 입력 값 처리
+        // Handle invalid amount
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("금액은 1만원에서 1억원 사이여야 합니다.")),
         );
       }
     } else {
-      // 입력이 비어 있을 경우 처리
+      // Handle empty input
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("금액을 입력해주세요.")),
       );
     }
+  }
+
+  void _showSuccessDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("상품 가입 완료"),
+          content: Text("상품 가입이 성공적으로 완료되었습니다."),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+                Navigator.of(context).pop(); // Optionally navigate back
+              },
+              child: Text("확인"),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -113,14 +156,17 @@ class _DetailPageState extends State<DetailPage> {
                   Divider(height: 20, color: subtextColor),
                   _buildInfoRow('금리', '${widget.accountDto.interestRate}%'),
                   _buildInfoRow('기간', '${widget.accountDto.termMonths}개월'),
-                  _buildInfoRow('최소 금액', _formatCurrency(widget.accountDto.minAmount)),
-                  _buildInfoRow('최대 금액', _formatCurrency(widget.accountDto.maxAmount)),
+                  _buildInfoRow('최소 금액', _formatCurrency(widget.accountDto.minAmount*10000)),
+                  _buildInfoRow('최대 금액', _formatCurrency(widget.accountDto.maxAmount*10000)),
                   _buildInfoRow('계좌 번호', '${widget.accountDto.accountTypeUniqueNo}'),
                 ],
               ),
             ),
             SizedBox(height: 30),
             _buildDropdownField(),
+            if (accountBalance != null) ...[
+              _buildInfoRow('잔액', _formatCurrency(accountBalance!)), // Display the balance
+            ],
             _buildInputField(_amountInputController, '금액 입력 (원 단위)'),
             _buildSubmitButton(),
           ],
@@ -157,6 +203,7 @@ class _DetailPageState extends State<DetailPage> {
         onChanged: (value) {
           setState(() {
             selectedAccount = value;
+            accountBalance = value?.accountBalance; // Update the balance when a new account is selected
           });
         },
       ),
@@ -201,7 +248,7 @@ class _DetailPageState extends State<DetailPage> {
               borderRadius: BorderRadius.circular(8),
             ),
           ),
-          child: Text('서버로 전송', style: TextStyle(color: Colors.white, fontSize: 16)),
+          child: Text('상품 가입', style: TextStyle(color: Colors.white, fontSize: 16)),
         ),
       ),
     );
