@@ -8,8 +8,9 @@ import '../../models/asset/asset_account.dart';
 
 class FundChargeView extends StatefulWidget {
   final int fundId;
+  final String baseURL;
 
-  FundChargeView({required this.fundId});
+  FundChargeView({required this.fundId, this.baseURL = 'http://10.0.2.2:8080/api'});
 
   @override
   _FundChargeViewState createState() => _FundChargeViewState();
@@ -31,7 +32,7 @@ class _FundChargeViewState extends State<FundChargeView> {
   }
 
   Future<void> _fetchAccounts() async {
-    final url = Uri.parse('http://3.39.19.140:8080/api/asset-accounts');
+    final url = Uri.parse('${widget.baseURL}/asset-accounts');
     final accessToken = await _tokenStorage.getAccessToken();
 
     try {
@@ -69,7 +70,7 @@ class _FundChargeViewState extends State<FundChargeView> {
   }
 
   Future<void> createTransaction(FundTransactionCreate transaction) async {
-    final url = Uri.parse('http://3.39.19.140:8080/api/fund/transaction/${widget.fundId}');
+    final url = Uri.parse('${widget.baseURL}/fund/transaction/${widget.fundId}');
     final accessToken = await _tokenStorage.getAccessToken();
 
     try {
@@ -83,14 +84,17 @@ class _FundChargeViewState extends State<FundChargeView> {
       );
 
       if (response.statusCode == 201) {
-        print('Transaction created successfully');
         _showCompletionDialog(); // 충전 완료 모달 다이얼로그 띄우기
       } else {
+        final decodedResponse = json.decode(utf8.decode(response.bodyBytes));
+        final errorMessage = decodedResponse['errorMessage'];
+        _showErrorDialog(errorMessage);
         print('Failed to create transaction. Status code: ${response.statusCode}');
         print('Response body: ${response.body}');
       }
     } catch (e) {
       print('Error creating transaction: $e');
+      _showErrorDialog('An unexpected error occurred.');
     }
   }
 
@@ -115,11 +119,31 @@ class _FundChargeViewState extends State<FundChargeView> {
     );
   }
 
+  void _showErrorDialog(String errorMessage) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('충전 실패'),
+          content: Text(errorMessage),
+          actions: <Widget>[
+            TextButton(
+              child: Text('닫기'),
+              onPressed: () {
+                Navigator.of(context).pop(); // 다이얼로그 닫기
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('충전하기'),
+        title: Text('입금하기'),
         backgroundColor: Colors.pinkAccent,
       ),
       body: Padding(
@@ -194,6 +218,7 @@ class _FundChargeViewState extends State<FundChargeView> {
                       FundTransactionCreate newTransaction = FundTransactionCreate(
                         amount: _amount,
                         type: 'PLUS',
+                        accountNo: _selectedAccount!,
                       );
 
                       // POST 요청 보내기

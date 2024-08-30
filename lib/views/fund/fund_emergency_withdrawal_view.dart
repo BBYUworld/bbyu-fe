@@ -5,13 +5,14 @@ import 'package:gagyebbyu_fe/storage/TokenStorage.dart';
 import 'package:http/http.dart' as http;
 
 import '../../models/fund/fund_overview.dart';
-import '../../models/fund/fund_transaction_create.dart'; // FundTransactionCreate 모델 추가
+import '../../models/fund/fund_transaction_create.dart';
 import '../../models/asset/asset_account.dart';
 
 class FundEmergencyWithdrawalView extends StatefulWidget {
   final FundOverview fundOverview;
+  final String baseURL;
 
-  FundEmergencyWithdrawalView({required this.fundOverview});
+  FundEmergencyWithdrawalView({required this.fundOverview, this.baseURL = 'http://3.39.19.140:8080/api'});
 
   @override
   _FundEmergencyWithdrawalViewState createState() => _FundEmergencyWithdrawalViewState();
@@ -33,7 +34,7 @@ class _FundEmergencyWithdrawalViewState extends State<FundEmergencyWithdrawalVie
   }
 
   Future<void> _fetchAccounts() async {
-    final url = Uri.parse('http://3.39.19.140:8080/api/asset-accounts');
+    final url = Uri.parse('${widget.baseURL}/asset-accounts');
     final accessToken = await _tokenStorage.getAccessToken();
 
     try {
@@ -70,13 +71,13 @@ class _FundEmergencyWithdrawalViewState extends State<FundEmergencyWithdrawalVie
   }
 
   Future<void> createEmergencyWithdrawalTransaction() async {
-    final url = Uri.parse('http://3.39.19.140:8080/api/fund/transaction/${widget.fundOverview.fundId}');
+    final url = Uri.parse('${widget.baseURL}/fund/transaction/${widget.fundOverview.fundId}');
     final accessToken = await _tokenStorage.getAccessToken();
 
-    // FundTransactionCreate 객체 생성
     FundTransactionCreate transaction = FundTransactionCreate(
       amount: _withdrawAmount,
       type: 'MINUS',
+      accountNo: _selectedAccount!,
     );
 
     try {
@@ -92,7 +93,9 @@ class _FundEmergencyWithdrawalViewState extends State<FundEmergencyWithdrawalVie
       if (response.statusCode == 201) {
         _showCompletionDialog();
       } else {
-        print('Failed to create transaction. Status code: ${response.statusCode}');
+        final decodedResponse = json.decode(utf8.decode(response.bodyBytes));
+        final errorMessage = decodedResponse['errorMessage'];
+        _showErrorDialog(errorMessage);
       }
     } catch (e) {
       print('Error creating transaction: $e');
@@ -110,8 +113,28 @@ class _FundEmergencyWithdrawalViewState extends State<FundEmergencyWithdrawalVie
             TextButton(
               child: Text('닫기'),
               onPressed: () {
-                Navigator.of(context).pop(); // 다이얼로그 닫기
-                Navigator.of(context).pop(true); // 이전 화면으로 돌아가기
+                Navigator.of(context).pop();
+                Navigator.of(context).pop(true);
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showErrorDialog(String errorMessage) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('출금 실패'),
+          content: Text(errorMessage),
+          actions: <Widget>[
+            TextButton(
+              child: Text('닫기'),
+              onPressed: () {
+                Navigator.of(context).pop();
               },
             ),
           ],
@@ -122,7 +145,7 @@ class _FundEmergencyWithdrawalViewState extends State<FundEmergencyWithdrawalVie
 
   @override
   Widget build(BuildContext context) {
-    final int remainingWithdrawals = 2 - widget.fundOverview.emergencyCount; // 남은 긴급 출금 횟수 계산
+    final int remainingWithdrawals = 2 - widget.fundOverview.emergencyCount;
 
     return Scaffold(
       appBar: AppBar(
@@ -221,9 +244,9 @@ class _FundEmergencyWithdrawalViewState extends State<FundEmergencyWithdrawalVie
                       createEmergencyWithdrawalTransaction();
                     }
                   }
-                      : null, // 남은 출금 횟수가 0이면 버튼 비활성화
+                      : null,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: remainingWithdrawals > 0 ? Colors.pinkAccent : Colors.grey, // 비활성화 시 색상 변경
+                    backgroundColor: remainingWithdrawals > 0 ? Colors.pinkAccent : Colors.grey,
                     padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
                   ),
                   child: Text('출금하기', style: TextStyle(fontSize: 16)),
