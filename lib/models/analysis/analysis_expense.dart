@@ -40,8 +40,8 @@ class ExpenseResultDto {
   factory ExpenseResultDto.fromJson(Map<String, dynamic> json) {
     return ExpenseResultDto(
       category: json['category'] as String,
-      startAge: json['startAge'] as int? ?? 0, // null일 경우 기본값 0 설정
-      startIncome: json['startIncome'] as int? ?? 0, // null일 경우 기본값 0 설정
+      startAge: json['averageAge'] as int? ?? 0, // null일 경우 기본값 0 설정
+      startIncome: json['monthlyIncome'] as int? ?? 0, // null일 경우 기본값 0 설정
       anotherCoupleMonthExpenseAvg: json['anotherCoupleMonthExpenseAvg'] as int? ?? 0, // null일 경우 기본값 0 설정
       coupleMonthExpense: json['coupleMonthExpense'] as int? ?? 0, // null일 경우 기본값 0 설정
     );

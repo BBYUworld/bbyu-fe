@@ -11,7 +11,7 @@ class AnalysisExpenseMainPage extends StatefulWidget {
   final Future<void> Function(int year, int month) onRefresh;
   final int currentYear;
   final int currentMonth;
-  final void Function(int year, int month) onMonthChanged; // year, month 방식으로 변경
+  final void Function(int year, int month) onMonthChanged;
 
   AnalysisExpenseMainPage({
     required this.coupleExpense,
@@ -32,8 +32,22 @@ class _AnalysisExpenseMainPage extends State<AnalysisExpenseMainPage> {
   @override
   void initState() {
     super.initState();
-    futureExpenseCategories = fetchExpenseCategory(widget.currentYear, widget.currentMonth);
-    futureExpenseResult = fetchExpenseResult(widget.currentYear, widget.currentMonth);
+    _loadData(widget.currentYear, widget.currentMonth);
+  }
+
+  @override
+  void didUpdateWidget(covariant AnalysisExpenseMainPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.currentYear != widget.currentYear || oldWidget.currentMonth != widget.currentMonth) {
+      _loadData(widget.currentYear, widget.currentMonth);
+    }
+  }
+
+  void _loadData(int year, int month) {
+    setState(() {
+      futureExpenseCategories = fetchExpenseCategory(year, month);
+      futureExpenseResult = fetchExpenseResult(year, month);
+    });
   }
 
   @override
@@ -46,7 +60,6 @@ class _AnalysisExpenseMainPage extends State<AnalysisExpenseMainPage> {
             displayedYear: widget.currentYear,
             displayedMonth: widget.currentMonth,
             onMonthChanged: (increment) {
-              // 월 변경 로직
               int newYear = widget.currentYear;
               int newMonth = widget.currentMonth + increment;
               if (newMonth > 12) {
@@ -57,6 +70,7 @@ class _AnalysisExpenseMainPage extends State<AnalysisExpenseMainPage> {
                 newYear--;
               }
               widget.onMonthChanged(newYear, newMonth);
+              _loadData(newYear, newMonth);
             },
           ),
           Expanded(
@@ -65,7 +79,11 @@ class _AnalysisExpenseMainPage extends State<AnalysisExpenseMainPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  CategoryChartCard(futureExpenseCategories: futureExpenseCategories),
+                  CategoryChartCard(
+                    fetchExpenseCategories: fetchExpenseCategory,
+                    currentYear: widget.currentYear,
+                    currentMonth: widget.currentMonth,
+                  ),
                   SizedBox(height: 16.0),
                   FutureBuilder<ExpenseResultDto>(
                     future: futureExpenseResult,
