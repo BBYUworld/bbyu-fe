@@ -176,7 +176,7 @@ class ApiService {
     try {
       final depositResponse = await _dio.post('/api/recommend/deposit', data: {});
       final savingsResponse = await _dio.post('/api/recommend/savings', data: {});
-
+      print("depositResponse = $depositResponse");
       if (depositResponse.statusCode == 200 && savingsResponse.statusCode == 200) {
         return AccountRecommendation(
           depositAccounts: (depositResponse.data as List)
