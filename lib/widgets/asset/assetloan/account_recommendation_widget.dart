@@ -3,6 +3,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:dots_indicator/dots_indicator.dart';
 import 'package:gagyebbyu_fe/models/account/account_recommendation.dart';
 import 'package:intl/intl.dart';
+import 'package:gagyebbyu_fe/views/account/account_create_detail_widget.dart';
 
 class AccountSelectionWidget extends StatefulWidget {
   final AccountRecommendation recommendations;
@@ -53,74 +54,86 @@ class _AccountSelectionWidgetState extends State<AccountSelectionWidget> {
           items: items.asMap().entries.map((entry) {
             final index = entry.key;
             final item = entry.value;
-            return Builder(
-              builder: (BuildContext context) {
-                return Container(
-                  width: MediaQuery.of(context).size.width,
-                  margin: EdgeInsets.symmetric(horizontal: 5.0),
-                  decoration: BoxDecoration(
-                    color: cardColor,
-                    borderRadius: BorderRadius.circular(16.0),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
-                        spreadRadius: 0,
-                        blurRadius: 10,
-                        offset: Offset(0, 5),
-                      ),
-                    ],
-                  ),
-                  child: Padding(
-                    padding: EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: Text(
-                                item.accountDto.name,
-                                style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold, color: textColor),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                            Text(
-                              item.accountDto.bankName,
-                              style: TextStyle(fontSize: 12, color: subtextColor),
-                            ),
-                          ],
-                        ),
-                        Divider(height: 16),
-                        Expanded(
-                          child: SingleChildScrollView(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                _buildInfoRow('금리', '${item.accountDto.interestRate}%'),
-                                _buildInfoRow('기간', '${item.accountDto.termMonths}개월'),
-                                _buildInfoRow('최소 금액', _formatCurrency(item.accountDto.minAmount)),
-                                _buildInfoRow('최대 금액', _formatCurrency(item.accountDto.maxAmount)),
-                              ],
-                            ),
-                          ),
-                        ),
-                        Container(
-                          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: primaryColor.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(
-                            '추천 점수: ${(item.pred * 100).toStringAsFixed(0)}%',
-                            style: TextStyle(color: primaryColor, fontWeight: FontWeight.bold, fontSize: 12),
-                          ),
-                        ),
-                      ],
-                    ),
+            return GestureDetector(
+              onTap: () {
+                // Navigator를 사용하여 DetailPage로 이동
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => DetailPage(accountDto: item.accountDto),
                   ),
                 );
               },
+              child: Builder(
+                builder: (BuildContext context) {
+                  return Container(
+                    width: MediaQuery.of(context).size.width,
+                    margin: EdgeInsets.symmetric(horizontal: 5.0),
+                    decoration: BoxDecoration(
+                      color: cardColor,
+                      borderRadius: BorderRadius.circular(16.0),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          spreadRadius: 0,
+                          blurRadius: 10,
+                          offset: Offset(0, 5),
+                        ),
+                      ],
+                    ),
+                    child: Padding(
+                      padding: EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  item.accountDto.name,
+                                  style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold, color: textColor),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              Text(
+                                item.accountDto.bankName,
+                                style: TextStyle(fontSize: 12, color: subtextColor),
+                              ),
+                            ],
+                          ),
+                          Divider(height: 16),
+                          Expanded(
+                            child: SingleChildScrollView(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  _buildInfoRow('금리', '${item.accountDto.interestRate}%'),
+                                  _buildInfoRow('기간', '${item.accountDto.termMonths}개월'),
+                                  _buildInfoRow('최소 금액', _formatCurrency(item.accountDto.minAmount * 10000)),
+                                  _buildInfoRow('최대 금액', _formatCurrency(item.accountDto.maxAmount * 10000)),
+                                  _buildInfoRow('최대 금액', '${item.accountDto.accountTypeUniqueNo}'),
+                                ],
+                              ),
+                            ),
+                          ),
+                          Container(
+                            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: primaryColor.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              '추천 점수: ${(item.pred * 100).toStringAsFixed(0)}%',
+                              style: TextStyle(color: primaryColor, fontWeight: FontWeight.bold, fontSize: 12),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
             );
           }).toList(),
         ),

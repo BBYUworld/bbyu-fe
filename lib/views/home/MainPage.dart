@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart'; // Add this for number formatting
 import 'package:gagyebbyu_fe/models/couple_model.dart';
 import 'package:gagyebbyu_fe/views/home/Footer.dart';
 import 'package:gagyebbyu_fe/views/householdledger/HouseholdLedgerScreen.dart';
@@ -16,6 +17,7 @@ class _MainPageState extends State<MainPage> {
   int _selectedIndex = 0;
   bool _isLoaded = false;
   late UserApiService userApiService;
+  int? _coupleSum; // Initially null to avoid using uninitialized value
   CoupleResponseDto? _coupleDto;
 
   final Color primaryColor = Color(0xFFFF6B6B);
@@ -46,10 +48,25 @@ class _MainPageState extends State<MainPage> {
   }
 
   Future<void> _loadData() async {
-    _coupleDto = await userApiService.findCouple();
-    setState(() {
-      _isLoaded = true;
-    });
+    try {
+      _coupleDto = await userApiService.findCouple();
+      if (_coupleDto != null) {
+        _coupleSum = await userApiService.getCoupleAssetAccountSum();
+        print("couple sum = $_coupleSum");
+      }
+    } catch (e) {
+      print('Failed to load data: $e');
+      _coupleSum = 0; // Set to 0 in case of failure
+    } finally {
+      setState(() {
+        _isLoaded = true;
+      });
+    }
+  }
+
+  String _formatCurrency(int amount) {
+    final formatter = NumberFormat('#,###');
+    return '${formatter.format(amount)}원';
   }
 
   void _onItemTapped(int index) {
@@ -71,7 +88,6 @@ class _MainPageState extends State<MainPage> {
         appBar: CustomAppBar(),
         body: SafeArea(
           child: _isLoaded
-
               ? SingleChildScrollView(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
@@ -83,7 +99,6 @@ class _MainPageState extends State<MainPage> {
                   Text(
                     '금융 서비스',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: textColor),
-
                   ),
                   SizedBox(height: 16),
                   _buildMenuGrid(),
@@ -137,7 +152,7 @@ class _MainPageState extends State<MainPage> {
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: textColor),
               ),
               SizedBox(height: 16),
-              _coupleDto != null
+              _coupleDto != null && _coupleSum != null
                   ? Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -146,7 +161,10 @@ class _MainPageState extends State<MainPage> {
                     children: [
                       Text(_coupleDto!.user1Name, style: TextStyle(color: subtextColor)),
                       SizedBox(height: 4),
-                      Text('1,234,567원', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: textColor)),
+                      Text(
+                        _formatCurrency(_coupleSum!), // Using the formatted sum
+                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: textColor),
+                      ),
                     ],
                   ),
                   Column(

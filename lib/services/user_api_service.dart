@@ -9,7 +9,7 @@ import 'package:gagyebbyu_fe/storage/user_store.dart';
 import 'package:gagyebbyu_fe/models/notification_model.dart';
 
 class UserApiService {
-  static const String baseUrl = 'http://3.39.19.140';
+  static const String baseUrl = 'http://3.39.19.140:8080';
   final TokenStorage _tokenStorage = TokenStorage();
   final BuildContext context;
 
@@ -209,6 +209,26 @@ class UserApiService {
     }
     else{
       return false;
+    }
+  }
+
+  Future<int> getCoupleAssetAccountSum() async {
+    final accessToken = await _tokenStorage.getAccessToken();
+    final response = await http.get(
+      Uri.parse('$baseUrl/api/assets/couple/account/sum'),
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $accessToken"  // Bearer 토큰을 사용하는 경우
+      },
+    );
+
+    if (response.statusCode == 200) {
+      // 정상적으로 응답을 받은 경우
+      final int sum = int.parse(response.body); // 응답이 단순한 정수 값일 때
+      return sum;
+    } else {
+      // 에러가 발생한 경우
+      throw Exception('Failed to load couple asset account sum. Status code: ${response.statusCode}');
     }
   }
 

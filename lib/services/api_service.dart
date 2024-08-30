@@ -128,6 +128,7 @@ class ApiService {
   Future<int> fetchSumRemainAmount() async {
     try {
       final response = await _dio.get('/api/asset-loans/sum-user');
+      print("fetchSumRemainAmount = ${response.data}");
       if (response.statusCode == 200) {
         // API가 단일 Long 값을 반환하므로, 직접 정수로 변환
         return response.data as int;
@@ -180,6 +181,14 @@ class ApiService {
       final savingsResponse = await _dio.post('/api/recommend/savings', data: {});
       print("depositResponse = $depositResponse");
       if (depositResponse.statusCode == 200 && savingsResponse.statusCode == 200) {
+        List<RecommendedAccount> depositAccounts = (depositResponse.data as List)
+            .map((item) => RecommendedAccount.fromJson(item as Map<String, dynamic>))
+            .toList();
+        List<RecommendedAccount> savingsAccounts =(savingsResponse.data as List)
+        .map((item) => RecommendedAccount.fromJson(item as Map<String, dynamic>))
+        .toList();
+        print("deposit Accounts = $depositAccounts");
+        print("saving Accounts = $savingsAccounts");
         return AccountRecommendation(
           depositAccounts: (depositResponse.data as List)
               .map((item) => RecommendedAccount.fromJson(item as Map<String, dynamic>))
@@ -229,6 +238,26 @@ class ApiService {
       rethrow;
     }
   }
+
+  Future<String> createDepositAccount(String accountNo, int amount, String accountTypeUniqueNo) async{
+    try{
+      final response = await _dio.post('/api/asset-accounts/deposit',
+        data: {
+          "accountNo" : accountNo,
+          "amount" : "$amount",
+          "accountTypeUniqueNo" : accountTypeUniqueNo,
+        }
+      );
+      if(response.statusCode == 200){
+        return "ok";
+      }
+    }catch(e){
+      rethrow;
+    }
+    return "";
+  }
+
+
 }
 
 
