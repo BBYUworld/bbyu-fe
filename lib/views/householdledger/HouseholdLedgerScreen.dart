@@ -21,6 +21,9 @@ class _HouseholdLedgerScreenState extends State<HouseholdLedgerScreen> {
   CoupleExpense? coupleExpense;
   late Future<void> _loadDataFuture;
 
+  int currentYear = DateTime.now().year;
+  int currentMonth = DateTime.now().month;
+
   @override
   void initState() {
     super.initState();
@@ -30,7 +33,7 @@ class _HouseholdLedgerScreenState extends State<HouseholdLedgerScreen> {
 
   Future<void> _fetchInitialData() async {
     await _fetchLedgerData();
-    await fetchCoupleExpense(DateTime.now().year, DateTime.now().month);
+    await fetchCoupleExpense(currentYear, currentMonth);
   }
 
   Future<void> _fetchLedgerData() async {
@@ -38,7 +41,6 @@ class _HouseholdLedgerScreenState extends State<HouseholdLedgerScreen> {
       final data = await _apiService.fetchCoupleAccountData();
       setState(() {
         userAccount = data;
-        print("user Account List = $userAccount");
       });
     } catch (e) {
       print('Error fetching ledger data: $e');
@@ -54,9 +56,10 @@ class _HouseholdLedgerScreenState extends State<HouseholdLedgerScreen> {
   Future<void> fetchCoupleExpense(int year, int month) async {
     try {
       final data = await _apiService.fetchCoupleExpense(year, month);
-      print("size = ${data.expenses.length}");
       setState(() {
         coupleExpense = data;
+        currentYear = year;
+        currentMonth = month;
       });
     } catch (e) {
       print('Error fetching couple expense: $e');
@@ -122,11 +125,15 @@ class _HouseholdLedgerScreenState extends State<HouseholdLedgerScreen> {
                 ? JointLedgerListScreen(
               coupleExpense: coupleExpense,
               onRefresh: _onRefresh,
+              currentYear: currentYear,
+              currentMonth: currentMonth,
+              onMonthChanged: _onMonthChanged,
             )
                 : JointLedgerScreen(
               onMonthChanged: _onMonthChanged,
               coupleExpense: coupleExpense,
               onRefresh: _onRefresh,
+              apiService: _apiService,
             ),
           ),
           _buildCustomFooter(),

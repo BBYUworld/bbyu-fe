@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gagyebbyu_fe/views/home/MainPage.dart';
+import 'package:gagyebbyu_fe/views/fund/fund_view.dart';
 
 class CustomFooter extends StatelessWidget {
   final int selectedIndex;
@@ -45,7 +46,11 @@ class CustomFooter extends StatelessWidget {
             context,
             MaterialPageRoute(builder: (context) => MainPage()),
           );
-        } else {
+        } else if(index == 3){
+          Navigator.pushReplacement(context,
+              MaterialPageRoute(builder: (context) => FundView())
+          );
+        }else {
           onItemTapped(index);
         }
       },

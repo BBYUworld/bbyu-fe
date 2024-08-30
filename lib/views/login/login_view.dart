@@ -168,24 +168,6 @@ class _LoginViewState extends State<LoginView> {
                   },
                   child: Text('Sign Up'),
                 ),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => MainPage()),
-                    );
-                  },
-                  child: Text('메인페이지'),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => FundView()),
-                    );
-                  },
-                  child: Text('fund'),
-                ),
               ],
             ),
           ],
