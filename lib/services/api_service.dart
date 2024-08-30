@@ -3,6 +3,9 @@ import 'dart:ffi';
 import 'package:dio/dio.dart';
 import 'package:gagyebbyu_fe/models/account/account_recommendation.dart';
 import 'package:gagyebbyu_fe/models/couple/couple_response.dart';
+import 'package:gagyebbyu_fe/models/loan/CoupleLoanRecommendation.dart';
+import 'package:gagyebbyu_fe/models/loan/MoneyDto.dart';
+import 'package:gagyebbyu_fe/models/loan/recommend_loan.dart';
 import 'package:gagyebbyu_fe/storage/TokenStorage.dart';
 import 'package:flutter/material.dart';
 import '../views/login/login_view.dart';
@@ -34,8 +37,6 @@ class ApiService {
   Future<Response> post(String path, {dynamic data}) async {
     return await _dio.post(path, data: data);
   }
-
-// 다른 HTTP 메서드들도 필요에 따라 추가...
 
 // Loan API 메서드 추가
   Future<List<AssetLoan>> fetchAssetLoans() async {
@@ -98,7 +99,7 @@ class ApiService {
       } else {
         throw Exception('Failed to load couple data: ${response.statusCode}');
       }
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       print('Dio error: ${e.message}');
       throw Exception('Network error: ${e.message}');
     } catch (e) {
@@ -176,7 +177,7 @@ class ApiService {
     try {
       final depositResponse = await _dio.post('/api/recommend/deposit', data: {});
       final savingsResponse = await _dio.post('/api/recommend/savings', data: {});
-
+      print("depositResponse = $depositResponse");
       if (depositResponse.statusCode == 200 && savingsResponse.statusCode == 200) {
         return AccountRecommendation(
           depositAccounts: (depositResponse.data as List)
@@ -194,13 +195,31 @@ class ApiService {
       rethrow;
     }
   }
-  //recommand 하려고 만든건데 일단 전체 보여줌
-  Future<List<Loan>> fetchRecommendedLoans() async {
+
+  //recommand 보여줌
+  Future<List<RecommendLoan>> fetchUserRecommendedLoans() async {
     try {
       final response = await _dio.post('/api/recommend/loan',data: {});
       if (response.statusCode == 200) {
         List<dynamic> loansJson = response.data;
-        return loansJson.map((json) => Loan.fromJson(json)).toList();
+        return loansJson.map((json) => RecommendLoan.fromJson(json)).toList();
+      } else {
+        throw Exception('Failed to load recommended loans');
+      }
+    } catch (e) {
+      print('Error fetching recommended loans: $e');
+      rethrow;
+    }
+  }
+
+  //couple recommand 보여줌
+  Future<CoupleLoanRecommendation> fetchCoupleRecommendedLoans(MoneyDto moneyDto) async {
+    try {
+      final response = await _dio.post('/api/recommend/compare',
+          data: moneyDto.toJson()
+      );
+      if (response.statusCode == 200) {
+        return CoupleLoanRecommendation.fromJson(response.data);
       } else {
         throw Exception('Failed to load recommended loans');
       }
@@ -229,12 +248,9 @@ class TokenInterceptor extends Interceptor {
   @override
   void onError(DioError err, ErrorInterceptorHandler handler) async {
     if (err.response?.statusCode == 401) {
-      // AccessToken이 만료된 경우
       if (await _refreshToken()) {
-        // 토큰 갱신 성공, 원래 요청 재시도
         return handler.resolve(await _retry(err.requestOptions));
       } else {
-        // 토큰 갱신 실패, 로그인 화면으로 이동
         _navigateToLogin();
       }
     }
