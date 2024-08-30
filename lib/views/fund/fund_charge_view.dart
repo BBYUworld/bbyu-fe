@@ -31,7 +31,7 @@ class _FundChargeViewState extends State<FundChargeView> {
   }
 
   Future<void> _fetchAccounts() async {
-    final url = Uri.parse('http://10.0.2.2:8080/api/asset-accounts');
+    final url = Uri.parse('http://3.39.19.140:8080/api/asset-accounts');
     final accessToken = await _tokenStorage.getAccessToken();
 
     try {
@@ -69,7 +69,7 @@ class _FundChargeViewState extends State<FundChargeView> {
   }
 
   Future<void> createTransaction(FundTransactionCreate transaction) async {
-    final url = Uri.parse('http://10.0.2.2:8080/api/fund/transaction/${widget.fundId}');
+    final url = Uri.parse('http://3.39.19.140:8080/api/fund/transaction/${widget.fundId}');
     final accessToken = await _tokenStorage.getAccessToken();
 
     try {

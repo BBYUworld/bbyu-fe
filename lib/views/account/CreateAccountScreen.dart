@@ -1,5 +1,3 @@
-// file: lib/screens/create_account_screen.dart
-
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -11,7 +9,6 @@ class CreateAccountScreen extends StatefulWidget {
   final VoidCallback onAccountCreated;
   final Map<String, dynamic> additionalInfo;
 
-
   CreateAccountScreen({required this.onAccountCreated, required this.additionalInfo});
 
   @override
@@ -22,6 +19,27 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
   bool _isLoading = false;
   Map<String, List<BankProduct>> _groupedBankProducts = {};
   final TokenStorage _tokenStorage = TokenStorage();
+
+  final Map<String, String> _bankImageMap = {
+    '한국은행': '금융아이콘_PNG_한국.png',
+    '산업은행': '금융아이콘_PNG_산업.png',
+    '기업은행': '금융아이콘_PNG_IBK.png',
+    '국민은행': '금융아이콘_PNG_KB.png',
+    '농협은행': '금융아이콘_PNG_농협.png',
+    '우리은행': '금융아이콘_PNG_우리.png',
+    'SC제일은행': '금융아이콘_PNG_SC제일.png',
+    '시티은행': '금융아이콘_PNG_시티.png',
+    '대구은행': '금융아이콘_PNG_대구.png',
+    '광주은행': '금융아이콘_PNG_광주.png',
+    '제주은행': '금융아이콘_PNG_제주.png',
+    '전북은행': '금융아이콘_PNG_전북.png',
+    '경남은행': '금융아이콘_PNG_경남.png',
+    '새마을금고': '금융아이콘_PNG_MG새마을금고.png',
+    'KEB하나은행': '금융아이콘_PNG_하나.png',
+    '신한은행': '금융아이콘_PNG_신한.png',
+    '카카오뱅크': '금융아이콘_PNG_카카오뱅크.png',
+    '싸피은행': '금융아이콘_PNG_싸피.png',
+  };
 
   @override
   void initState() {
@@ -35,7 +53,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
     });
 
     try {
-      final url = Uri.parse("http://10.0.2.2:8080/user/product");
+      final url = Uri.parse("http://3.39.19.140:8080/user/product");
       final accessToken = await _tokenStorage.getAccessToken();
       final response = await http.get(
           url,
@@ -86,8 +104,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
     );
 
     if (result == true) {
-      // 계좌가 성공적으로 생성됨
-      Navigator.of(context).pop(true);  // CreateAccountScreen을 종료하고 true를 반환
+      Navigator.of(context).pop(true);
     }
   }
 
@@ -95,7 +112,10 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('새로운 계좌 생성'),
+        title: Text('새로운 계좌 생성', style: TextStyle(color: Colors.black)),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        iconTheme: IconThemeData(color: Colors.black),
       ),
       body: _isLoading
           ? Center(child: CircularProgressIndicator())
@@ -104,34 +124,60 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
         itemBuilder: (context, index) {
           String bankCode = _groupedBankProducts.keys.elementAt(index);
           List<BankProduct> products = _groupedBankProducts[bankCode]!;
-          return _buildBankExpansionTile(bankCode, products);
+          return _buildBankCard(bankCode, products);
         },
       ),
     );
   }
 
-  Widget _buildBankExpansionTile(String bankCode, List<BankProduct> products) {
-    return ExpansionTile(
-      title: Row(
-        children: [
-          Icon(Icons.account_balance),
-          SizedBox(width: 10),
-          Text(products.first.bankName),
-          Spacer(),
-          Text('상품 ${products.length}개'),
-        ],
+  Widget _buildBankCard(String bankCode, List<BankProduct> products) {
+    String bankName = products.first.bankName;
+    String imageName = _bankImageMap[bankName] ?? '금융아이콘_PNG_default.png';
+
+    return Card(
+      margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: ExpansionTile(
+        leading: Image.asset(
+          'assets/images/$imageName',
+          width: 40,
+          height: 40,
+        ),
+        title: Text(
+          bankName,
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        subtitle: Text('상품 ${products.length}개'),
+        children: products.map((product) => _buildProductCard(product)).toList(),
       ),
-      children: products.map((product) => _buildProductListTile(product)).toList(),
     );
   }
 
-  Widget _buildProductListTile(BankProduct product) {
-    return ListTile(
-      title: Text(product.accountName),
-      subtitle: Text(product.accountDescription),
-      trailing: ElevatedButton(
-        child: Text('상세 정보'),
-        onPressed: () => _navigateToProductDetail(product),
+  Widget _buildProductCard(BankProduct product) {
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: Color(0xFFE0E0E0), // 연한 회색 배경색
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: ListTile(
+        title: Text(
+          product.accountName,
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        subtitle: Text(product.accountDescription),
+        trailing: ElevatedButton(
+          child: Text('계좌 개설'),
+          style: ElevatedButton.styleFrom(
+            foregroundColor: Colors.black,
+            backgroundColor: Color(0xFFF5E7E0), // 기존의 배경색을 버튼에 그대로 사용
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+          ),
+          onPressed: () => _navigateToProductDetail(product),
+        ),
       ),
     );
   }

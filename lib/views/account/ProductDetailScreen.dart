@@ -22,6 +22,31 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   final _dailyTransferLimitController = TextEditingController();
   final _oneTimeTransferLimitController = TextEditingController();
 
+  final Color _primaryColor = Color(0xFFF5E7E0);
+  final Color _textColor = Color(0xFF4A4A4A);
+
+  // 은행 이름과 이미지 파일 이름 매핑
+  final Map<String, String> _bankImageMap = {
+    '한국은행': '금융아이콘_PNG_한국.png',
+    '산업은행': '금융아이콘_PNG_산업.png',
+    '기업은행': '금융아이콘_PNG_IBK.png',
+    '국민은행': '금융아이콘_PNG_KB.png',
+    '농협은행': '금융아이콘_PNG_농협.png',
+    '우리은행': '금융아이콘_PNG_우리.png',
+    'SC제일은행': '금융아이콘_PNG_SC제일.png',
+    '시티은행': '금융아이콘_PNG_시티.png',
+    '대구은행': '금융아이콘_PNG_대구.png',
+    '광주은행': '금융아이콘_PNG_광주.png',
+    '제주은행': '금융아이콘_PNG_제주.png',
+    '전북은행': '금융아이콘_PNG_전북.png',
+    '경남은행': '금융아이콘_PNG_경남.png',
+    '새마을금고': '금융아이콘_PNG_MG새마을금고.png',
+    'KEB하나은행': '금융아이콘_PNG_하나.png',
+    '신한은행': '금융아이콘_PNG_신한.png',
+    '카카오뱅크': '금융아이콘_PNG_카카오뱅크.png',
+    '싸피은행': '금융아이콘_PNG_싸피.png',
+  };
+
   Future<void> _createAccount() async {
     if (!_formKey.currentState!.validate()) {
       return;
@@ -31,15 +56,15 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('계좌 생성 확인'),
+          title: Text('계좌 생성 확인', style: TextStyle(color: _textColor)),
           content: Text('${widget.product.accountName} 상품으로 계좌를 생성하시겠습니까?'),
           actions: <Widget>[
             TextButton(
-              child: Text('취소'),
+              child: Text('취소', style: TextStyle(color: _textColor)),
               onPressed: () => Navigator.of(context).pop(false),
             ),
             TextButton(
-              child: Text('확인'),
+              child: Text('확인', style: TextStyle(color: _textColor)),
               onPressed: () => Navigator.of(context).pop(true),
             ),
           ],
@@ -49,7 +74,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
     if (confirm == true) {
       try {
-        final url = Uri.parse("http://10.0.2.2:8080/user/account");
+        final url = Uri.parse("http://3.39.19.140:8080/user/account");
         final accessToken = await _tokenStorage.getAccessToken();
         final response = await http.post(
           url,
@@ -89,7 +114,10 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('상품 상세 정보'),
+        title: Text('상품 상세 정보', style: TextStyle(color: _textColor)),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        iconTheme: IconThemeData(color: _textColor),
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(16.0),
@@ -98,55 +126,20 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('은행: ${widget.product.bankName}', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              SizedBox(height: 8),
-              Text('상품명: ${widget.product.accountName}', style: TextStyle(fontSize: 16)),
-              SizedBox(height: 8),
-              Text('상품 설명: ${widget.product.accountDescription}', style: TextStyle(fontSize: 14)),
-              SizedBox(height: 8),
-              Text('계좌 유형: ${widget.product.accountTypeName}', style: TextStyle(fontSize: 14)),
-              SizedBox(height: 8),
-              Text('계좌 종류: ${widget.product.accountType}', style: TextStyle(fontSize: 14)),
+              _buildInfoCard(),
               SizedBox(height: 24),
-              TextFormField(
-                controller: _dailyTransferLimitController,
-                decoration: InputDecoration(
-                  labelText: '일일 최대 이체 금액',
-                  hintText: '숫자만 입력해주세요',
-                ),
-                keyboardType: TextInputType.number,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return '일일 최대 이체 금액을 입력해주세요.';
-                  }
-                  if (int.tryParse(value) == null) {
-                    return '유효한 숫자를 입력해주세요.';
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: 16),
-              TextFormField(
-                controller: _oneTimeTransferLimitController,
-                decoration: InputDecoration(
-                  labelText: '1회 최대 이체 금액',
-                  hintText: '숫자만 입력해주세요',
-                ),
-                keyboardType: TextInputType.number,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return '1회 최대 이체 금액을 입력해주세요.';
-                  }
-                  if (int.tryParse(value) == null) {
-                    return '유효한 숫자를 입력해주세요.';
-                  }
-                  return null;
-                },
-              ),
+              _buildLimitInputs(),
               SizedBox(height: 24),
               Center(
                 child: ElevatedButton(
-                  child: Text('이 상품으로 계좌 만들기'),
+                  child: Text('이 상품으로 계좌 만들기', style: TextStyle(color: _textColor)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: _primaryColor,
+                    padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
                   onPressed: _createAccount,
                 ),
               ),
@@ -154,6 +147,90 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildInfoCard() {
+    String imageName = _bankImageMap[widget.product.bankName] ?? '금융아이콘_PNG_default.png';
+
+    return Card(
+      color: _primaryColor,
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Image.asset(
+                  'assets/images/$imageName',
+                  width: 40,
+                  height: 40,
+                ),
+                SizedBox(width: 12),
+                Text(
+                  widget.product.bankName,
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: _textColor),
+                ),
+              ],
+            ),
+            SizedBox(height: 16),
+            Text(widget.product.accountName, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: _textColor)),
+            SizedBox(height: 8),
+            Text(widget.product.accountDescription, style: TextStyle(fontSize: 14, color: _textColor)),
+            SizedBox(height: 8),
+            Text('계좌 유형: ${widget.product.accountTypeName}', style: TextStyle(fontSize: 14, color: _textColor)),
+            SizedBox(height: 4),
+            Text('계좌 종류: ${widget.product.accountType}', style: TextStyle(fontSize: 14, color: _textColor)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLimitInputs() {
+    return Column(
+      children: [
+        TextFormField(
+          controller: _dailyTransferLimitController,
+          decoration: InputDecoration(
+            labelText: '일일 최대 이체 금액',
+            hintText: '숫자만 입력해주세요',
+            border: OutlineInputBorder(),
+          ),
+          keyboardType: TextInputType.number,
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return '일일 최대 이체 금액을 입력해주세요.';
+            }
+            if (int.tryParse(value) == null) {
+              return '유효한 숫자를 입력해주세요.';
+            }
+            return null;
+          },
+        ),
+        SizedBox(height: 16),
+        TextFormField(
+          controller: _oneTimeTransferLimitController,
+          decoration: InputDecoration(
+            labelText: '1회 최대 이체 금액',
+            hintText: '숫자만 입력해주세요',
+            border: OutlineInputBorder(),
+          ),
+          keyboardType: TextInputType.number,
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return '1회 최대 이체 금액을 입력해주세요.';
+            }
+            if (int.tryParse(value) == null) {
+              return '유효한 숫자를 입력해주세요.';
+            }
+            return null;
+          },
+        ),
+      ],
     );
   }
 

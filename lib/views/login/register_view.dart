@@ -61,7 +61,7 @@ class _RegisterViewState extends State<RegisterView> {
     }
     try{
       final email = Uri.encodeQueryComponent(_emailController.text);
-      final url = Uri.parse("http://10.0.2.2:8080/user/search?email=$email");
+      final url = Uri.parse("http://3.39.19.140:8080/user/search?email=$email");
       final response = await http.get(
         url,
         headers: {'Content-Type': "application/json"},
@@ -70,7 +70,6 @@ class _RegisterViewState extends State<RegisterView> {
         final responseBody = response.body;
         if (responseBody == "not Exist") {
           existCheck = true;
-
           print("사용자가 존재하지 않습니다.");
           _showDialog("사용 가능한 이메일입니다.");
         } else if (responseBody == "is Exist") {
@@ -82,8 +81,8 @@ class _RegisterViewState extends State<RegisterView> {
       } else {
         print("서버 오류: ${response.statusCode}");
       }
-    }catch(e){
-
+    } catch(e) {
+      print('Error occurred: $e');
     }
   }
 
@@ -93,7 +92,7 @@ class _RegisterViewState extends State<RegisterView> {
       return;
     }
     print("주소 테스트 : ${_postcodeController.text} ${_addressController.text} ${_addressDetailController.text}");
-    final url = Uri.parse('http://10.0.2.2:8080/user/regist');
+    final url = Uri.parse('http://3.39.19.140:8080/user/regist');
     try{
       final response = await http.post(
         url,
@@ -101,7 +100,6 @@ class _RegisterViewState extends State<RegisterView> {
         body: json.encode({
           'email': _emailController.text,
           'password': _passwordController.text,
-          // name ,phone, address
           'name' : _nameController.text,
           'phone' : formattedPhoneNumber,
           'address' : "${_addressController.text} ${_addressDetailController.text}",
@@ -118,6 +116,7 @@ class _RegisterViewState extends State<RegisterView> {
       _showErrorDialog('오류가 발생했습니다. 다시 시도해주세요.');
     }
   }
+
   void _showRegistSuccessDialog() {
     showDialog(
       context: context,
@@ -129,7 +128,7 @@ class _RegisterViewState extends State<RegisterView> {
             TextButton(
               child: Text('확인'),
               onPressed: () {
-                Navigator.of(context).pop(); // 다이얼로그 닫기
+                Navigator.of(context).pop();
                 _navigateToLogin();
               },
             ),
@@ -138,6 +137,7 @@ class _RegisterViewState extends State<RegisterView> {
       },
     );
   }
+
   void _showDialog(String message) {
     showDialog(
       context: context,
@@ -157,6 +157,7 @@ class _RegisterViewState extends State<RegisterView> {
       },
     );
   }
+
   void _showErrorDialog(String message) {
     showDialog(
       context: context,
@@ -168,7 +169,7 @@ class _RegisterViewState extends State<RegisterView> {
             TextButton(
               child: Text('확인'),
               onPressed: () {
-                Navigator.of(context).pop(); // 다이얼로그 닫기
+                Navigator.of(context).pop();
               },
             ),
           ],
@@ -187,105 +188,228 @@ class _RegisterViewState extends State<RegisterView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Register'),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        iconTheme: IconThemeData(color: Color(0xFFF5E7E0)),
       ),
+      backgroundColor: Colors.white,
       body: SingleChildScrollView(
         padding: EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _emailController,
-                    decoration: InputDecoration(labelText: '이메일을 입력해주세요.'),
-                  ),
-                ),
-                SizedBox(width: 8),
-                ElevatedButton(
-                  onPressed: _validateUserAlreadyExist,
-                  child: Text('중복확인'),
-                ),
-              ],
+            Image.asset(
+              'assets/images/logo1-removebg-preview.png',
+              height: 100,
+              fit: BoxFit.contain,
             ),
-            TextField(
+            SizedBox(height: 24),
 
-              controller: _passwordController,
-              obscureText: true,
-              decoration: InputDecoration(labelText: '비밀번호를 입력해주세요.'),
-            ),
-            TextField(
-              controller: _nameController,
-              decoration: InputDecoration(labelText: '이름을 입력해주세요.'),
-            ),
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _phoneController1,
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [
-                      FilteringTextInputFormatter.digitsOnly,
-                      LengthLimitingTextInputFormatter(3),
-                    ],
-                    decoration: InputDecoration(labelText: '전화번호'),
-                  ),
-                ),
-                Text('-'),
-                Expanded(
-                  child: TextField(
-                    controller: _phoneController2,
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [
-                      FilteringTextInputFormatter.digitsOnly,
-                      LengthLimitingTextInputFormatter(4),
-                    ],
-                    decoration: InputDecoration(labelText: ''),
-                  ),
-                ),
-                Text('-'),
-                Expanded(
-                  child: TextField(
-                    controller: _phoneController3,
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [
-                      FilteringTextInputFormatter.digitsOnly,
-                      LengthLimitingTextInputFormatter(4),
-                    ],
-                    decoration: InputDecoration(labelText: ''),
-                  ),
-                ),
-              ],
-            ),
-
-            TextField(
-              controller: _postcodeController,
-              decoration: InputDecoration(labelText: '우편번호'),
-              readOnly: true,
-            ),
-            TextField(
-              controller: _addressController,
-              decoration: InputDecoration(labelText: '기본주소'),
-              readOnly: true,
-            ),
-            TextField(
-              controller: _addressDetailController,
-              decoration: InputDecoration(labelText: '상세주소'),
-            ),
-            ElevatedButton(
-              onPressed: () => _searchAddress(context),
-              child: Text('주소 검색'),
-            ),
+            _buildSectionTitle('기본 정보'),
+            SizedBox(height: 16),
+            _buildEmailField(),
+            SizedBox(height: 16),
+            _buildInputField('비밀번호', _passwordController, isPassword: true),
+            SizedBox(height: 16),
+            _buildInputField('이름', _nameController),
 
             SizedBox(height: 24),
+
+            _buildSectionTitle('연락처 정보'),
+            SizedBox(height: 16),
+            _buildPhoneNumberField(),
+
+            SizedBox(height: 24),
+
+            _buildSectionTitle('주소 정보'),
+            SizedBox(height: 16),
+            _buildPostcodeField(),
+            SizedBox(height: 16),
+            _buildInputField('기본주소', _addressController, readOnly: true),
+            SizedBox(height: 16),
+            _buildInputField('상세주소', _addressDetailController),
+
+            SizedBox(height: 32),
+
             ElevatedButton(
               onPressed: _register,
-              child: Text('Register'),
+              child: Text('회원가입'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color(0xFFF5E7E0),
+                foregroundColor: Colors.black,
+                padding: EdgeInsets.symmetric(vertical: 16),
+              ),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildSectionTitle(String title) {
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+      color: Color(0xFFF5E7E0).withOpacity(0.3),
+      child: Text(
+        title,
+        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+      ),
+    );
+  }
+
+  Widget _buildInputField(String label, TextEditingController controller, {bool isPassword = false, bool readOnly = false}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: TextStyle(fontWeight: FontWeight.bold)),
+        SizedBox(height: 8),
+        TextField(
+          controller: controller,
+          obscureText: isPassword,
+          readOnly: readOnly,
+          decoration: InputDecoration(
+            border: OutlineInputBorder(),
+            fillColor: Colors.white,
+            filled: true,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildEmailField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('이메일', style: TextStyle(fontWeight: FontWeight.bold)),
+        SizedBox(height: 8),
+        Row(
+          children: [
+            Expanded(
+              flex: 7,
+              child: TextField(
+                controller: _emailController,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  fillColor: Colors.white,
+                  filled: true,
+                ),
+              ),
+            ),
+            SizedBox(width: 8),
+            Expanded(
+              flex: 3,
+              child: ElevatedButton(
+                onPressed: _validateUserAlreadyExist,
+                child: Text('중복확인'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color(0xFFF5E7E0),
+                  foregroundColor: Colors.black,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPostcodeField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('우편번호', style: TextStyle(fontWeight: FontWeight.bold)),
+        SizedBox(height: 8),
+        Row(
+          children: [
+            Expanded(
+              flex: 7,
+              child: TextField(
+                controller: _postcodeController,
+                readOnly: true,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  fillColor: Colors.white,
+                  filled: true,
+                ),
+              ),
+            ),
+            SizedBox(width: 8),
+            Expanded(
+              flex: 3,
+              child: ElevatedButton(
+                onPressed: () => _searchAddress(context),
+                child: Text('주소 검색'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color(0xFFF5E7E0),
+                  foregroundColor: Colors.black,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPhoneNumberField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('전화번호', style: TextStyle(fontWeight: FontWeight.bold)),
+        SizedBox(height: 8),
+        Row(
+          children: [
+            Expanded(
+              child: TextField(
+                controller: _phoneController1,
+                keyboardType: TextInputType.number,
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                  LengthLimitingTextInputFormatter(3),
+                ],
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  fillColor: Colors.white,
+                  filled: true,
+                ),
+              ),
+            ),
+            Text(' - '),
+            Expanded(
+              child: TextField(
+                controller: _phoneController2,
+                keyboardType: TextInputType.number,
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                  LengthLimitingTextInputFormatter(4),
+                ],
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  fillColor: Colors.white,
+                  filled: true,
+                ),
+              ),
+            ),
+            Text(' - '),
+            Expanded(
+              child: TextField(
+                controller: _phoneController3,
+                keyboardType: TextInputType.number,
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                  LengthLimitingTextInputFormatter(4),
+                ],
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  fillColor: Colors.white,
+                  filled: true,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }

@@ -22,8 +22,7 @@ class _LoginViewState extends State<LoginView> {
 
   Future<void> _login() async {
     print("로그인 함수 호출");
-    // final url = Uri.parse('http://3.39.19.140:8080/user/login');
-    final url = Uri.parse('http://10.0.2.2:8080/user/login');
+    final url = Uri.parse('http://3.39.19.140:8080/user/login');
     print("아이디 = "+_idController.text);
     print("비밀번호 = "+_passwordController.text);
     try {
@@ -125,54 +124,91 @@ class _LoginViewState extends State<LoginView> {
 
   @override
   Widget build(BuildContext context) {
-    // build 메서드는 변경 없음
+    final Color mainColor = Color(0xFFF5E7E0);
     return Scaffold(
       appBar: AppBar(
-        title: Text('Login'),
+        backgroundColor: Colors.white,
+        elevation: 0,
       ),
-      body: Padding(
+      backgroundColor: Colors.white,
+      body: SingleChildScrollView(
         padding: EdgeInsets.all(16.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            TextField(
-              controller: _idController,
-              decoration: InputDecoration(
-                labelText: 'ID',
-                border: OutlineInputBorder(),
-              ),
+            SizedBox(height: 50),
+            Image.asset(
+              'assets/images/logo1-removebg-preview.png',
+              height: 150,
+              fit: BoxFit.contain,
             ),
+            SizedBox(height: 30),
+            _buildInputField('아이디', _idController),
             SizedBox(height: 16),
-            TextField(
-              controller: _passwordController,
-              obscureText: true,
-              decoration: InputDecoration(
-                labelText: 'Password',
-                border: OutlineInputBorder(),
-              ),
-            ),
+            _buildInputField('비밀번호', _passwordController, isPassword: true),
             SizedBox(height: 24),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                ElevatedButton(
-                  onPressed: _login,
-                  child: Text('Login'),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: _login,
+                    child: Text('로그인', style: TextStyle(color: Colors.black)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: mainColor,
+                      padding: EdgeInsets.symmetric(vertical: 16),
+                    ),
+                  ),
                 ),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => RegisterView()),
-                    );
-                  },
-                  child: Text('Sign Up'),
+                SizedBox(width: 16),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => RegisterView()),
+                      );
+                    },
+                    child: Text('회원가입', style: TextStyle(color: Colors.black)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      side: BorderSide(color: mainColor),
+                      padding: EdgeInsets.symmetric(vertical: 16),
+                    ),
+                  ),
                 ),
               ],
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildInputField(String label, TextEditingController controller, {bool isPassword = false}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black)),
+        SizedBox(height: 8),
+        TextField(
+          controller: controller,
+          obscureText: isPassword,
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: Colors.white,
+            border: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.grey),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.grey),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: Color(0xFFF5E7E0)),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

@@ -47,7 +47,7 @@ class _FundViewState extends State<FundView> {
   }
 
   Future<CoupleResponse> fetchCoupleResponse() async {
-    final url = Uri.parse('http://10.0.2.2:8080/api/couple');
+    final url = Uri.parse('http://3.39.19.140:8080/api/couple');
     final accessToken = await _tokenStorage.getAccessToken();
 
     try {
@@ -73,7 +73,7 @@ class _FundViewState extends State<FundView> {
   }
 
   Future<FundOverview> fetchFundOverview(int coupleId) async {
-    final url = Uri.parse('http://10.0.2.2:8080/api/fund/$coupleId');
+    final url = Uri.parse('http://3.39.19.140:8080/api/fund/$coupleId');
     final accessToken = await _tokenStorage.getAccessToken();
 
     try {
@@ -99,7 +99,7 @@ class _FundViewState extends State<FundView> {
   }
 
   Future<List<FundTransaction>> fetchFundTransactions(int fundId) async {
-    final url = Uri.parse('http://10.0.2.2:8080/api/fund/transaction/$fundId');
+    final url = Uri.parse('http://3.39.19.140:8080/api/fund/transaction/$fundId');
     final accessToken = await _tokenStorage.getAccessToken();
 
     try {

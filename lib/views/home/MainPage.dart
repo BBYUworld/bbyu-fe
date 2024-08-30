@@ -90,8 +90,6 @@ class _MainPageState extends State<MainPage> {
                       _buildMenuCard('쀼 펀딩', Icons.search, () {
                         Navigator.pushNamed(context, '/fund');
                       }),
-
-                      _buildMenuCard('뷰 상품 추천', Icons.message, () {}),
                       _buildMenuCard('가계부', Icons.attach_money, () async {
                         await Navigator.push(
                           context,
@@ -199,9 +197,10 @@ class _MainPageState extends State<MainPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
+          contentPadding: EdgeInsets.zero,
           content: SizedBox(
-            width: MediaQuery.of(context).size.width * 0.7,
-            height: MediaQuery.of(context).size.height * 0.5,
+            width: MediaQuery.of(context).size.width * 0.8,
+            height: MediaQuery.of(context).size.height * 0.6,
             child: SearchModal(),
           ),
           shape: RoundedRectangleBorder(
