@@ -116,7 +116,7 @@ class _GoalCardState extends State<GoalCard> {
                             widget.reloadData();
                           });
                         },
-                        child: Text('충전하기'),
+                        child: Text('충하기'),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blue,
                           foregroundColor: Colors.white,
