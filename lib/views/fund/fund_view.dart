@@ -1,4 +1,3 @@
-// fund_view.dart
 import 'package:flutter/material.dart';
 import 'package:gagyebbyu_fe/models/fund/fund_overview.dart';
 import 'package:gagyebbyu_fe/models/couple/couple_response.dart';
@@ -12,12 +11,14 @@ import 'package:gagyebbyu_fe/views/home/Fotter.dart';
 import 'package:http/http.dart' as http;
 import 'package:gagyebbyu_fe/storage/TokenStorage.dart';
 import 'dart:convert';
+
 class FundView extends StatefulWidget {
   @override
   _FundViewState createState() => _FundViewState();
 }
 
 class _FundViewState extends State<FundView> {
+  final String baseURL = 'http://10.0.2.2:8080/api'; // baseURL 정의
   Future<Map<String, dynamic>>? _initialDataFuture;
   final TokenStorage _tokenStorage = TokenStorage();
   int _selectedIndex = 3; // '펀딩' 탭의 인덱스
@@ -46,7 +47,7 @@ class _FundViewState extends State<FundView> {
   }
 
   Future<CoupleResponse> fetchCoupleResponse() async {
-    final url = Uri.parse('http://10.0.2.2:8080/api/couple');
+    final url = Uri.parse('$baseURL/couple'); // baseURL과 엔드포인트 결합
     final accessToken = await _tokenStorage.getAccessToken();
 
     try {
@@ -72,7 +73,7 @@ class _FundViewState extends State<FundView> {
   }
 
   Future<FundOverview> fetchFundOverview(int coupleId) async {
-    final url = Uri.parse('http://10.0.2.2:8080/api/fund/$coupleId');
+    final url = Uri.parse('$baseURL/fund/$coupleId'); // baseURL과 엔드포인트 결합
     final accessToken = await _tokenStorage.getAccessToken();
 
     try {
@@ -98,7 +99,7 @@ class _FundViewState extends State<FundView> {
   }
 
   Future<List<FundTransaction>> fetchFundTransactions(int fundId) async {
-    final url = Uri.parse('http://10.0.2.2:8080/api/fund/transaction/$fundId');
+    final url = Uri.parse('$baseURL/fund/transaction/$fundId'); // baseURL과 엔드포인트 결합
     final accessToken = await _tokenStorage.getAccessToken();
 
     try {
