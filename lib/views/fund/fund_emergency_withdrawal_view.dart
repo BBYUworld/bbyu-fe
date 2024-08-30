@@ -27,10 +27,36 @@ class _FundEmergencyWithdrawalViewState extends State<FundEmergencyWithdrawalVie
   bool _isLoading = true;
   int _withdrawAmount = 0;
 
+  final TextEditingController _amountController = TextEditingController();
+  final NumberFormat _numberFormat = NumberFormat('#,##0');
+
   @override
   void initState() {
     super.initState();
     _fetchAccounts();
+    _amountController.addListener(_formatAmount);
+  }
+
+  @override
+  void dispose() {
+    _amountController.dispose();
+    super.dispose();
+  }
+
+  void _formatAmount() {
+    String text = _amountController.text.replaceAll(',', '');
+    if (text.isEmpty) return;
+
+    int? value = int.tryParse(text);
+    if (value == null) return;
+
+    String formatted = _numberFormat.format(value);
+    if (formatted != _amountController.text) {
+      _amountController.value = TextEditingValue(
+        text: formatted,
+        selection: TextSelection.collapsed(offset: formatted.length),
+      );
+    }
   }
 
   Future<void> _fetchAccounts() async {
@@ -160,6 +186,7 @@ class _FundEmergencyWithdrawalViewState extends State<FundEmergencyWithdrawalVie
               ),
               SizedBox(height: 8),
               TextFormField(
+                controller: _amountController,
                 decoration: InputDecoration(
                   border: OutlineInputBorder(),
                   labelText: '금액 입력(원)',
@@ -170,14 +197,16 @@ class _FundEmergencyWithdrawalViewState extends State<FundEmergencyWithdrawalVie
                   if (value == null || value.isEmpty) {
                     return '금액을 입력해주세요';
                   }
-                  int inputAmount = int.parse(value);
+                  String numericString = value.replaceAll(',', '');
+                  int inputAmount = int.parse(numericString);
                   if (inputAmount > widget.fundOverview.currentAmount) {
                     return '출금 가능한 금액을 초과했습니다';
                   }
                   return null;
                 },
                 onSaved: (value) {
-                  _withdrawAmount = int.parse(value!);
+                  String numericString = value!.replaceAll(',', '');
+                  _withdrawAmount = int.parse(numericString);
                 },
               ),
               SizedBox(height: 20),
@@ -208,6 +237,10 @@ class _FundEmergencyWithdrawalViewState extends State<FundEmergencyWithdrawalVie
               ),
               if (_selectedBankName != null) ...[
                 SizedBox(height: 10),
+                Text(
+                  '은행 이름: $_selectedBankName',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                ),
               ],
               SizedBox(height: 20),
               Center(

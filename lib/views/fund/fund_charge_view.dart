@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:gagyebbyu_fe/storage/TokenStorage.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 
 import '../../models/fund/fund_transaction_create.dart';
 import '../../models/asset/asset_account.dart';
@@ -25,10 +26,41 @@ class _FundChargeViewState extends State<FundChargeView> {
   List<AssetAccount> _accounts = [];
   bool _isLoading = true;
 
+  // 추가된 부분: TextEditingController 및 NumberFormat 초기화
+  final TextEditingController _amountController = TextEditingController();
+  final NumberFormat _numberFormat = NumberFormat('#,##0');
+
   @override
   void initState() {
     super.initState();
     _fetchAccounts();
+
+    // 금액 입력 필드에 대한 리스너 추가
+    _amountController.addListener(_formatAmount);
+  }
+
+  @override
+  void dispose() {
+    // 컨트롤러 정리
+    _amountController.dispose();
+    super.dispose();
+  }
+
+  // 입력값을 포맷팅하는 함수
+  void _formatAmount() {
+    String text = _amountController.text.replaceAll(',', '');
+    if (text.isEmpty) return;
+
+    int? value = int.tryParse(text);
+    if (value == null) return;
+
+    String formatted = _numberFormat.format(value);
+    if (formatted != _amountController.text) {
+      _amountController.value = TextEditingValue(
+        text: formatted,
+        selection: TextSelection.collapsed(offset: formatted.length),
+      );
+    }
   }
 
   Future<void> _fetchAccounts() async {
@@ -49,7 +81,6 @@ class _FundChargeViewState extends State<FundChargeView> {
         setState(() {
           _accounts = data.map((item) => AssetAccount.fromJson(item)).toList();
           if (_accounts.isNotEmpty) {
-            // 초기 선택 계좌 설정
             _selectedAccount = _accounts[0].accountNumber;
             _selectedBankName = _accounts[0].bankName;
           }
@@ -156,11 +187,12 @@ class _FundChargeViewState extends State<FundChargeView> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                '충전할 금액',
+                '입금할 금액',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               SizedBox(height: 8),
               TextFormField(
+                controller: _amountController, // 컨트롤러 할당
                 decoration: InputDecoration(
                   border: OutlineInputBorder(),
                   labelText: '금액 입력(원)',
@@ -174,7 +206,9 @@ class _FundChargeViewState extends State<FundChargeView> {
                   return null;
                 },
                 onSaved: (value) {
-                  _amount = int.parse(value!);
+                  // 콤마 제거 후 정수로 변환
+                  String numericString = value!.replaceAll(',', '');
+                  _amount = int.parse(numericString);
                 },
               ),
               SizedBox(height: 20),
@@ -230,7 +264,7 @@ class _FundChargeViewState extends State<FundChargeView> {
                     backgroundColor: Colors.pinkAccent,
                     padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
                   ),
-                  child: Text('충전하기', style: TextStyle(fontSize: 16)),
+                  child: Text('입금하기', style: TextStyle(fontSize: 16)),
                 ),
               ),
             ],

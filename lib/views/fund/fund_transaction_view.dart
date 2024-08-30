@@ -56,7 +56,7 @@ class FundTransactionView extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              _buildHeaderButton(context, '충전하기'),
+              _buildHeaderButton(context, '입금하기'),
               _buildHeaderButton(context, '긴급출금'),
             ],
           ),
