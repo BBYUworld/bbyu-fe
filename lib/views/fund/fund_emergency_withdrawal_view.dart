@@ -33,7 +33,7 @@ class _FundEmergencyWithdrawalViewState extends State<FundEmergencyWithdrawalVie
   }
 
   Future<void> _fetchAccounts() async {
-    final url = Uri.parse('http://10.0.2.2:8080/api/asset-accounts');
+    final url = Uri.parse('http://3.39.19.140:8080/api/asset-accounts');
     final accessToken = await _tokenStorage.getAccessToken();
 
     try {
@@ -70,7 +70,7 @@ class _FundEmergencyWithdrawalViewState extends State<FundEmergencyWithdrawalVie
   }
 
   Future<void> createEmergencyWithdrawalTransaction() async {
-    final url = Uri.parse('http://10.0.2.2:8080/api/fund/transaction/${widget.fundOverview.fundId}');
+    final url = Uri.parse('http://3.39.19.140:8080/api/fund/transaction/${widget.fundOverview.fundId}');
     final accessToken = await _tokenStorage.getAccessToken();
 
     // FundTransactionCreate 객체 생성

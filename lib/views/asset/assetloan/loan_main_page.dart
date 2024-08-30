@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'LoanInfoPage.dart';
-import 'LoanRecommendationPage.dart';
+import 'loan_info_page.dart';
+import 'loan_recommendation_page.dart';
 
 class LoanMainPage extends StatefulWidget {
   @override

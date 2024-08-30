@@ -43,6 +43,10 @@ dependencies:
   table_calendar: ^3.0.0
   flutter_native_splash: ^2.2.16
 
+  # asset page 에서 케라셀 사용을 위해
+  carousel_slider: ^5.0.0
+  dots_indicator: ^2.0.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -75,6 +79,10 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
+    - assets/BBYU_LOGO.png
+    - assets/images/
+    - assets/loading/
+    - assets/loan_image/
     - assets/images/heart.png
     - assets/images/logo1.png
     - assets/images/ic_launcher.png

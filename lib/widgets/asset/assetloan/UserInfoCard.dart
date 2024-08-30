@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:gagyebbyu_fe/views/asset/assetloan/CreditScorePage.dart';
+import 'package:gagyebbyu_fe/views/asset/assetloan/credit_score_page.dart';
 
 class UserInfoCard extends StatelessWidget {
   final String name;
-  final int creditScore;
+  final String ratingName;
 
-  UserInfoCard({required this.name, required this.creditScore});
+  UserInfoCard({required this.name, required this.ratingName});
 
   @override
   Widget build(BuildContext context) {
@@ -67,7 +67,7 @@ class UserInfoCard extends StatelessWidget {
                       ),
                       SizedBox(height: 4),
                       Text(
-                        '우수합니다 😄',
+                        '${ratingName} 우수합니다 😄',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,

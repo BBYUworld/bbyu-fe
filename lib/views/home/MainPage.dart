@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gagyebbyu_fe/models/couple_model.dart';
-import 'package:gagyebbyu_fe/views/home/Fotter.dart';
+import 'package:gagyebbyu_fe/views/home/Footer.dart';
 import 'package:gagyebbyu_fe/views/householdledger/HouseholdLedgerScreen.dart';
 import 'package:gagyebbyu_fe/services/user_api_service.dart';
 import 'package:gagyebbyu_fe/views/account/couple_account_screen.dart';
@@ -84,22 +84,20 @@ class _MainPageState extends State<MainPage> {
                     crossAxisSpacing: 16,
                     mainAxisSpacing: 16,
                     children: [
+                      _buildMenuCard('쀼 상품 추천', Icons.message, () {
+                        Navigator.pushNamed(context, '/asset');
+                      }),
                       _buildMenuCard('쀼 펀딩', Icons.search, () {
                         Navigator.pushNamed(context, '/fund');
                       }),
-
-                      _buildMenuCard('뷰 상품 추천', Icons.message, () {}),
-                      _buildMenuCard('가계부', Icons.attach_money, () async {
+                      _buildMenuCard('가계쀼', Icons.attach_money, () async {
                         await Navigator.push(
                           context,
                           MaterialPageRoute(builder: (context) => HouseholdLedgerScreen()),
                         );
                         _onFocusGained();
                       }),
-                      _buildMenuCard('뷰 자산 리포트', Icons.description, () {}),
-                      _buildMenuCard('병주\'s 대출 페이지', Icons.description, () {
-                        Navigator.pushNamed(context, '/loan');
-                      }),
+                      _buildMenuCard('쀼 자산 리포트', Icons.description, () {}),
                     ],
                   ),
                 ),

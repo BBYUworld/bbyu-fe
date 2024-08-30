@@ -1,41 +1,51 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
-import '../../../models/loan/loan.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 
 class RecommendedLoanCard extends StatelessWidget {
-  final Loan loan;
-
-  RecommendedLoanCard({required this.loan});
-
   @override
   Widget build(BuildContext context) {
+    final List<String> imageList = [
+      'assets/loan_image/loan_info1.png',
+      'assets/loan_image/loan_info2.png',
+      'assets/loan_image/noimage.png',
+    ];
+
     return Card(
+      elevation: 4,
+      margin: EdgeInsets.symmetric(horizontal: 16),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(loan.bankName, style: TextStyle(fontWeight: FontWeight.bold)),
-            Text(loan.loanName, style: TextStyle(fontSize: 18)),
-            SizedBox(height: 8),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('${loan.interestRate}%'),
-                Text('최대 ${loan.maxBalance}원'),
-              ],
+            Text('나에게 맞는 대출은 무엇일까요?',
+                style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey[600])
             ),
-            SizedBox(height: 8),
-            ElevatedButton(
-              child: Text('신청하기', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
-              onPressed: () {
-                // 대출 신청 로직 구현
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blueAccent,
+            Text('대출 추천 받기',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)
+            ),
+            SizedBox(height: 16),
+            CarouselSlider(
+              options: CarouselOptions(
+                height: 300,
+                viewportFraction: 1.0,
+                enlargeCenterPage: false,
+                autoPlay: true,
+                autoPlayInterval: Duration(seconds: 7),
+                autoPlayAnimationDuration: Duration(milliseconds: 900),
+                autoPlayCurve: Curves.fastOutSlowIn,
+                enableInfiniteScroll: true,
               ),
+              items: imageList.map((item) => Container(
+                width: MediaQuery.of(context).size.width,
+                child: Image.asset(
+                  item,
+                  fit: BoxFit.cover,
+                ),
+              )).toList(),
             ),
+            SizedBox(height: 16),
           ],
         ),
       ),

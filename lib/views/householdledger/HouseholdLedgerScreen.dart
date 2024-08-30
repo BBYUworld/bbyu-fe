@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gagyebbyu_fe/views/home/Fotter.dart';
+import 'package:gagyebbyu_fe/views/home/Footer.dart';
 import 'package:gagyebbyu_fe/views/householdledger/PersonalLedgerScreen.dart';
 import 'package:gagyebbyu_fe/views/householdledger/JointLedgerScreen.dart';
 import 'package:gagyebbyu_fe/services/ledger_api_service.dart';

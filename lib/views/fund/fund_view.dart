@@ -1,3 +1,4 @@
+// fund_view.dart
 import 'package:flutter/material.dart';
 import 'package:gagyebbyu_fe/models/fund/fund_overview.dart';
 import 'package:gagyebbyu_fe/models/couple/couple_response.dart';
@@ -7,11 +8,11 @@ import 'package:gagyebbyu_fe/widgets/fund/goal_card.dart';
 import 'package:gagyebbyu_fe/widgets/fund/emergency_card.dart';
 import 'package:gagyebbyu_fe/widgets/fund/loan_card.dart';
 import 'package:gagyebbyu_fe/views/fund/fund_create_view.dart';
-import 'package:gagyebbyu_fe/views/home/Fotter.dart';
 import 'package:http/http.dart' as http;
 import 'package:gagyebbyu_fe/storage/TokenStorage.dart';
 import 'dart:convert';
 
+import '../home/Footer.dart';
 class FundView extends StatefulWidget {
   @override
   _FundViewState createState() => _FundViewState();

@@ -9,6 +9,7 @@ import '../login/AdditionalInfoScreen.dart';
 import './OnBoardingProcess.dart';
 import 'package:gagyebbyu_fe/views/home/MainPage.dart';
 
+
 class LoginView extends StatefulWidget {
   @override
   _LoginViewState createState() => _LoginViewState();
@@ -147,6 +148,7 @@ class _LoginViewState extends State<LoginView> {
             _buildInputField('비밀번호', _passwordController, isPassword: true),
             SizedBox(height: 24),
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 Expanded(
                   child: ElevatedButton(
