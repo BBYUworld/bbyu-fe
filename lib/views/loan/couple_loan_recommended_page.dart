@@ -16,16 +16,23 @@ class _CoupleLoanRecommendationPageState extends State<CoupleLoanRecommendationP
   CoupleLoanRecommendation? _recommendation;
   bool _isLoading = false;
 
+  // Toss-style colors
+  final Color _primaryColor = Color(0xFFFF6B6B);
+  final Color _backgroundColor = Color(0xFFF9FAFB);
+  final Color _cardColor = Colors.white;
+  final Color _textColor = Color(0xFF191F28);
+  final Color _subTextColor = Color(0xFF8B95A1);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFF5F6F7),
+      backgroundColor: _backgroundColor,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        title: Text('커플 대출 추천', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+        title: Text('커플 대출 추천', style: TextStyle(color: _textColor, fontWeight: FontWeight.bold)),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios, color: Colors.black),
+          icon: Icon(Icons.arrow_back_ios, color: _textColor),
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
@@ -54,48 +61,47 @@ class _CoupleLoanRecommendationPageState extends State<CoupleLoanRecommendationP
 
   Widget _buildMoneyInput() {
     return Container(
-      padding: EdgeInsets.all(16),
+      padding: EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        color: _cardColor,
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 1,
-            blurRadius: 5,
-            offset: Offset(0, 3),
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: Offset(0, 5),
           ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('대출 금액', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          Text('대출 금액', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: _textColor)),
           SizedBox(height: 12),
           TextField(
             controller: _moneyController,
             keyboardType: TextInputType.number,
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: _textColor),
             decoration: InputDecoration(
               hintText: '0',
               suffixText: '원',
-              suffixStyle: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              suffixStyle: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: _subTextColor),
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide.none,
               ),
               filled: true,
-              fillColor: Color(0xFFF5F6F7),
+              fillColor: _backgroundColor,
             ),
           ),
-          SizedBox(height: 16),
+          SizedBox(height: 20),
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
               onPressed: _fetchRecommendation,
-              child: Text('추천받기', style: TextStyle(fontSize: 18,color: Colors.white)),
+              child: Text('추천받기', style: TextStyle(fontSize: 18, color: Colors.white)),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xFF3182F6),
+                backgroundColor: _primaryColor,
                 padding: EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -113,11 +119,11 @@ class _CoupleLoanRecommendationPageState extends State<CoupleLoanRecommendationP
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF3182F6))),
+          CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(_primaryColor)),
           SizedBox(height: 24),
-          Text('최적의 대출 상품을 찾고 있어요', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          Text('최적의 대출 상품을 찾고 있어요', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: _textColor)),
           SizedBox(height: 8),
-          Text('잠시만 기다려주세요', style: TextStyle(fontSize: 16, color: Colors.grey[600])),
+          Text('잠시만 기다려주세요', style: TextStyle(fontSize: 16, color: _subTextColor)),
         ],
       ),
     );
@@ -128,10 +134,10 @@ class _CoupleLoanRecommendationPageState extends State<CoupleLoanRecommendationP
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.search, size: 80, color: Color(0xFF3182F6)),
+          Icon(Icons.search, size: 80, color: _primaryColor),
           SizedBox(height: 24),
-          Text('대출 금액을 입력하고', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-          Text('추천받기 버튼을 눌러주세요', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          Text('대출 금액을 입력하고', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: _textColor)),
+          Text('추천받기 버튼을 눌러주세요', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: _textColor)),
         ],
       ),
     );
@@ -141,7 +147,7 @@ class _CoupleLoanRecommendationPageState extends State<CoupleLoanRecommendationP
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('추천 결과', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+        Text('추천 결과', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: _textColor)),
         SizedBox(height: 16),
         _buildUserInfo(),
         SizedBox(height: 24),
@@ -154,16 +160,15 @@ class _CoupleLoanRecommendationPageState extends State<CoupleLoanRecommendationP
 
   Widget _buildUserInfo() {
     return Container(
-      padding: EdgeInsets.all(16),
+      padding: EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        color: _cardColor,
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 1,
-            blurRadius: 5,
-            offset: Offset(0, 3),
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: Offset(0, 5),
           ),
         ],
       ),
@@ -183,10 +188,10 @@ class _CoupleLoanRecommendationPageState extends State<CoupleLoanRecommendationP
         Icon(
           gender == 'MALE' ? Icons.face : Icons.face_3,
           size: 48,
-          color: Color(0xFF3182F6),
+          color: _primaryColor,
         ),
         SizedBox(height: 8),
-        Text(name, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        Text(name, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: _textColor)),
       ],
     );
   }
@@ -195,16 +200,15 @@ class _CoupleLoanRecommendationPageState extends State<CoupleLoanRecommendationP
     final formatter = NumberFormat('#,###');
     return Container(
       margin: EdgeInsets.only(bottom: 16),
-      padding: EdgeInsets.all(16),
+      padding: EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        color: _cardColor,
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 1,
-            blurRadius: 5,
-            offset: Offset(0, 3),
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: Offset(0, 5),
           ),
         ],
       ),
@@ -214,11 +218,11 @@ class _CoupleLoanRecommendationPageState extends State<CoupleLoanRecommendationP
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('$rank위', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF3182F6))),
+              Text('$rank위', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: _primaryColor)),
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: Color(0xFF3182F6),
+                  color: _primaryColor,
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
@@ -230,7 +234,7 @@ class _CoupleLoanRecommendationPageState extends State<CoupleLoanRecommendationP
           ),
           SizedBox(height: 16),
           _buildLoanInfo(recommend.recommendUser1, _recommendation!.user1Name),
-          Divider(height: 32),
+          Divider(height: 32, color: _backgroundColor),
           _buildLoanInfo(recommend.recommendUser2, _recommendation!.user2Name),
         ],
       ),
@@ -242,7 +246,7 @@ class _CoupleLoanRecommendationPageState extends State<CoupleLoanRecommendationP
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('$userName의 대출', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        Text('$userName의 대출', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: _textColor)),
         SizedBox(height: 8),
         _buildLoanInfoRow('은행', loan.bankName),
         _buildLoanInfoRow('상품명', loan.loanName),
@@ -260,8 +264,8 @@ class _CoupleLoanRecommendationPageState extends State<CoupleLoanRecommendationP
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: TextStyle(fontSize: 16, color: Colors.grey[600])),
-          Text(value, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          Text(label, style: TextStyle(fontSize: 16, color: _subTextColor)),
+          Text(value, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: _textColor)),
         ],
       ),
     );
@@ -270,7 +274,11 @@ class _CoupleLoanRecommendationPageState extends State<CoupleLoanRecommendationP
   void _fetchRecommendation() async {
     if (_moneyController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('대출 금액을 입력해주세요.')),
+        SnackBar(
+          content: Text('대출 금액을 입력해주세요.'),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        ),
       );
       return;
     }
@@ -287,7 +295,11 @@ class _CoupleLoanRecommendationPageState extends State<CoupleLoanRecommendationP
     } catch (e) {
       setState(() => _isLoading = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('추천을 가져오는 중 오류가 발생했습니다.')),
+        SnackBar(
+          content: Text('추천을 가져오는 중 오류가 발생했습니다.'),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        ),
       );
     }
   }

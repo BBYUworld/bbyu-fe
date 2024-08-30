@@ -30,6 +30,14 @@ class _FundEmergencyWithdrawalViewState extends State<FundEmergencyWithdrawalVie
   final TextEditingController _amountController = TextEditingController();
   final NumberFormat _numberFormat = NumberFormat('#,##0');
 
+  final Color _primaryColor = Color(0xFFFF6B6B);
+  final Color _backgroundColor = Color(0xFFF9FAFB);
+  final Color _cardColor = Colors.white;
+  final Color _textColor = Color(0xFF191F28);
+  final Color _subTextColor = Color(0xFF8B95A1);
+  final Color _warningColor = Color(0xFFFF3B30);
+
+
   @override
   void initState() {
     super.initState();

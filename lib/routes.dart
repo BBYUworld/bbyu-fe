@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gagyebbyu_fe/views/asset/assetloan/loan_main_page.dart';
 import 'package:gagyebbyu_fe/views/asset/assetloan/assets_recommended_page.dart';
-import 'package:gagyebbyu_fe/views/fund/couple_loan_recommended_page.dart';
+import 'package:gagyebbyu_fe/views/loan/couple_loan_recommended_page.dart';
 import 'package:gagyebbyu_fe/views/fund/fund_view.dart';
 import 'package:gagyebbyu_fe/views/loan/financial_product_page.dart';
 import 'package:gagyebbyu_fe/views/loan/loan_loading_screen.dart';
@@ -12,6 +12,6 @@ final Map<String, WidgetBuilder> routes = {
   '/asset': (context) => AssetRecommendedPage(),
   '/loading': (context) => LoanLoadingScreen(),
   '/report': (context) => AnalysisMainPage(),
-  '/coupleloan': (context) => CoupleLoanRecommendationPage(),
+  '/couple': (context) => CoupleLoanRecommendationPage(),
   '/product': (context) => FinancialProductRecommendPage(),
 };

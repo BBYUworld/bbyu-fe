@@ -37,14 +37,7 @@ class LoanAmountInputWidget extends StatelessWidget {
               ],
             ),
             SizedBox(height: 16),
-            ElevatedButton(
-              child: Text('대출 추천받기'),
-              onPressed: onSubmit,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
-                padding: EdgeInsets.symmetric(vertical: 16),
-              ),
-            ),
+
           ],
         ),
       ),

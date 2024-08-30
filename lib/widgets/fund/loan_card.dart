@@ -10,7 +10,7 @@ class LoanCard extends StatelessWidget {
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       elevation: 4,
-      color: Colors.redAccent,
+      color: Color(0xFFF9FAFB),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -21,15 +21,15 @@ class LoanCard extends StatelessWidget {
               children: [
                 Text(
                   '현재 대출',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFFFF6B6B)),
                 ),
-                Icon(Icons.account_balance_wallet, color: Colors.white, size: 28),
+                Icon(Icons.account_balance_wallet, color: Color(0xFFFF6B6B), size: 28),
               ],
             ),
             SizedBox(height: 12),
             Text(
               '대출 금액: ${_formatCurrency(loanAmount)}',
-              style: TextStyle(fontSize: 18, color: Colors.white),
+              style: TextStyle(fontSize: 18, color: Color(0xFFFF6B6B)),
             ),
           ],
         ),

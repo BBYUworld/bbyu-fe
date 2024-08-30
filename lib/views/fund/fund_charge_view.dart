@@ -26,6 +26,12 @@ class _FundChargeViewState extends State<FundChargeView> {
   List<AssetAccount> _accounts = [];
   bool _isLoading = true;
 
+  final Color _primaryColor = Color(0xFFFF6B6B);
+  final Color _backgroundColor = Color(0xFFF9FAFB);
+  final Color _cardColor = Colors.white;
+  final Color _textColor = Color(0xFF191F28);
+  final Color _subTextColor = Color(0xFF8B95A1);
+
   // 추가된 부분: TextEditingController 및 NumberFormat 초기화
   final TextEditingController _amountController = TextEditingController();
   final NumberFormat _numberFormat = NumberFormat('#,##0');
@@ -81,6 +87,7 @@ class _FundChargeViewState extends State<FundChargeView> {
         setState(() {
           _accounts = data.map((item) => AssetAccount.fromJson(item)).toList();
           if (_accounts.isNotEmpty) {
+            // 초기 선택 계좌 설정
             _selectedAccount = _accounts[0].accountNumber;
             _selectedBankName = _accounts[0].bankName;
           }
@@ -173,9 +180,12 @@ class _FundChargeViewState extends State<FundChargeView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: _backgroundColor,
       appBar: AppBar(
         title: Text('입금하기'),
-        backgroundColor: Colors.pinkAccent,
+        backgroundColor: Colors.white,
+        elevation: 0,
+        iconTheme: IconThemeData(color: _textColor),
       ),
       body: Padding(
         padding: EdgeInsets.all(16.0),

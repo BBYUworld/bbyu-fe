@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
-class TossStyleAccountDetailsDialog extends StatelessWidget {
+class ProductDetailsDialog extends StatelessWidget {
   final Map<String, dynamic> account;
-  final Color primaryColor = Color(0xFFF5E7E0); // 카카오뱅크 노란색
+  final Color primaryColor = Color(0xFFFF6B6B);
   final Color backgroundColor = Colors.white;
   final Color textColor = Color(0xFF333333);
 
-  TossStyleAccountDetailsDialog({required this.account});
+  ProductDetailsDialog({required this.account});
 
   @override
   Widget build(BuildContext context) {
@@ -58,10 +58,10 @@ class TossStyleAccountDetailsDialog extends StatelessWidget {
             },
             child: Text('닫기'),
             style: ElevatedButton.styleFrom(
-              foregroundColor: Colors.black, // 텍스트 색상을 검은색으로 설정
-              backgroundColor: primaryColor, // 배경색은 카카오뱅크 노란색
+              foregroundColor: Colors.black,
+              backgroundColor: primaryColor,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8), // 약간 둥근 모서리
+                borderRadius: BorderRadius.circular(8),
               ),
               padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
             ),
