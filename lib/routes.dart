@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gagyebbyu_fe/views/analysis/analysis_asset_main_page.dart';
 import 'package:gagyebbyu_fe/views/asset/assetloan/loan_main_page.dart';
 import 'package:gagyebbyu_fe/views/asset/assetloan/assets_recommended_page.dart';
 import 'package:gagyebbyu_fe/views/fund/fund_view.dart';
@@ -9,4 +10,5 @@ final Map<String, WidgetBuilder> routes = {
   '/fund': (context) => FundView(),
   '/asset': (context) => AssetRecommendedPage(),
   '/loading': (context) => LoanLoadingScreen(),
+  '/report': (context) => AnalysisAssetMainPage(),
 };

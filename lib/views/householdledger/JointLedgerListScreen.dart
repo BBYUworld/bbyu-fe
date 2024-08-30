@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:gagyebbyu_fe/models/couple_expense_model.dart';
+import 'package:gagyebbyu_fe/models/expense/couple_expense_model.dart';
 import 'package:gagyebbyu_fe/widgets/expense/joint_ledger_header.dart';
 import 'package:intl/intl.dart';
+
+import '../../models/expense/couple_expense_model.dart';
 
 class JointLedgerListScreen extends StatefulWidget {
   final CoupleExpense? coupleExpense;

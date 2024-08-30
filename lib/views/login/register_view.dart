@@ -61,7 +61,8 @@ class _RegisterViewState extends State<RegisterView> {
     }
     try{
       final email = Uri.encodeQueryComponent(_emailController.text);
-      final url = Uri.parse("http://3.39.19.140:8080/user/search?email=$email");
+      //////
+      final url = Uri.parse("http://10.0.2.2:8080/user/search?email=$email");
       final response = await http.get(
         url,
         headers: {'Content-Type': "application/json"},

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:gagyebbyu_fe/utils/currency_formatting.dart';
+import 'package:intl/intl.dart'; // 통화 포맷을 위해 추가
 import '../../models/analysis/analysis_asset.dart';
 
 class TotalAssetsCard extends StatelessWidget {
@@ -33,12 +35,12 @@ class TotalAssetsCard extends StatelessWidget {
                   final result = snapshot.data!;
                   final difference = result.currentAsset - result.lastYearAsset;
                   final symbol = difference >= 0 ? '▲' : '▼';
-                  final displayAmount = difference.abs().toStringAsFixed(0);
+                  final displayAmount = formatCurrency(difference.abs());
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        '${result.currentAsset.toStringAsFixed(0)}원',
+                        '${formatCurrency(result.currentAsset)}원',
                         style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
                       ),
                       Row(

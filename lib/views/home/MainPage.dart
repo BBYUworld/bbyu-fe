@@ -97,7 +97,9 @@ class _MainPageState extends State<MainPage> {
                         );
                         _onFocusGained();
                       }),
-                      _buildMenuCard('쀼 자산 리포트', Icons.description, () {}),
+                      _buildMenuCard('쀼 자산 리포트', Icons.description, () {
+                        Navigator.pushNamed(context, '/report');
+                      }),
                     ],
                   ),
                 ),

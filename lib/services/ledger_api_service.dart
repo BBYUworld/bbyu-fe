@@ -2,7 +2,9 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:gagyebbyu_fe/storage/TokenStorage.dart';
 import 'package:gagyebbyu_fe/models/user_account.dart';
-import 'package:gagyebbyu_fe/models/couple_expense_model.dart';
+import 'package:gagyebbyu_fe/models/expense/couple_expense_model.dart';
+
+import '../models/expense/couple_expense_model.dart';
 
 
 class LedgerApiService {

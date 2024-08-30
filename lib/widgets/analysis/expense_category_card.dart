@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import '../../models/analysis/analysis_asset.dart';
-import '../../utils/asset_label_mapping.dart';
-import '../../utils/asset_category_color_mapping.dart';
+
+import '../../models/analysis/analysis_expense.dart';
+import '../../models/expense/expense_category.dart';
 import '../../utils/currency_formatting.dart';
+import '../../utils/expense_category_color_mapping.dart';
+import '../../utils/expense_label_mapping.dart'; // expenseLabelMapping 가져오기
 
 class CategoryChartCard extends StatefulWidget {
-  final Future<List<AssetCategoryDto>> futureAssetCategories;
+  final Future<List<ExpenseCategoryDto>> futureExpenseCategories;
 
-  CategoryChartCard({required this.futureAssetCategories});
+  CategoryChartCard({required this.futureExpenseCategories});
 
   @override
   _CategoryChartCardState createState() => _CategoryChartCardState();
@@ -16,6 +18,10 @@ class CategoryChartCard extends StatefulWidget {
 
 class _CategoryChartCardState extends State<CategoryChartCard> {
   int touchedIndex = -1;
+
+  String getMappedLabel(String label) {
+    return expenseLabelMapping[label] ?? label;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,8 +31,8 @@ class _CategoryChartCardState extends State<CategoryChartCard> {
       ),
       child: Padding(
         padding: EdgeInsets.all(16.0),
-        child: FutureBuilder<List<AssetCategoryDto>>(
-          future: widget.futureAssetCategories,
+        child: FutureBuilder<List<ExpenseCategoryDto>>(
+          future: widget.futureExpenseCategories,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Center(child: CircularProgressIndicator());
@@ -40,8 +46,8 @@ class _CategoryChartCardState extends State<CategoryChartCard> {
               }
 
               final sections = nonZeroSections.map((data) {
-                final labelKey = data.label.toString().split('.').last;
-                final color = assetColorMapping[labelKey] ?? Colors.grey; // 매핑된 색상 사용
+                final color = expenseColorMapping[categoryFromString(data.label)] ?? Colors.grey; // Category 객체로 색상 매핑
+
                 return PieChartSectionData(
                   color: color,
                   value: data.percentage,
@@ -51,11 +57,11 @@ class _CategoryChartCardState extends State<CategoryChartCard> {
               }).toList();
 
               final labels = nonZeroSections.map((data) {
-                final labelKey = data.label.toString().split('.').last;
-                return assetLabelMapping[labelKey] ?? labelKey; // 매핑된 라벨 사용
+                final label = data.label.toString(); // Category 객체를 String으로 변환
+                return getMappedLabel(label);
               }).toList();
 
-              final amounts = nonZeroSections.map((data) => data.amount).toList(); // amounts를 int로 유지
+              final amounts = nonZeroSections.map((data) => data.amount).toList();
 
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -83,14 +89,14 @@ class _CategoryChartCardState extends State<CategoryChartCard> {
                           ),
                           sections: List.generate(sections.length, (index) {
                             final isTouched = index == touchedIndex;
-                            final double fontSize = isTouched ? 25.0 : 16.0;
-                            final double radius = isTouched ? 60.0 : 50.0;
+                            final double fontSize = isTouched ? 18.0 : 12.0;
+                            final double radius = isTouched ? 70.0 : 50.0;
                             final data = sections[index];
                             final label = labels[index];
                             return PieChartSectionData(
                               color: data.color,
                               value: data.value,
-                              title: isTouched ? label : '${data.value}%', // 터치되면 라벨만 표시
+                              title: isTouched ? label : '${data.value}%',
                               radius: radius,
                               titleStyle: TextStyle(
                                 fontSize: fontSize,
@@ -107,13 +113,12 @@ class _CategoryChartCardState extends State<CategoryChartCard> {
                     ),
                   ),
                   SizedBox(height: 16.0),
-                  // 각 자산 항목
                   Column(
                     children: List.generate(sections.length, (index) {
                       final data = sections[index];
                       final color = data.color;
                       final label = labels[index];
-                      final amount = amounts[index]; // amount는 int
+                      final amount = amounts[index];
 
                       return Padding(
                         padding: const EdgeInsets.symmetric(vertical: 4.0),
