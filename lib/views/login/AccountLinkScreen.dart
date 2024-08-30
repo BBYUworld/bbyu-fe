@@ -128,7 +128,7 @@ class _AccountLinkScreenState extends State<AccountLinkScreen> with WidgetsBindi
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return TossStyleAccountDetailsDialog(account: account);
+        return ProductDetailsDialog(account: account);
       },
     );
   }

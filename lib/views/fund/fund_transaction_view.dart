@@ -11,12 +11,21 @@ class FundTransactionView extends StatelessWidget {
 
   FundTransactionView({required this.transactions, required this.fundOverview});
 
+  final Color _primaryColor = Color(0xFFFF6B6B);
+  final Color _backgroundColor = Color(0xFFF9FAFB);
+  final Color _cardColor = Colors.white;
+  final Color _textColor = Color(0xFF191F28);
+  final Color _subTextColor = Color(0xFF8B95A1);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: _backgroundColor,
       appBar: AppBar(
-        title: Text(fundOverview.goal),
-        backgroundColor: Colors.pinkAccent,
+        title: Text(fundOverview.goal, style: TextStyle(color: _textColor, fontWeight: FontWeight.bold)),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        iconTheme: IconThemeData(color: _textColor),
       ),
       body: Column(
         children: [
@@ -31,33 +40,34 @@ class FundTransactionView extends StatelessWidget {
 
   Widget _buildHeader(BuildContext context, FundOverview fundOverview) {
     return Container(
-      color: Colors.pinkAccent,
-      padding: EdgeInsets.all(20),
+      color: _cardColor,
+      padding: EdgeInsets.all(24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             fundOverview.goal,
             style: TextStyle(
-              color: Colors.white,
+              color: _textColor,
               fontSize: 18,
+              fontWeight: FontWeight.bold,
             ),
           ),
           SizedBox(height: 8),
           Text(
             _formatCurrency(fundOverview.currentAmount),
             style: TextStyle(
-              color: Colors.white,
+              color: _primaryColor,
               fontSize: 36,
               fontWeight: FontWeight.bold,
             ),
           ),
-          SizedBox(height: 8),
+          SizedBox(height: 16),
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              _buildHeaderButton(context, '충전하기'),
-              _buildHeaderButton(context, '긴급출금'),
+              Expanded(child: _buildHeaderButton(context, '충전하기')),
+              SizedBox(width: 12),
+              Expanded(child: _buildHeaderButton(context, '긴급출금', isOutlined: true)),
             ],
           ),
         ],
@@ -65,7 +75,7 @@ class FundTransactionView extends StatelessWidget {
     );
   }
 
-  Widget _buildHeaderButton(BuildContext context, String text) {
+  Widget _buildHeaderButton(BuildContext context, String text, {bool isOutlined = false}) {
     return ElevatedButton(
       onPressed: () async {
         if (text == '충전하기') {
@@ -86,19 +96,20 @@ class FundTransactionView extends StatelessWidget {
             ),
           );
           if (result == true) {
-            Navigator.of(context).pop(true);  // 이전 화면으로 돌아가면서 데이터를 갱신하도록 신호를 보냄
+            Navigator.of(context).pop(true);
           }
         }
       },
       style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.pinkAccent,
-        padding: EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+        foregroundColor: isOutlined ? _primaryColor : Colors.white,
+        backgroundColor: isOutlined ? Colors.white : _primaryColor,
+        padding: EdgeInsets.symmetric(vertical: 16),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(30),
+          borderRadius: BorderRadius.circular(12),
+          side: isOutlined ? BorderSide(color: _primaryColor) : BorderSide.none,
         ),
       ),
-      child: Text(text),
+      child: Text(text, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
     );
   }
 
@@ -117,21 +128,25 @@ class FundTransactionView extends StatelessWidget {
 
   Widget _buildTransactionItem(FundTransaction transaction, bool showDate) {
     bool isIncome = transaction.type == 'PLUS';
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (showDate)
-            Text(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (showDate)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
+            child: Text(
               _formatDate(transaction.date),
               style: TextStyle(
                 fontSize: 14,
-                color: Colors.grey,
+                fontWeight: FontWeight.bold,
+                color: _subTextColor,
               ),
             ),
-          SizedBox(height: 4),
-          Row(
+          ),
+        Container(
+          color: _cardColor,
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Column(
@@ -142,12 +157,14 @@ class FundTransactionView extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
+                      color: _textColor,
                     ),
                   ),
+                  SizedBox(height: 4),
                   Text(
                     transaction.type,
                     style: TextStyle(
-                      color: isIncome ? Colors.green : Colors.red,
+                      color: _subTextColor,
                       fontSize: 12,
                     ),
                   ),
@@ -164,10 +181,11 @@ class FundTransactionView extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
+                  SizedBox(height: 4),
                   Text(
-                    _formatCurrency(transaction.currentAmount),  // 누적 금액
+                    _formatCurrency(transaction.currentAmount),
                     style: TextStyle(
-                      color: Colors.grey,
+                      color: _subTextColor,
                       fontSize: 12,
                     ),
                   ),
@@ -175,9 +193,9 @@ class FundTransactionView extends StatelessWidget {
               ),
             ],
           ),
-          Divider(thickness: 1, color: Colors.grey[300]),
-        ],
-      ),
+        ),
+        Divider(height: 1, thickness: 1, color: _backgroundColor),
+      ],
     );
   }
 
@@ -193,6 +211,6 @@ class FundTransactionView extends StatelessWidget {
   }
 
   String _formatDate(DateTime date) {
-    return '${date.year % 100}.${date.month.toString().padLeft(2, '0')}.${date.day.toString().padLeft(2, '0')}';
+    return '${date.year}년 ${date.month}월 ${date.day}일';
   }
 }

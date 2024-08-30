@@ -96,7 +96,7 @@ class _LoanDetailPageState extends State<LoanDetailPage> {
                 ),
                 child: Text(
                   '대출중',
-                  style: TextStyle(color: Colors.blue[700], fontWeight: FontWeight.bold),
+                  style: TextStyle(color: Color(0xFFFF6B6B), fontWeight: FontWeight.bold),
                 ),
               ),
             ],
@@ -106,7 +106,7 @@ class _LoanDetailPageState extends State<LoanDetailPage> {
           SizedBox(height: 4),
           Text(
             currencyFormatter.format(loan.remainedAmount * 10000),
-            style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.blue[700]),
+            style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Color(0xFFFF6B6B)),
           ),
           SizedBox(height: 12),
         ],
@@ -174,12 +174,12 @@ class _LoanDetailPageState extends State<LoanDetailPage> {
         LinearProgressIndicator(
           value: progress,
           backgroundColor: Colors.grey[300],
-          valueColor: AlwaysStoppedAnimation<Color>(Colors.blue[700]!),
+          valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFFF6B6B)!),
           minHeight: 10,
         ),
         SizedBox(height: 8),
         Text('${(progress * 100).toStringAsFixed(1)}%',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.blue[700])),
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFFFF6B6B))),
       ],
     );
   }
