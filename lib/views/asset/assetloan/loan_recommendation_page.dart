@@ -68,7 +68,7 @@ class _LoanRecommendationPageState extends State<LoanRecommendationPage> {
               onPressed: _onSubmitLoanAmount,
               style: ElevatedButton.styleFrom(
                 foregroundColor: Colors.white,
-                backgroundColor: Colors.blue,
+                backgroundColor: Color(0xFFFF6B6B),
                 padding: EdgeInsets.symmetric(vertical: 15),
                 textStyle: TextStyle(fontSize: 18),
               ),

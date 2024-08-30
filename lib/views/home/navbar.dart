@@ -11,7 +11,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     return Consumer<UserStore>(
       builder: (context, userStore, child) {
         return AppBar(
-          title: Text('My App'),
+          title: Text('Gagyebbyu'),
           actions: [
             Stack(
               children: <Widget>[

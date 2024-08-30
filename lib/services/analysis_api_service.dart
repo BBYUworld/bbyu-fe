@@ -29,7 +29,7 @@ Future<List<AssetCategoryDto>> fetchAssetCategory() async {
 Future<AssetChangeRateDto> fetchAssetChangeRate() async {
   final accessToken = await _tokenStorage.getAccessToken();
   final response = await http.get(
-      Uri.parse('http://10.0.2.2:8080/api/analysis/couple-asset/change-rate'),
+      Uri.parse('http://3.39.19.140:8080/api/analysis/couple-asset/change-rate'),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': '$accessToken'
