@@ -9,7 +9,7 @@ import 'package:gagyebbyu_fe/storage/user_store.dart';
 import 'package:gagyebbyu_fe/models/notification_model.dart';
 
 class UserApiService {
-  static const String baseUrl = 'http://3.39.19.140:8080';
+  static const String baseUrl = 'http://10.0.2.2:8080';
   final TokenStorage _tokenStorage = TokenStorage();
   final BuildContext context;
 
