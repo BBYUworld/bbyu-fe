@@ -6,7 +6,7 @@ import 'package:gagyebbyu_fe/models/couple_expense_model.dart';
 
 
 class LedgerApiService {
-  static const String baseUrl = 'http://3.39.19.140:8080';
+  static const String baseUrl = 'http://10.0.2.2:8080';
   final TokenStorage _tokenStorage = TokenStorage();
   Future<Map<String, dynamic>> fetchLedgerData() async {
     final response = await http.get(Uri.parse('$baseUrl/ledger'));

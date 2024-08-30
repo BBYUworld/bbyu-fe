@@ -56,7 +56,7 @@ class FundTransactionView extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              _buildHeaderButton(context, '충전하기'),
+              _buildHeaderButton(context, '입금하기'),
               _buildHeaderButton(context, '긴급출금'),
             ],
           ),
@@ -68,7 +68,7 @@ class FundTransactionView extends StatelessWidget {
   Widget _buildHeaderButton(BuildContext context, String text) {
     return ElevatedButton(
       onPressed: () async {
-        if (text == '충전하기') {
+        if (text == '입금하기') {
           final result = await Navigator.push(
             context,
             MaterialPageRoute(
