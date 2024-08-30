@@ -9,7 +9,7 @@ final TokenStorage _tokenStorage = TokenStorage();
 Future<List<AssetCategoryDto>> fetchAssetCategory() async {
   final accessToken = await _tokenStorage.getAccessToken();
   final response = await http.get(
-      Uri.parse('http://10.0.2.2:8080/api/analysis/couple-asset'),
+      Uri.parse('http://3.39.19.140:8080/api/analysis/couple-asset'),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': '$accessToken'
@@ -45,7 +45,7 @@ Future<AssetChangeRateDto> fetchAssetChangeRate() async {
 Future<AssetResultDto> fetchAssetResult() async {
   final accessToken = await _tokenStorage.getAccessToken();
   final response = await http.get(
-    Uri.parse('http://10.0.2.2:8080/api/analysis/couple-asset/result'),
+    Uri.parse('http://3.39.19.140/api/analysis/couple-asset/result'),
     headers: {
       'Content-Type': 'application/json',
       'Authorization': 'Bearer $accessToken'
@@ -63,7 +63,7 @@ Future<AssetResultDto> fetchAssetResult() async {
 Future<List<AnnualAssetDto>> fetchAnnualAssets() async {
   final accessToken = await _tokenStorage.getAccessToken();
   final response = await http.get(
-    Uri.parse('http://10.0.2.2:8080/api/analysis/couple-asset/annual'),
+    Uri.parse('http://3.39.19.140/api/analysis/couple-asset/annual'),
     headers: {
       'Content-Type': 'application/json',
       'Authorization': 'Bearer $accessToken',
