@@ -16,7 +16,7 @@ class LoanComparisonCard extends StatelessWidget {
           backgroundColor: Color(0xFFFF6B6B),
         ),
         title: Text(loan.loanName),
-        subtitle: Text('${loan.interestRate}% | 최대 ${loan.maxBalance}만원'),
+        subtitle: Text('${loan.interestRate}% | 최대 ${loan.maxBalance}원'),
         trailing: ElevatedButton(
           child: Text('신청',style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),),
           onPressed: () {
