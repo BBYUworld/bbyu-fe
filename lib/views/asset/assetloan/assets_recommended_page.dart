@@ -91,7 +91,7 @@ class _AssetRecommendedPageState extends State<AssetRecommendedPage> {
                     Text('나만을 위한 맞춤 금융 상품',
                         style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: textColor)),
                     SizedBox(height: 10),
-                    Text('쀼AI가 당신의 재무 상황에 맞는 최적의 상품을 추천해드려요',
+                    Text('쀼AI가 당신의 재무 상황을 분석해 최적의 상품을 추천해드렸어요',
                         style: TextStyle(color: subtextColor)),
                   ],
                 ),
