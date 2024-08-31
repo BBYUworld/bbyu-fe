@@ -23,14 +23,14 @@ class ExpenseCategoryDto {
 
 
 class ExpenseResultDto {
-  final String category;
+  final String? category;  // category를 nullable로 변경
   final int startAge;
   final int startIncome;
   final int anotherCoupleMonthExpenseAvg;
   final int coupleMonthExpense;
 
   ExpenseResultDto({
-    required this.category,
+    required this.category,  // required로 유지하되 null이 허용됨
     required this.startAge,
     required this.startIncome,
     required this.anotherCoupleMonthExpenseAvg,
@@ -39,13 +39,14 @@ class ExpenseResultDto {
 
   factory ExpenseResultDto.fromJson(Map<String, dynamic> json) {
     return ExpenseResultDto(
-      category: json['category'] as String,
-      startAge: json['averageAge'] as int? ?? 0, // null일 경우 기본값 0 설정
-      startIncome: json['monthlyIncome'] as int? ?? 0, // null일 경우 기본값 0 설정
-      anotherCoupleMonthExpenseAvg: json['anotherCoupleMonthExpenseAvg'] as int? ?? 0, // null일 경우 기본값 0 설정
-      coupleMonthExpense: json['coupleMonthExpense'] as int? ?? 0, // null일 경우 기본값 0 설정
+      category: json['category'] as String?,  // null 허용
+      startAge: json['averageAge'] as int? ?? 0,
+      startIncome: json['monthlyIncome'] as int? ?? 0,
+      anotherCoupleMonthExpenseAvg: json['anotherCoupleMonthExpenseAvg'] as int? ?? 0,
+      coupleMonthExpense: json['coupleMonthExpense'] as int? ?? 0,
     );
   }
 }
+
 
 

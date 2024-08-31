@@ -36,7 +36,7 @@ class AssetResultDto {
   final int startIncome;
   final int anotherAssetsAvg;
   final int currentAsset;
-  final int lastYearAsset;
+  final int? lastYearAsset;
 
   AssetResultDto({
     required this.startAge,
@@ -52,10 +52,11 @@ class AssetResultDto {
       startIncome: json['startIncome'] as int? ?? 0,
       anotherAssetsAvg: json['anotherCoupleAssetAvg'] as int? ?? 0,
       currentAsset: json['currentAsset'] as int? ?? 0,
-      lastYearAsset: json['lastYearAsset'] as int? ?? 0,
+      lastYearAsset: json['lastYearAsset'] != null ? json['lastYearAsset'] as int : null,
     );
   }
 }
+
 
 class AnnualAssetDto {
   final int year;
