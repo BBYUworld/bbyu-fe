@@ -115,7 +115,6 @@ class _AccountSelectionWidgetState extends State<AccountSelectionWidget> {
                                   _buildInfoRow('기간', '${item.accountDto.termMonths}개월'),
                                   _buildInfoRow('최소 금액', _formatCurrency(item.accountDto.minAmount * 10000)),
                                   _buildInfoRow('최대 금액', _formatCurrency(item.accountDto.maxAmount * 10000)),
-                                  _buildInfoRow('최대 금액', '${item.accountDto.accountTypeUniqueNo}'),
                                 ],
                               ),
                             ),
