@@ -212,6 +212,26 @@ class UserApiService {
     }
   }
 
+  Future<int> getCoupleAssetAccountSum() async {
+    final accessToken = await _tokenStorage.getAccessToken();
+    final response = await http.get(
+      Uri.parse('$baseUrl/api/assets/couple/account/sum'),
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $accessToken"  // Bearer 토큰을 사용하는 경우
+      },
+    );
+
+    if (response.statusCode == 200) {
+      // 정상적으로 응답을 받은 경우
+      final int sum = int.parse(response.body); // 응답이 단순한 정수 값일 때
+      return sum;
+    } else {
+      // 에러가 발생한 경우
+      throw Exception('Failed to load couple asset account sum. Status code: ${response.statusCode}');
+    }
+  }
+
   Future<void> getUnreadNotificationCnt(BuildContext context) async {
     final url = Uri.parse('$baseUrl/notify/count');
     final accessToken = await _tokenStorage.getAccessToken();

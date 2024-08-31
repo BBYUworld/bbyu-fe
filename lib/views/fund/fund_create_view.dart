@@ -21,7 +21,7 @@ class _FundCreateViewState extends State<FundCreateView> {
   int _targetAmount = 0;
   bool _isLoading = true;
 
-  final Color _primaryColor = Color(0xFF3182F6);
+  final Color _primaryColor = Color(0xFFFF6B6B);
   final Color _backgroundColor = Color(0xFFF9FAFB);
   final Color _cardColor = Colors.white;
   final Color _textColor = Color(0xFF191F28);

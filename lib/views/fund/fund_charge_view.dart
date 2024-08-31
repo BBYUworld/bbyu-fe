@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:gagyebbyu_fe/storage/TokenStorage.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
@@ -32,7 +33,6 @@ class _FundChargeViewState extends State<FundChargeView> {
   final Color _textColor = Color(0xFF191F28);
   final Color _subTextColor = Color(0xFF8B95A1);
 
-  // 추가된 부분: TextEditingController 및 NumberFormat 초기화
   final TextEditingController _amountController = TextEditingController();
   final NumberFormat _numberFormat = NumberFormat('#,##0');
 
@@ -40,19 +40,15 @@ class _FundChargeViewState extends State<FundChargeView> {
   void initState() {
     super.initState();
     _fetchAccounts();
-
-    // 금액 입력 필드에 대한 리스너 추가
     _amountController.addListener(_formatAmount);
   }
 
   @override
   void dispose() {
-    // 컨트롤러 정리
     _amountController.dispose();
     super.dispose();
   }
 
-  // 입력값을 포맷팅하는 함수
   void _formatAmount() {
     String text = _amountController.text.replaceAll(',', '');
     if (text.isEmpty) return;
@@ -141,14 +137,15 @@ class _FundChargeViewState extends State<FundChargeView> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('충전 완료'),
-          content: Text('충전이 완료되었습니다.'),
+          title: Text('입금 완료', style: TextStyle(color: _textColor, fontWeight: FontWeight.bold)),
+          content: Text('입금이 완료되었습니다.', style: TextStyle(color: _textColor)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           actions: <Widget>[
             TextButton(
-              child: Text('닫기'),
+              child: Text('닫기', style: TextStyle(color: _primaryColor, fontWeight: FontWeight.bold)),
               onPressed: () {
-                Navigator.of(context).pop(); // 다이얼로그 닫기
-                Navigator.of(context).pop(true); // 이전 화면으로 돌아가기
+                Navigator.of(context).pop();
+                Navigator.of(context).pop(true);
               },
             ),
           ],
@@ -162,14 +159,13 @@ class _FundChargeViewState extends State<FundChargeView> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('충전 실패'),
-          content: Text(errorMessage),
+          title: Text('입금 실패', style: TextStyle(color: _textColor, fontWeight: FontWeight.bold)),
+          content: Text(errorMessage, style: TextStyle(color: _textColor)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           actions: <Widget>[
             TextButton(
-              child: Text('닫기'),
-              onPressed: () {
-                Navigator.of(context).pop(); // 다이얼로그 닫기
-              },
+              child: Text('닫기', style: TextStyle(color: _primaryColor, fontWeight: FontWeight.bold)),
+              onPressed: () => Navigator.of(context).pop(),
             ),
           ],
         );
@@ -182,104 +178,163 @@ class _FundChargeViewState extends State<FundChargeView> {
     return Scaffold(
       backgroundColor: _backgroundColor,
       appBar: AppBar(
-        title: Text('입금하기'),
+        title: Text('입금하기', style: TextStyle(color: _textColor, fontWeight: FontWeight.bold)),
         backgroundColor: Colors.white,
         elevation: 0,
         iconTheme: IconThemeData(color: _textColor),
       ),
-      body: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: _isLoading
-            ? Center(child: CircularProgressIndicator())
-            : Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                '입금할 금액',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 8),
-              TextFormField(
-                controller: _amountController, // 컨트롤러 할당
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: '금액 입력(원)',
-                  suffixText: '원', // '원' 단위 추가
-                ),
-                keyboardType: TextInputType.number,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return '금액을 입력해주세요';
-                  }
-                  return null;
-                },
-                onSaved: (value) {
-                  // 콤마 제거 후 정수로 변환
-                  String numericString = value!.replaceAll(',', '');
-                  _amount = int.parse(numericString);
-                },
-              ),
-              SizedBox(height: 20),
-              Text(
-                '계좌 선택',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 8),
-              DropdownButtonFormField<String>(
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                ),
-                value: _selectedAccount,
-                items: _accounts.map((account) {
-                  return DropdownMenuItem<String>(
-                    value: account.accountNumber,
-                    child: Text('${account.accountNumber} (${account.bankName})'),
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  setState(() {
-                    _selectedAccount = value;
-                    _selectedBankName = _accounts
-                        .firstWhere((account) => account.accountNumber == value)
-                        .bankName;
-                  });
-                },
-              ),
-              if (_selectedBankName != null) ...[
-                SizedBox(height: 10),
-                Text(
-                  '은행 이름: $_selectedBankName',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-                ),
+      body: _isLoading
+          ? Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(_primaryColor)))
+          : SingleChildScrollView(
+        child: Padding(
+          padding: EdgeInsets.all(20.0),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildAmountInput(),
+                SizedBox(height: 24),
+                _buildAccountSelection(),
+                SizedBox(height: 32),
+                _buildChargeButton(),
               ],
-              SizedBox(height: 20),
-              Center(
-                child: ElevatedButton(
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      _formKey.currentState!.save();
-                      FundTransactionCreate newTransaction = FundTransactionCreate(
-                        amount: _amount,
-                        type: 'PLUS',
-                        accountNo: _selectedAccount!,
-                      );
-
-                      // POST 요청 보내기
-                      createTransaction(newTransaction);
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.pinkAccent,
-                    padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                  ),
-                  child: Text('입금하기', style: TextStyle(fontSize: 16)),
-                ),
-              ),
-            ],
+            ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildAmountInput() {
+    return Container(
+      padding: EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: _cardColor,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '입금할 금액',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: _textColor),
+          ),
+          SizedBox(height: 12),
+          TextFormField(
+            controller: _amountController,
+            decoration: InputDecoration(
+              hintText: '0',
+              suffixText: '원',
+              suffixStyle: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: _subTextColor),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
+              filled: true,
+              fillColor: _backgroundColor,
+            ),
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: _textColor),
+            keyboardType: TextInputType.number,
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return '금액을 입력해주세요';
+              }
+              return null;
+            },
+            onSaved: (value) {
+              String numericString = value!.replaceAll(',', '');
+              _amount = int.parse(numericString);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAccountSelection() {
+    return Container(
+      padding: EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: _cardColor,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '출금 계좌',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: _textColor),
+          ),
+          SizedBox(height: 12),
+          DropdownButtonFormField<String>(
+            decoration: InputDecoration(
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
+              filled: true,
+              fillColor: _backgroundColor,
+            ),
+            value: _selectedAccount,
+            items: _accounts.map((account) {
+              return DropdownMenuItem<String>(
+                value: account.accountNumber,
+                child: Text('${account.bankName} ${account.accountNumber}', style: TextStyle(color: _textColor)),
+              );
+            }).toList(),
+            onChanged: (value) {
+              setState(() {
+                _selectedAccount = value;
+                _selectedBankName = _accounts
+                    .firstWhere((account) => account.accountNumber == value)
+                    .bankName;
+              });
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildChargeButton() {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton(
+        onPressed: () {
+          if (_formKey.currentState!.validate()) {
+            _formKey.currentState!.save();
+            FundTransactionCreate newTransaction = FundTransactionCreate(
+              amount: _amount,
+              type: 'PLUS',
+              accountNo: _selectedAccount!,
+            );
+            createTransaction(newTransaction);
+          }
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: _primaryColor,
+          padding: EdgeInsets.symmetric(vertical: 16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+        child: Text('입금하기', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
       ),
     );
   }
