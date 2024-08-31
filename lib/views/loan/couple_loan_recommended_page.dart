@@ -84,7 +84,7 @@ class _CoupleLoanRecommendationPageState extends State<CoupleLoanRecommendationP
             style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: _textColor),
             decoration: InputDecoration(
               hintText: '0',
-              suffixText: '원',
+              suffixText: '만원',
               suffixStyle: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: _subTextColor),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -121,7 +121,7 @@ class _CoupleLoanRecommendationPageState extends State<CoupleLoanRecommendationP
         children: [
           CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(_primaryColor)),
           SizedBox(height: 24),
-          Text('최적의 대출 상품을 찾고 있어요', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: _textColor)),
+          Text('AI가 최적의 대출 상품을 찾고 있어요!', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: _textColor)),
           SizedBox(height: 8),
           Text('잠시만 기다려주세요', style: TextStyle(fontSize: 16, color: _subTextColor)),
         ],

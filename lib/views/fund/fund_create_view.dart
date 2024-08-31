@@ -21,13 +21,13 @@ class _FundCreateViewState extends State<FundCreateView> {
   int _targetAmount = 0;
   bool _isLoading = true;
 
-  final Color _primaryColor = Color(0xFFFF6B6B);
+  final Color _primaryColor = Color(0xFF3182F6);
   final Color _backgroundColor = Color(0xFFF9FAFB);
   final Color _cardColor = Colors.white;
   final Color _textColor = Color(0xFF191F28);
   final Color _subTextColor = Color(0xFF8B95A1);
 
-  // TextEditingController 및 NumberFormat 초기화
+  final TextEditingController _goalController = TextEditingController();
   final TextEditingController _targetAmountController = TextEditingController();
   final NumberFormat _numberFormat = NumberFormat('#,##0');
 
@@ -35,33 +35,29 @@ class _FundCreateViewState extends State<FundCreateView> {
   void initState() {
     super.initState();
     _fetchCoupleInfo();
-
-    // 목표 금액 입력 필드에 대한 리스너 추가
     _targetAmountController.addListener(_formatTargetAmount);
   }
 
   @override
   void dispose() {
-    // 컨트롤러 정리
+    _goalController.dispose();
     _targetAmountController.dispose();
     super.dispose();
   }
 
-  // 입력값을 포맷팅하는 함수
   void _formatTargetAmount() {
     String text = _targetAmountController.text.replaceAll(',', '');
     if (text.isEmpty) return;
 
-    // 숫자만 추출
     int? value = int.tryParse(text);
     if (value == null) return;
 
     String formatted = _numberFormat.format(value);
     if (formatted != _targetAmountController.text) {
-      _targetAmountController.value = TextEditingValue(
+      _targetAmountController.value = TextEditingController.fromValue(TextEditingValue(
         text: formatted,
         selection: TextSelection.collapsed(offset: formatted.length),
-      );
+      )).value;
     }
   }
 
@@ -152,83 +148,131 @@ class _FundCreateViewState extends State<FundCreateView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: _backgroundColor,
       appBar: AppBar(
-        title: Text('펀드 생성'),
-        backgroundColor: Colors.pinkAccent,
+        title: Text('펀드 생성', style: TextStyle(color: _textColor, fontWeight: FontWeight.bold)),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        iconTheme: IconThemeData(color: _textColor),
       ),
       body: _isLoading
-          ? Center(child: CircularProgressIndicator())
-          : Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                '펀드 목표',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 8),
-              TextFormField(
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: '펀드 목표 입력',
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return '펀드 목표를 입력해주세요';
-                  }
-                  return null;
-                },
-                onSaved: (value) {
-                  _goal = value!;
-                },
-              ),
-              SizedBox(height: 20),
-              Text(
-                '목표 금액',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 8),
-              TextFormField(
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: '목표 금액 입력',
-                ),
-                keyboardType: TextInputType.number,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return '목표 금액을 입력해주세요';
-                  }
-                  if (int.tryParse(value) == null || int.parse(value) <= 0) {
-                    return '유효한 금액을 입력해주세요';
-                  }
-                  return null;
-                },
-                onSaved: (value) {
-                  _targetAmount = int.parse(value!);
-                },
-              ),
-              SizedBox(height: 20),
-              Center(
-                child: ElevatedButton(
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      _formKey.currentState!.save();
-                      _createFund();
+          ? Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(_primaryColor)))
+          : SingleChildScrollView(
+        child: Padding(
+          padding: EdgeInsets.all(20.0),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildInputField(
+                  '펀드 목표',
+                  _goalController,
+                  '예: 신혼여행 자금',
+                      (value) {
+                    if (value == null || value.isEmpty) {
+                      return '펀드 목표를 입력해주세요';
                     }
+                    return null;
                   },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.pinkAccent,
-                    padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                  ),
-                  child: Text('펀드 생성하기', style: TextStyle(fontSize: 16)),
+                      (value) {
+                    _goal = value!;
+                  },
                 ),
-              ),
-            ],
+                SizedBox(height: 24),
+                _buildInputField(
+                  '목표 금액',
+                  _targetAmountController,
+                  '0',
+                      (value) {
+                    if (value == null || value.isEmpty) {
+                      return '목표 금액을 입력해주세요';
+                    }
+                    if (int.tryParse(value.replaceAll(',', '')) == null || int.parse(value.replaceAll(',', '')) <= 0) {
+                      return '유효한 금액을 입력해주세요';
+                    }
+                    return null;
+                  },
+                      (value) {
+                    _targetAmount = int.parse(value!.replaceAll(',', ''));
+                  },
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  suffix: Text('원', style: TextStyle(color: _subTextColor)),
+                ),
+                SizedBox(height: 40),
+                _buildSubmitButton(),
+              ],
+            ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildInputField(
+      String label,
+      TextEditingController controller,
+      String hint,
+      String? Function(String?) validator,
+      void Function(String?) onSaved, {
+        TextInputType keyboardType = TextInputType.text,
+        List<TextInputFormatter>? inputFormatters,
+        Widget? suffix,
+      }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: _textColor)),
+        SizedBox(height: 8),
+        TextFormField(
+          controller: controller,
+          decoration: InputDecoration(
+            hintText: hint,
+            hintStyle: TextStyle(color: _subTextColor),
+            filled: true,
+            fillColor: _cardColor,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide.none,
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: _primaryColor, width: 2),
+            ),
+            suffixIcon: suffix != null ? Padding(
+              padding: EdgeInsets.only(right: 15),
+              child: suffix,
+            ) : null,
+          ),
+          style: TextStyle(fontSize: 16, color: _textColor),
+          keyboardType: keyboardType,
+          inputFormatters: inputFormatters,
+          validator: validator,
+          onSaved: onSaved,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSubmitButton() {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton(
+        onPressed: () {
+          if (_formKey.currentState!.validate()) {
+            _formKey.currentState!.save();
+            _createFund();
+          }
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: _primaryColor,
+          padding: EdgeInsets.symmetric(vertical: 16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+        child: Text('펀드 생성하기', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
       ),
     );
   }

@@ -24,8 +24,7 @@ class _FundViewState extends State<FundView> {
   final TokenStorage _tokenStorage = TokenStorage();
   int _selectedIndex = 3;
 
-  // Toss-style colors
-  final Color _primaryColor = Color(0xFF3182F6);
+  final Color _primaryColor = Color(0xFFFF6B6B);
   final Color _backgroundColor = Color(0xFFF9FAFB);
   final Color _cardColor = Colors.white;
   final Color _textColor = Color(0xFF191F28);
@@ -185,7 +184,7 @@ class _FundViewState extends State<FundView> {
                     SizedBox(height: 24),
                     GoalCard(fundOverview: fundOverview, coupleResponse: coupleResponse, fundTransactions: fundTransactions, reloadData: _reloadData),
                     SizedBox(height: 16),
-                    LoanCard(),
+                    LoanCard(fundOverview: fundOverview),
                     SizedBox(height: 16),
                     EmergencyCard(fundOverview: fundOverview),
                     SizedBox(height: 16),

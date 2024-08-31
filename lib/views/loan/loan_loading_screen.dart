@@ -64,7 +64,7 @@ class _LoanLoadingScreenState extends State<LoanLoadingScreen> {
         },
       )
           : CustomLoadingWidget(
-        loadingTexts: ['최적의 대출 상품을 찾고 있어요', '거의 다 왔어요!', '조금만 더 기다려주세요', '쀼AI가 열심히 찾고있어요!!'],
+        loadingTexts: ['쀼AI가 최적의 대출 상품을 찾고 있어요!!', '거의 다 왔어요 쀼AI가 열심히 찾고있어요!!', '조금만 더 기다려주세요!!', '쀼AI가 열심히 찾고있어요!!'],
         imagePath: 'assets/loan_image/loan_info1.png',
       ),
     );
