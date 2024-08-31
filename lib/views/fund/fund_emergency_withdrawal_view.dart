@@ -12,7 +12,7 @@ class FundEmergencyWithdrawalView extends StatefulWidget {
   final FundOverview fundOverview;
   final String baseURL;
 
-  FundEmergencyWithdrawalView({required this.fundOverview, this.baseURL = 'http://10.0.2.2:8080/api'});
+  FundEmergencyWithdrawalView({required this.fundOverview, this.baseURL = 'http://3.39.19.140:8080/api'});
 
   @override
   _FundEmergencyWithdrawalViewState createState() => _FundEmergencyWithdrawalViewState();

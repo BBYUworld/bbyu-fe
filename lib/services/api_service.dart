@@ -23,7 +23,7 @@ class ApiService {
 
   ApiService._internal() : _navigationService = NavigationService() {
     _dio = Dio(BaseOptions(
-      baseUrl: 'http://10.0.2.2:8080',
+      baseUrl: 'http://3.39.19.140:8080',
       connectTimeout: Duration(seconds: 15),
       receiveTimeout: Duration(seconds: 15),
     ));

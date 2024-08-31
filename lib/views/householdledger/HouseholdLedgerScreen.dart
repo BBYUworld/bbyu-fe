@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:gagyebbyu_fe/views/home/Footer.dart';
-import 'package:gagyebbyu_fe/views/householdledger/PersonalLedgerScreen.dart';
 import 'package:gagyebbyu_fe/views/householdledger/JointLedgerScreen.dart';
 import 'package:gagyebbyu_fe/services/ledger_api_service.dart';
 import 'package:gagyebbyu_fe/models/user_account.dart';
@@ -15,10 +14,8 @@ class HouseholdLedgerScreen extends StatefulWidget {
 
 class _HouseholdLedgerScreenState extends State<HouseholdLedgerScreen> {
   int _selectedIndex = 0;
-  int _currentPageIndex = 0;
   late LedgerApiService _apiService;
   late List<Account> userAccount;
-  bool _isListView = true;
   CoupleExpense? coupleExpense;
   late Future<void> _loadDataFuture;
 
@@ -84,19 +81,6 @@ class _HouseholdLedgerScreenState extends State<HouseholdLedgerScreen> {
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text('가계부'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              setState(() {
-                _currentPageIndex = _currentPageIndex == 0 ? 1 : 0;
-              });
-            },
-            child: Text(
-              _currentPageIndex == 0 ? '공동' : '개인',
-              style: TextStyle(color: Colors.black),
-            ),
-          ),
-        ],
       ),
       body: FutureBuilder(
         future: _loadDataFuture,
@@ -118,38 +102,48 @@ class _HouseholdLedgerScreenState extends State<HouseholdLedgerScreen> {
   }
 
   Widget _buildBody() {
-    if (coupleExpense != null) {
-      return Column(
-        children: [
-          Expanded(
-            child: _selectedIndex == 0
-                ? JointLedgerListScreen(
-              coupleExpense: coupleExpense,
-              onRefresh: _onRefresh,  // _onRefresh 메소드 호출
-              currentYear: currentYear,
-              currentMonth: currentMonth,
-              onMonthChanged: _onMonthChanged,  // _onMonthChanged 메소드 호출
-            )
-                : _selectedIndex == 1
-                ? JointLedgerScreen(
-              onMonthChanged: _onMonthChanged,  // _onMonthChanged 메소드 호출
-              coupleExpense: coupleExpense,
-              onRefresh: _onRefresh,  // _onRefresh 메소드 호출
-              apiService: _apiService,
-            )
-                : AnalysisExpenseMainPage(
-              coupleExpense: coupleExpense,
-              onRefresh: _onRefresh,  // _onRefresh 메소드 호출
-              currentYear: currentYear,
-              currentMonth: currentMonth,
-              onMonthChanged: _onMonthChanged,  // _onMonthChanged 메소드 호출
-            ),
-          ),
-          _buildCustomFooter(),
-        ],
-      );
-    } else {
+    if (coupleExpense == null) {
       return Center(child: CircularProgressIndicator());
+    }
+
+    return Column(
+      children: [
+        Expanded(
+          child: _getSelectedPage(),
+        ),
+        _buildCustomFooter(),
+      ],
+    );
+  }
+
+  Widget _getSelectedPage() {
+    switch (_selectedIndex) {
+      case 0:
+        return JointLedgerListScreen(
+          coupleExpense: coupleExpense,
+          onRefresh: _onRefresh,  // _onRefresh 메소드 호출
+          currentYear: currentYear,
+          currentMonth: currentMonth,
+          onMonthChanged: _onMonthChanged,  // _onMonthChanged 메소드 호출
+          apiService: _apiService, // apiService 전달
+        );
+      case 1:
+        return JointLedgerScreen(
+          onMonthChanged: _onMonthChanged,  // _onMonthChanged 메소드 호출
+          coupleExpense: coupleExpense,
+          onRefresh: _onRefresh,  // _onRefresh 메소드 호출
+          apiService: _apiService,
+        );
+      case 2:
+        return AnalysisExpenseMainPage(
+          coupleExpense: coupleExpense,
+          onRefresh: _onRefresh,  // _onRefresh 메소드 호출
+          currentYear: currentYear,
+          currentMonth: currentMonth,
+          onMonthChanged: _onMonthChanged,  // _onMonthChanged 메소드 호출
+        );
+      default:
+        return Center(child: Text('페이지를 찾을 수 없습니다.'));
     }
   }
 
@@ -170,25 +164,18 @@ class _HouseholdLedgerScreenState extends State<HouseholdLedgerScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          _buildFooterTab('내역', Icons.list, _selectedIndex == 0),
-          _buildFooterTab('캘린더', Icons.calendar_today, _selectedIndex == 1),
-          _buildFooterTab('통계', Icons.pie_chart, _selectedIndex == 2),
+          _buildFooterTab('내역', Icons.list, 0),
+          _buildFooterTab('캘린더', Icons.calendar_today, 1),
+          _buildFooterTab('통계', Icons.pie_chart, 2),
         ],
       ),
     );
   }
 
-  Widget _buildFooterTab(String label, IconData icon, bool isSelected) {
+  Widget _buildFooterTab(String label, IconData icon, int index) {
+    bool isSelected = _selectedIndex == index;
     return InkWell(
-      onTap: () {
-        setState(() {
-          _selectedIndex = label == '내역'
-              ? 0
-              : label == '캘린더'
-              ? 1
-              : 2;
-        });
-      },
+      onTap: () => _onItemTapped(index),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [

@@ -4,17 +4,21 @@ import '../../models/analysis/analysis_expense.dart';
 import '../../utils/currency_formatting.dart';
 
 class ExpenseCompareCard extends StatelessWidget {
-  final ExpenseResultDto expenseResult;
+  final ExpenseResultDto? expenseResult;
 
   ExpenseCompareCard({required this.expenseResult});
 
   @override
   Widget build(BuildContext context) {
-    // anotherCoupleMonthExpenseAvg가 null일 경우를 가정하지 않음
-    int anotherCoupleMonthExpenseAvg = expenseResult.anotherCoupleMonthExpenseAvg;
+    // expenseResult가 null이거나 데이터가 유효하지 않으면 No Data View 반환
+    if (expenseResult == null || _hasInvalidData(expenseResult!)) {
+      return _buildNoDataView();
+    }
+
+    int anotherCoupleMonthExpenseAvg = expenseResult!.anotherCoupleMonthExpenseAvg;
 
     double percentageChange = _calculatePercentageChange(
-      expenseResult.coupleMonthExpense,
+      expenseResult!.coupleMonthExpense,
       anotherCoupleMonthExpenseAvg,
     );
 
@@ -52,9 +56,9 @@ class ExpenseCompareCard extends StatelessWidget {
             SizedBox(height: 12.0),
             Row(
               children: [
-                _buildTag('${expenseResult.startAge}대'),
+                _buildTag('${expenseResult!.startAge}대'),
                 SizedBox(width: 8.0),
-                _buildTag('${expenseResult.startIncome ~/ 10000}만원대'), // 수입을 "만원대"로 표시
+                _buildTag('${expenseResult!.startIncome}만원대'),
               ],
             ),
             SizedBox(height: 12.0),
@@ -65,7 +69,7 @@ class ExpenseCompareCard extends StatelessWidget {
               children: [
                 _buildComparisonColumn('또래 평균', '${formatCurrency(anotherCoupleMonthExpenseAvg)}원'),
                 Text('VS', style: TextStyle(fontSize: 16, color: Colors.grey)),
-                _buildComparisonColumn('우리의 지출', '${formatCurrency(expenseResult.coupleMonthExpense)}원'),
+                _buildComparisonColumn('우리의 지출', '${formatCurrency(expenseResult!.coupleMonthExpense)}원'),
               ],
             ),
           ],
@@ -77,6 +81,11 @@ class ExpenseCompareCard extends StatelessWidget {
   double _calculatePercentageChange(int coupleMonthExpense, int anotherCoupleMonthExpenseAvg) {
     if (anotherCoupleMonthExpenseAvg == 0) return 0;
     return ((coupleMonthExpense - anotherCoupleMonthExpenseAvg) / anotherCoupleMonthExpenseAvg) * 100;
+  }
+
+  bool _hasInvalidData(ExpenseResultDto result) {
+    // 지출 데이터가 모두 0일 때 유효하지 않은 데이터로 간주
+    return result.coupleMonthExpense == 0 && result.anotherCoupleMonthExpenseAvg == 0;
   }
 
   Widget _buildTag(String text) {
@@ -107,6 +116,22 @@ class ExpenseCompareCard extends StatelessWidget {
           style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
         ),
       ],
+    );
+  }
+
+  Widget _buildNoDataView() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.info_outline, size: 80, color: Colors.grey),
+          SizedBox(height: 16),
+          Text(
+            '지출 데이터가 없습니다.',
+            style: TextStyle(fontSize: 20, color: Colors.grey),
+          ),
+        ],
+      ),
     );
   }
 }
