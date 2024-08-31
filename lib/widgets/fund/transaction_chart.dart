@@ -14,7 +14,7 @@ class TransactionChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: Color(0xFFFFE5E5),
+      color: Color(0xFFF9FAFB),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       elevation: 4,
       child: Padding(
@@ -28,7 +28,7 @@ class TransactionChart extends StatelessWidget {
               height: 300,
               child: LineChart(
                 LineChartData(
-                  backgroundColor : Colors.white,
+                  backgroundColor : Color(0xFFF9FAFB),
                   gridData: FlGridData(show: true),
                   titlesData: FlTitlesData(
                     leftTitles: SideTitles(
@@ -56,7 +56,7 @@ class TransactionChart extends StatelessWidget {
                     LineChartBarData(
                       spots: _generateDataPoints(fundOverview, fundTransactions),
                       isCurved: true,
-                      colors: [Colors.pink],
+                      colors: [Color(0xFFFF6B6B)],
                       barWidth: 3,
                       dotData: FlDotData(show: true),
                       belowBarData: BarAreaData(show: false),

@@ -11,7 +11,6 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     return Consumer<UserStore>(
       builder: (context, userStore, child) {
         return AppBar(
-          title: Text('My App'),
           actions: [
             Stack(
               children: <Widget>[
@@ -31,7 +30,6 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                     child: Container(
                       padding: EdgeInsets.all(2),
                       decoration: BoxDecoration(
-                        color: Colors.red,
                         borderRadius: BorderRadius.circular(10),
                       ),
                       constraints: BoxConstraints(

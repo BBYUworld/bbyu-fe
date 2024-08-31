@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:gagyebbyu_fe/models/couple_expense_model.dart';
+import 'package:gagyebbyu_fe/models/expense/couple_expense_model.dart';
+import 'package:gagyebbyu_fe/models/expense/expense_category.dart';
 import 'package:gagyebbyu_fe/widgets/expense/joint_ledger_header.dart';
 import 'package:intl/intl.dart';
+import '../../services/ledger_api_service.dart';
+import 'edit_expense_modal.dart'; // 새로 만든 모달 파일 임포트
 
 class JointLedgerListScreen extends StatefulWidget {
   final CoupleExpense? coupleExpense;
@@ -9,6 +12,7 @@ class JointLedgerListScreen extends StatefulWidget {
   final int currentYear;
   final int currentMonth;
   final void Function(int year, int month) onMonthChanged;
+  final LedgerApiService apiService;  // apiService 추가
 
   JointLedgerListScreen({
     required this.coupleExpense,
@@ -16,6 +20,7 @@ class JointLedgerListScreen extends StatefulWidget {
     required this.currentYear,
     required this.currentMonth,
     required this.onMonthChanged,
+    required this.apiService,  // apiService 추가
   });
 
   @override
@@ -114,7 +119,7 @@ class _JointLedgerListScreenState extends State<JointLedgerListScreen> {
               return ListTile(
                 leading: _getCategoryIcon(expense.category),
                 title: Text(
-                  expense.category,
+                  categoryToString(categoryFromString(expense.category)),
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16, // 카테고리 텍스트 크기 키움
@@ -133,6 +138,9 @@ class _JointLedgerListScreenState extends State<JointLedgerListScreen> {
                   ),
                 ),
                 isThreeLine: true,
+                onTap: () {
+                  _editExpense(expense); // 항목 클릭 시 수정 모달 열기
+                },
               );
             }).toList(),
           ],
@@ -140,6 +148,28 @@ class _JointLedgerListScreenState extends State<JointLedgerListScreen> {
       },
     );
   }
+
+  void _editExpense(DailyDetailExpense expense) async {
+    final updatedExpense = await showDialog<DailyDetailExpense>(
+      context: context,
+      builder: (BuildContext context) {
+        return EditExpenseModal(
+          expense: expense,
+          apiService: widget.apiService,  // apiService 전달
+        );
+      },
+    );
+
+    if (updatedExpense != null) {
+      setState(() {
+        final index = widget.coupleExpense!.dayExpenses.indexWhere((e) => e.expenseId == updatedExpense.expenseId);
+        if (index != -1) {
+          widget.coupleExpense!.dayExpenses[index] = updatedExpense;
+        }
+      });
+    }
+  }
+
 
   Map<String, List<DailyDetailExpense>> _groupExpensesByDate(List<DailyDetailExpense> expenses) {
     final groupedExpenses = <String, List<DailyDetailExpense>>{};

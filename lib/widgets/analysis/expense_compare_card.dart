@@ -1,19 +1,25 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart'; // Import the intl package
-import 'package:gagyebbyu_fe/models/analysis/analysis_asset.dart';
+import 'package:intl/intl.dart';
+import '../../models/analysis/analysis_expense.dart';
 import '../../utils/currency_formatting.dart';
 
-class AssetCompareCard extends StatelessWidget {
-  final AssetResultDto assetResult;
+class ExpenseCompareCard extends StatelessWidget {
+  final ExpenseResultDto? expenseResult;
 
-  AssetCompareCard({required this.assetResult});
+  ExpenseCompareCard({required this.expenseResult});
 
   @override
   Widget build(BuildContext context) {
-    // Calculate the percentage change
+    // expenseResult가 null이거나 데이터가 유효하지 않으면 No Data View 반환
+    if (expenseResult == null || _hasInvalidData(expenseResult!)) {
+      return _buildNoDataView();
+    }
+
+    int anotherCoupleMonthExpenseAvg = expenseResult!.anotherCoupleMonthExpenseAvg;
+
     double percentageChange = _calculatePercentageChange(
-      assetResult.currentAsset,
-      assetResult.anotherAssetsAvg,
+      expenseResult!.coupleMonthExpense,
+      anotherCoupleMonthExpenseAvg,
     );
 
     return Card(
@@ -27,18 +33,22 @@ class AssetCompareCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              '자산 분석',
+              '지출 분석',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 8.0),
             RichText(
               text: TextSpan(
-                text: '또래 대비 자산 보유 ',
+                text: '또래 대비 지출 ',
                 style: TextStyle(fontSize: 16, color: Colors.black),
                 children: [
                   TextSpan(
                     text: '${percentageChange > 0 ? '+' : ''}${percentageChange.toStringAsFixed(1)}%',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.blue),
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: percentageChange > 0 ? Colors.red : Colors.green,
+                    ),
                   ),
                 ],
               ),
@@ -46,9 +56,9 @@ class AssetCompareCard extends StatelessWidget {
             SizedBox(height: 12.0),
             Row(
               children: [
-                _buildTag('${assetResult.startAge}대'),
+                _buildTag('${expenseResult!.startAge}대'),
                 SizedBox(width: 8.0),
-                _buildTag('${assetResult.startIncome}만원대'), // Displaying income as "백만원대"
+                _buildTag('${expenseResult!.startIncome}만원대'),
               ],
             ),
             SizedBox(height: 12.0),
@@ -57,9 +67,9 @@ class AssetCompareCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _buildComparisonColumn('또래 평균', '${formatCurrency(assetResult.anotherAssetsAvg)} 만원'), // Displaying as integer with "만원"
+                _buildComparisonColumn('또래 평균', '${formatCurrency(anotherCoupleMonthExpenseAvg)}원'),
                 Text('VS', style: TextStyle(fontSize: 16, color: Colors.grey)),
-                _buildComparisonColumn('나의 금융자산', '${formatCurrency(assetResult.currentAsset)} 만원'), // Displaying as integer with "만원"
+                _buildComparisonColumn('우리의 지출', '${formatCurrency(expenseResult!.coupleMonthExpense)}원'),
               ],
             ),
           ],
@@ -68,9 +78,14 @@ class AssetCompareCard extends StatelessWidget {
     );
   }
 
-  double _calculatePercentageChange(int currentAsset, int anotherCoupleAssetAvg) {
-    if (anotherCoupleAssetAvg == 0) return 0;
-    return ((currentAsset - anotherCoupleAssetAvg) / anotherCoupleAssetAvg) * 100;
+  double _calculatePercentageChange(int coupleMonthExpense, int anotherCoupleMonthExpenseAvg) {
+    if (anotherCoupleMonthExpenseAvg == 0) return 0;
+    return ((coupleMonthExpense - anotherCoupleMonthExpenseAvg) / anotherCoupleMonthExpenseAvg) * 100;
+  }
+
+  bool _hasInvalidData(ExpenseResultDto result) {
+    // 지출 데이터가 모두 0일 때 유효하지 않은 데이터로 간주
+    return result.coupleMonthExpense == 0 && result.anotherCoupleMonthExpenseAvg == 0;
   }
 
   Widget _buildTag(String text) {
@@ -101,6 +116,22 @@ class AssetCompareCard extends StatelessWidget {
           style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
         ),
       ],
+    );
+  }
+
+  Widget _buildNoDataView() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.info_outline, size: 80, color: Colors.grey),
+          SizedBox(height: 16),
+          Text(
+            '지출 데이터가 없습니다.',
+            style: TextStyle(fontSize: 20, color: Colors.grey),
+          ),
+        ],
+      ),
     );
   }
 }

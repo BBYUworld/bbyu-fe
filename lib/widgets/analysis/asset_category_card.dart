@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../../models/analysis/analysis_asset.dart';
-import '../../utils/asset_label_mapping.dart'; // labelMapping import
-import '../../utils/asset_category_color_mapping.dart'; // assetColorMapping import
+import '../../utils/asset_label_mapping.dart';
+import '../../utils/asset_category_color_mapping.dart';
+import '../../utils/currency_formatting.dart';
 
 class CategoryChartCard extends StatefulWidget {
   final Future<List<AssetCategoryDto>> futureAssetCategories;
@@ -54,7 +55,7 @@ class _CategoryChartCardState extends State<CategoryChartCard> {
                 return assetLabelMapping[labelKey] ?? labelKey; // 매핑된 라벨 사용
               }).toList();
 
-              final amounts = nonZeroSections.map((data) => data.amount.toDouble()).toList();
+              final amounts = nonZeroSections.map((data) => data.amount).toList(); // amounts를 int로 유지
 
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -96,7 +97,7 @@ class _CategoryChartCardState extends State<CategoryChartCard> {
                                 fontWeight: FontWeight.bold,
                                 color: const Color(0xffffffff),
                               ),
-                              titlePositionPercentageOffset: 0.55, // 제목 위치 조정
+                              titlePositionPercentageOffset: 0.55,
                             );
                           }),
                           centerSpaceRadius: 40,
@@ -112,7 +113,7 @@ class _CategoryChartCardState extends State<CategoryChartCard> {
                       final data = sections[index];
                       final color = data.color;
                       final label = labels[index];
-                      final amount = amounts[index];
+                      final amount = amounts[index]; // amount는 int
 
                       return Padding(
                         padding: const EdgeInsets.symmetric(vertical: 4.0),
@@ -133,7 +134,7 @@ class _CategoryChartCardState extends State<CategoryChartCard> {
                                 Text('$label ${data.value}%'),
                               ],
                             ),
-                            Text('${amount.toStringAsFixed(0)}원'),
+                            Text('${formatCurrency(amount)}원'),
                           ],
                         ),
                       );

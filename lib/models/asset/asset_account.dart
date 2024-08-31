@@ -7,13 +7,13 @@ class AssetAccount extends Asset {
   final int? oneTimeTransferLimit;
   final int? dailyTransferLimit;
   final DateTime? maturityDate;
-  final double interestRate;
+  final double? interestRate;  // nullable로 변경
   final int? term;
 
   AssetAccount({
     required int assetId,
     required int userId,
-    required int? coupleId, // nullable 처리
+    required int? coupleId,
     required String type,
     required String bankName,
     required String bankCode,
@@ -27,7 +27,7 @@ class AssetAccount extends Asset {
     this.oneTimeTransferLimit,
     this.dailyTransferLimit,
     this.maturityDate,
-    required this.interestRate,
+    this.interestRate,
     this.term,
   }) : super(
     assetId: assetId,
@@ -47,7 +47,7 @@ class AssetAccount extends Asset {
     return AssetAccount(
       assetId: json['assetId'] as int,
       userId: json['userId'] as int,
-      coupleId: json['coupleId'] != null ? json['coupleId'] as int : null, // nullable 처리
+      coupleId: json['coupleId'] != null ? json['coupleId'] as int : null,
       type: json['type'] as String,
       bankName: json['bankName'] as String,
       bankCode: json['bankCode'] as String,
@@ -61,7 +61,7 @@ class AssetAccount extends Asset {
       oneTimeTransferLimit: json['oneTimeTransferLimit'] != null ? json['oneTimeTransferLimit'] as int : null,
       dailyTransferLimit: json['dailyTransferLimit'] != null ? json['dailyTransferLimit'] as int : null,
       maturityDate: json['maturityDate'] != null ? DateTime.parse(json['maturityDate']) : null,
-      interestRate: (json['interestRate'] as num).toDouble(),
+      interestRate: json['interestRate'] != null ? (json['interestRate'] as num).toDouble() : 0.0,  // null 체크 추가, 기본값 0.0
       term: json['term'] != null ? json['term'] as int : null,
     );
   }
@@ -75,7 +75,7 @@ class AssetAccount extends Asset {
       'oneTimeTransferLimit': oneTimeTransferLimit,
       'dailyTransferLimit': dailyTransferLimit,
       'maturityDate': maturityDate?.toIso8601String(),
-      'interestRate': interestRate,
+      'interestRate': interestRate ?? 0.0,  // null이면 0.0 반환
       'term': term,
     });
     return data;

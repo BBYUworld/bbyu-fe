@@ -9,9 +9,10 @@ class LoanBalanceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 10000으로 나눈 몫은 억, 나머지는 만원 단위
-    int balanceInEok = balance ~/ 10000;  // 억 단위
-    int balanceInManwon = (balance % 10000);  // 만원 단위
+
+    // 100000000(1억)으로 나눈 몫은 억, 나머지를 10000(1만)으로 나눈 몫은 만원 단위
+    int balanceInEok = balance ~/ 100000000;  // 억 단위
+    int balanceInManwon = (balance % 100000000) ~/ 10000;  // 만원 단위
 
     return Card(
       child: Padding(
@@ -30,8 +31,6 @@ class LoanBalanceCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                ElevatedButton(onPressed: () {}, child: Text('내 납부내역')),
-                ElevatedButton(onPressed: () {}, child: Text('납부 일정')),
               ],
             ),
           ],

@@ -27,6 +27,16 @@ class _LandingPageState extends State<LandingPage> {
           children: <Widget>[
             Image.asset('assets/BBYU_LOGO.png', width: 200, height: 200),
             SizedBox(height: 20),
+            Text(
+              '부부가 함께하는 자산관리, 가게쀼',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: 20),
             CircularProgressIndicator(),
           ],
         ),

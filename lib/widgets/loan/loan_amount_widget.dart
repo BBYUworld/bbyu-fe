@@ -30,21 +30,14 @@ class LoanAmountInputWidget extends StatelessWidget {
                     decoration: InputDecoration(
                       border: OutlineInputBorder(),
                       hintText: '금액 입력',
-                      suffixText: '만원',
+                      suffixText: '원',
                     ),
                   ),
                 ),
               ],
             ),
             SizedBox(height: 16),
-            ElevatedButton(
-              child: Text('대출 추천받기'),
-              onPressed: onSubmit,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
-                padding: EdgeInsets.symmetric(vertical: 16),
-              ),
-            ),
+
           ],
         ),
       ),

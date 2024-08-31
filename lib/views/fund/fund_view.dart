@@ -1,4 +1,3 @@
-// fund_view.dart
 import 'package:flutter/material.dart';
 import 'package:gagyebbyu_fe/models/fund/fund_overview.dart';
 import 'package:gagyebbyu_fe/models/couple/couple_response.dart';
@@ -13,15 +12,23 @@ import 'package:gagyebbyu_fe/storage/TokenStorage.dart';
 import 'dart:convert';
 
 import '../home/Footer.dart';
+
 class FundView extends StatefulWidget {
   @override
   _FundViewState createState() => _FundViewState();
 }
 
 class _FundViewState extends State<FundView> {
+  final String baseURL = 'http://3.39.19.140:8080/api';
   Future<Map<String, dynamic>>? _initialDataFuture;
   final TokenStorage _tokenStorage = TokenStorage();
-  int _selectedIndex = 3; // '펀딩' 탭의 인덱스
+  int _selectedIndex = 3;
+
+  final Color _primaryColor = Color(0xFFFF6B6B);
+  final Color _backgroundColor = Color(0xFFF9FAFB);
+  final Color _cardColor = Colors.white;
+  final Color _textColor = Color(0xFF191F28);
+  final Color _subTextColor = Color(0xFF8B95A1);
 
   @override
   void initState() {
@@ -47,7 +54,7 @@ class _FundViewState extends State<FundView> {
   }
 
   Future<CoupleResponse> fetchCoupleResponse() async {
-    final url = Uri.parse('http://3.39.19.140:8080/api/couple');
+    final url = Uri.parse('$baseURL/couple'); // baseURL과 엔드포인트 결합
     final accessToken = await _tokenStorage.getAccessToken();
 
     try {
@@ -73,7 +80,7 @@ class _FundViewState extends State<FundView> {
   }
 
   Future<FundOverview> fetchFundOverview(int coupleId) async {
-    final url = Uri.parse('http://3.39.19.140:8080/api/fund/$coupleId');
+    final url = Uri.parse('$baseURL/fund/$coupleId'); // baseURL과 엔드포인트 결합
     final accessToken = await _tokenStorage.getAccessToken();
 
     try {
@@ -99,7 +106,7 @@ class _FundViewState extends State<FundView> {
   }
 
   Future<List<FundTransaction>> fetchFundTransactions(int fundId) async {
-    final url = Uri.parse('http://3.39.19.140:8080/api/fund/transaction/$fundId');
+    final url = Uri.parse('$baseURL/fund/transaction/$fundId'); // baseURL과 엔드포인트 결합
     final accessToken = await _tokenStorage.getAccessToken();
 
     try {
@@ -139,18 +146,21 @@ class _FundViewState extends State<FundView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: _backgroundColor,
       appBar: AppBar(
         title: Text(
           '펀드 관리',
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          style: TextStyle(color: _textColor, fontSize: 20, fontWeight: FontWeight.bold),
         ),
-        backgroundColor: Color(0xFFFC8D94),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        iconTheme: IconThemeData(color: _textColor),
       ),
       body: FutureBuilder<Map<String, dynamic>>(
         future: _initialDataFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(_primaryColor)));
           } else if (snapshot.hasError) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
               Navigator.pushReplacement(
@@ -164,63 +174,80 @@ class _FundViewState extends State<FundView> {
             final fundOverview = snapshot.data!['fundOverview'] as FundOverview;
             final fundTransactions = snapshot.data!['fundTransactions'] as List<FundTransaction>;
 
-            return Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: ListView(
-                children: [
-                  Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          '${coupleResponse.nickname} 펀딩',
-                          style: TextStyle(fontSize: 17, fontWeight: FontWeight.normal, color: Colors.black54),
-                        ),
-                        SizedBox(height: 0),
-                        Text(
-                          '${fundOverview.goal}',
-                          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black87),
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              '${coupleResponse.user1Name} ',
-                              style: TextStyle(fontSize: 16, color: Colors.black54),
-                            ),
-                            Image.asset(
-                              'assets/images/heart.png',
-                              width: 25,
-                              height: 25,
-                            ),
-                            Text(
-                              ' ${coupleResponse.user2Name}',
-                              style: TextStyle(fontSize: 16, color: Colors.black54),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(height: 16),
-                  GoalCard(fundOverview: fundOverview, coupleResponse: coupleResponse, fundTransactions: fundTransactions, reloadData: _reloadData),
-                  SizedBox(height: 16),
-                  LoanCard(),
-                  SizedBox(height: 16),
-                  EmergencyCard(fundOverview: fundOverview),
-                  SizedBox(height: 16),
-                  TransactionChart(fundOverview: fundOverview, fundTransactions: fundTransactions),
-                ],
+            return SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildCoupleInfo(coupleResponse, fundOverview),
+                    SizedBox(height: 24),
+                    GoalCard(fundOverview: fundOverview, coupleResponse: coupleResponse, fundTransactions: fundTransactions, reloadData: _reloadData),
+                    SizedBox(height: 16),
+                    LoanCard(fundOverview: fundOverview),
+                    SizedBox(height: 16),
+                    EmergencyCard(fundOverview: fundOverview),
+                    SizedBox(height: 16),
+                    TransactionChart(fundOverview: fundOverview, fundTransactions: fundTransactions),
+                  ],
+                ),
               ),
             );
           } else {
-            return Center(child: Text('표시할 데이터가 없습니다.'));
+            return Center(child: Text('표시할 데이터가 없습니다.', style: TextStyle(color: _textColor)));
           }
         },
       ),
       bottomNavigationBar: CustomFooter(
         selectedIndex: _selectedIndex,
         onItemTapped: _onItemTapped,
+      ),
+    );
+  }
+
+  Widget _buildCoupleInfo(CoupleResponse coupleResponse, FundOverview fundOverview) {
+    return Container(
+      padding: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: _cardColor,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '${coupleResponse.nickname} 펀딩',
+            style: TextStyle(fontSize: 14, color: _subTextColor),
+          ),
+          SizedBox(height: 4),
+          Text(
+            '${fundOverview.goal}',
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: _textColor),
+          ),
+          SizedBox(height: 8),
+          Row(
+            children: [
+              Text(
+                '${coupleResponse.user1Name}',
+                style: TextStyle(fontSize: 16, color: _textColor),
+              ),
+              SizedBox(width: 8),
+              Icon(Icons.favorite, color: _primaryColor, size: 20),
+              SizedBox(width: 8),
+              Text(
+                '${coupleResponse.user2Name}',
+                style: TextStyle(fontSize: 16, color: _textColor),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

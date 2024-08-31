@@ -56,7 +56,7 @@ class CoupleUserInfoCard extends StatelessWidget {
                   ),
                   SizedBox(height: 4),
                   Text(
-                    '마지막 업데이트: 2024.02.16',
+                    '마지막 업데이트: 2024.08.31',
                     style: TextStyle(
                       fontSize: 12,
                       color: Colors.grey,
@@ -94,7 +94,7 @@ class CoupleUserInfoCard extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: Colors.blue,
+                        color: Color(0xFFFF6B6B),
                       ),
                     ),
                   ],
@@ -107,7 +107,7 @@ class CoupleUserInfoCard extends StatelessWidget {
                 },
                 style: ElevatedButton.styleFrom(
                   foregroundColor: Colors.white,
-                  backgroundColor: Colors.blue,
+                  backgroundColor: Color(0xFFFF6B6B),
                 ),
               ),
             ],

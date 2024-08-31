@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:gagyebbyu_fe/models/couple_expense_model.dart';
-import 'package:gagyebbyu_fe/services/ledger_api_service.dart';
+import '../../models/expense/couple_expense_model.dart';
+import '../../services/ledger_api_service.dart';
 
 class DailyExpenseDetailModal extends StatefulWidget {
   final DateTime date;
-  final CoupleExpense coupleExpense; // coupleExpense를 사용하도록 변경
+  final CoupleExpense coupleExpense;
   final LedgerApiService apiService;
 
   DailyExpenseDetailModal({
     required this.date,
-    required this.coupleExpense, // CoupleExpense로 변경
+    required this.coupleExpense,
     required this.apiService,
   });
 
@@ -18,12 +18,19 @@ class DailyExpenseDetailModal extends StatefulWidget {
 }
 
 class _DailyExpenseDetailModalState extends State<DailyExpenseDetailModal> {
+  late List<DailyDetailExpense> filteredExpenses;
+
   @override
-  Widget build(BuildContext context) {
-    // Filter expenses for the selected date
-    final filteredExpenses = widget.coupleExpense.dayExpenses
+  void initState() {
+    super.initState();
+    filteredExpenses = widget.coupleExpense.dayExpenses
         .where((expense) => isSameDay(expense.date, widget.date))
         .toList();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    print("Building DailyExpenseDetailModal");
 
     return Container(
       padding: EdgeInsets.all(16),
@@ -55,6 +62,8 @@ class _DailyExpenseDetailModalState extends State<DailyExpenseDetailModal> {
               itemCount: filteredExpenses.length,
               itemBuilder: (context, index) {
                 final expense = filteredExpenses[index];
+                print("Expense memo: ${expense.memo}"); // 각 항목의 메모 출력
+
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8.0),
                   child: Row(
@@ -79,7 +88,7 @@ class _DailyExpenseDetailModalState extends State<DailyExpenseDetailModal> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Padding(
-                              padding: const EdgeInsets.only(bottom: 4.0), // 행 사이 간격 조정
+                              padding: const EdgeInsets.only(bottom: 4.0),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
@@ -102,7 +111,7 @@ class _DailyExpenseDetailModalState extends State<DailyExpenseDetailModal> {
                               ),
                             ),
                             Padding(
-                              padding: const EdgeInsets.only(bottom: 4.0), // 행 사이 간격 조정
+                              padding: const EdgeInsets.only(bottom: 4.0),
                               child: Row(
                                 children: [
                                   Expanded(
@@ -114,7 +123,7 @@ class _DailyExpenseDetailModalState extends State<DailyExpenseDetailModal> {
                                   IconButton(
                                     icon: Icon(Icons.edit, size: 16, color: Colors.grey),
                                     onPressed: () {
-                                      _editMemo(context, expense);
+                                      _editMemo(context, expense, index);
                                     },
                                   ),
                                 ],
@@ -134,7 +143,6 @@ class _DailyExpenseDetailModalState extends State<DailyExpenseDetailModal> {
     );
   }
 
-  // Helper method to check if two dates are the same day
   bool isSameDay(DateTime date1, DateTime date2) {
     return date1.year == date2.year &&
         date1.month == date2.month &&
@@ -150,7 +158,7 @@ class _DailyExpenseDetailModalState extends State<DailyExpenseDetailModal> {
     return expenses.fold(0, (sum, expense) => sum + expense.amount.abs());
   }
 
-  Future<void> _editMemo(BuildContext context, DailyDetailExpense expense) async {
+  Future<void> _editMemo(BuildContext context, DailyDetailExpense expense, int index) async {
     TextEditingController controller = TextEditingController(text: expense.memo);
 
     final result = await showDialog<String>(
@@ -180,12 +188,17 @@ class _DailyExpenseDetailModalState extends State<DailyExpenseDetailModal> {
       },
     );
 
-    if (result != null) {
+    if (result != null && result != expense.memo) {
       try {
-        await widget.apiService.fetchUpdateMemo(result, expense.expenseId);
+        await widget.apiService.fetchUpdateMemo(expense.expenseId, result);
+
+        print("Updating memo in setState");
         setState(() {
-          expense.memo = result;
+          filteredExpenses[index] = filteredExpenses[index].copyWith(memo: result);
         });
+
+        print("Updated memo: ${filteredExpenses[index].memo}");
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('메모가 업데이트되었습니다.')),
         );

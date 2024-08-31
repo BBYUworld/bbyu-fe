@@ -2,7 +2,9 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:gagyebbyu_fe/storage/TokenStorage.dart';
 import 'package:gagyebbyu_fe/models/user_account.dart';
-import 'package:gagyebbyu_fe/models/couple_expense_model.dart';
+import 'package:gagyebbyu_fe/models/expense/couple_expense_model.dart';
+
+import '../models/expense/couple_expense_model.dart';
 
 
 class LedgerApiService {
@@ -79,25 +81,68 @@ class LedgerApiService {
     }
   }
 
-  Future<void> fetchUpdateMemo(String memo, int expenseId) async {
+  Future<void> fetchUpdateMemo(int expenseId, String memo) async {
     final accessToken = await _tokenStorage.getAccessToken();
     final body = jsonEncode({
       'memo': memo,
     });
-    print("fetch Couple Expense Access Token : $accessToken");
+
     final response = await http.post(
       Uri.parse('$baseUrl/api/expense/memo/$expenseId'),
-      headers:{
-        'Content-Type' : 'application/json',
-        'Authorization' : '$accessToken'
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $accessToken',
       },
       body: body,
     );
+
     if (response.statusCode == 200) {
-      final decodedBody = utf8.decode(response.bodyBytes);
-      final jsonResponse = json.decode(decodedBody);
+      print('Memo updated successfully');
     } else {
-      throw Exception('Failed to load couple expense data');
+      print('Failed to update memo. Status code: ${response.statusCode}');
+      print('Response body: ${response.body}');
+      throw Exception('Failed to update memo');
     }
   }
+
+  Future<void> fetchUpdateAmount(int expenseId, int amount) async {
+    final accessToken = await _tokenStorage.getAccessToken();
+    final url = Uri.parse('$baseUrl/api/expense/$expenseId');
+    final response = await http.patch(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $accessToken',
+      },
+      body: json.encode({'amount': amount}),
+    );
+
+    if (response.statusCode == 200) {
+      print('Amount updated successfully');
+    } else {
+      print('Failed to update amount. Status code: ${response.statusCode}');
+      throw Exception('Failed to update amount');
+    }
+  }
+
+  Future<void> fetchUpdateCategory(int expenseId, String category) async {
+    final accessToken = await _tokenStorage.getAccessToken();
+    final url = Uri.parse('$baseUrl/api/expense/category/$expenseId');
+    final response = await http.patch(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $accessToken',
+      },
+      body: json.encode({'category': category}),
+    );
+
+    if (response.statusCode == 200) {
+      print('Category updated successfully');
+    } else {
+      print('Failed to update category. Status code: ${response.statusCode}');
+      throw Exception('Failed to update category');
+    }
+  }
+
 }

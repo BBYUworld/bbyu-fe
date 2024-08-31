@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:gagyebbyu_fe/utils/currency_formatting.dart';
+import 'package:intl/intl.dart'; // 통화 포맷을 위해 추가
 import '../../models/analysis/analysis_asset.dart';
 
 class TotalAssetsCard extends StatelessWidget {
@@ -31,32 +33,24 @@ class TotalAssetsCard extends StatelessWidget {
                   return Text('Error: ${snapshot.error}');
                 } else if (snapshot.hasData) {
                   final result = snapshot.data!;
-                  final difference = result.currentAsset - result.lastYearAsset;
-                  final symbol = difference >= 0 ? '▲' : '▼';
-                  final displayAmount = difference.abs().toStringAsFixed(0);
+                  final currentAssetText = '${formatCurrency(result.currentAsset)}원';
+                  final lastYearAsset = result.lastYearAsset;
+
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        '${result.currentAsset.toStringAsFixed(0)}원',
+                        currentAssetText,
                         style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
                       ),
-                      Row(
-                        children: [
-                          Text(
-                            '$symbol $displayAmount원',
-                            style: TextStyle(
-                              color: difference >= 0 ? Colors.red : Colors.blue,
-                              fontSize: 16,
-                            ),
-                          ),
-                          SizedBox(width: 10),
-                          Text(
-                            '${DateTime.now().year - 1}년 기준',
-                            style: TextStyle(color: Colors.grey, fontSize: 12),
-                          ),
-                        ],
-                      ),
+                      if (lastYearAsset != null) ...[
+                        _buildComparisonRow(result, lastYearAsset),
+                      ] else ...[
+                        Text(
+                          '지난해 자산 데이터가 없습니다.',
+                          style: TextStyle(color: Colors.grey, fontSize: 14),
+                        ),
+                      ],
                     ],
                   );
                 } else {
@@ -67,6 +61,29 @@ class TotalAssetsCard extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildComparisonRow(AssetResultDto result, int lastYearAsset) {
+    final difference = result.currentAsset - lastYearAsset;
+    final symbol = difference >= 0 ? '▲' : '▼';
+    final displayAmount = formatCurrency(difference.abs());
+
+    return Row(
+      children: [
+        Text(
+          '$symbol $displayAmount원',
+          style: TextStyle(
+            color: difference >= 0 ? Colors.red : Colors.blue,
+            fontSize: 16,
+          ),
+        ),
+        SizedBox(width: 10),
+        Text(
+          '${DateTime.now().year - 1}년 기준',
+          style: TextStyle(color: Colors.grey, fontSize: 12),
+        ),
+      ],
     );
   }
 }

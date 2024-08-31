@@ -51,8 +51,8 @@ class _LoanListCardState extends State<LoanListCard> {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text('${loan.user1Name}'),
-                    Text('잔여액: ${formatter.format(loan.remainedAmount)}만원'),
-                    Text('대출액: ${formatter.format(loan.amount)}만원', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                    Text('잔여액: ${formatter.format(loan.remainedAmount)}원'),
+                    Text('대출액: ${formatter.format(loan.amount)}원', style: TextStyle(fontSize: 12, color: Colors.grey)),
                   ],
                 ),
                 onTap: () {

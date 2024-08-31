@@ -22,7 +22,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   final _dailyTransferLimitController = TextEditingController();
   final _oneTimeTransferLimitController = TextEditingController();
 
-  final Color _primaryColor = Color(0xFFF5E7E0);
+  final Color _primaryColor = Color(0xFFFFF2F2);
   final Color _textColor = Color(0xFF4A4A4A);
 
   // 은행 이름과 이미지 파일 이름 매핑
