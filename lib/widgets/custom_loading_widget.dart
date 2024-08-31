@@ -79,7 +79,7 @@ class _CustomLoadingWidgetState extends State<CustomLoadingWidget> {
           ),
           SizedBox(height: 40),
           CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF3182F6)),
+            valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFFF6B6B)),
             strokeWidth: 5,
           ),
           SizedBox(height: 40),
@@ -91,7 +91,7 @@ class _CustomLoadingWidgetState extends State<CustomLoadingWidget> {
           SizedBox(height: 20),
           Text(
             '${(_progress * 100).toInt()}%',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Color(0xFF3182F6)),
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Color(0xFFFF6B6B)),
           ),
         ],
       ),

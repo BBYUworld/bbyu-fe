@@ -9,7 +9,6 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'GaGyeBBYU',
-      theme: ThemeData(primarySwatch: Colors.blue),
       home: LoginView(),  // 커스텀 스플래시 화면을 첫 화면으로 설정
       routes: routes,
       debugShowCheckedModeBanner: false,

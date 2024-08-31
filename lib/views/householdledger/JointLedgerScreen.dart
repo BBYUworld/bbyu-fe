@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gagyebbyu_fe/services/ledger_api_service.dart'; // Ensure you have this import
 import 'package:table_calendar/table_calendar.dart';
-import 'package:gagyebbyu_fe/models/couple_expense_model.dart';
+import 'package:gagyebbyu_fe/models/expense/couple_expense_model.dart';
 import 'package:gagyebbyu_fe/views/householdledger/daily_expense_detail_modal.dart';
 import 'package:gagyebbyu_fe/widgets/expense/joint_ledger_header.dart';
 

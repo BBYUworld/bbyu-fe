@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gagyebbyu_fe/models/couple_expense_model.dart';
+import 'package:gagyebbyu_fe/models/expense/couple_expense_model.dart';
 import 'package:gagyebbyu_fe/services/ledger_api_service.dart';
 
 class DailyExpenseDetailModal extends StatefulWidget {

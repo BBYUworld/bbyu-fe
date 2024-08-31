@@ -2,11 +2,13 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:gagyebbyu_fe/storage/TokenStorage.dart';
 import 'package:gagyebbyu_fe/models/user_account.dart';
-import 'package:gagyebbyu_fe/models/couple_expense_model.dart';
+import 'package:gagyebbyu_fe/models/expense/couple_expense_model.dart';
+
+import '../models/expense/couple_expense_model.dart';
 
 
 class LedgerApiService {
-  static const String baseUrl = 'http://3.39.19.140:8080';
+  static const String baseUrl = 'http://10.0.2.2:8080';
   final TokenStorage _tokenStorage = TokenStorage();
   Future<Map<String, dynamic>> fetchLedgerData() async {
     final response = await http.get(Uri.parse('$baseUrl/ledger'));

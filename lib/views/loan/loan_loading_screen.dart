@@ -97,7 +97,7 @@ class _LoanLoadingScreenState extends State<LoanLoadingScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.info_outline, size: 60, color: Color(0xFF3182F6)),
+          Icon(Icons.info_outline, size: 60, color: Color(0xFFFF6B6B)),
           SizedBox(height: 20),
           Text(
             '대출 정보가 없습니다',
@@ -144,7 +144,7 @@ class _LoanLoadingScreenState extends State<LoanLoadingScreen> {
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF3182F6),
+                      color: Color(0xFFFF6B6B),
                     ),
                   ),
                 ],

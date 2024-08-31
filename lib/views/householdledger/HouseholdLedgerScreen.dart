@@ -4,8 +4,9 @@ import 'package:gagyebbyu_fe/views/householdledger/PersonalLedgerScreen.dart';
 import 'package:gagyebbyu_fe/views/householdledger/JointLedgerScreen.dart';
 import 'package:gagyebbyu_fe/services/ledger_api_service.dart';
 import 'package:gagyebbyu_fe/models/user_account.dart';
-import 'package:gagyebbyu_fe/models/couple_expense_model.dart';
+import 'package:gagyebbyu_fe/models/expense/couple_expense_model.dart';
 import 'package:gagyebbyu_fe/views/householdledger/JointLedgerListScreen.dart';
+import 'package:gagyebbyu_fe/views/analysis/analysis_expense_main_page.dart';
 
 class HouseholdLedgerScreen extends StatefulWidget {
   @override
@@ -33,7 +34,7 @@ class _HouseholdLedgerScreenState extends State<HouseholdLedgerScreen> {
 
   Future<void> _fetchInitialData() async {
     await _fetchLedgerData();
-    await fetchCoupleExpense(currentYear, currentMonth);
+    await _fetchCoupleExpense(currentYear, currentMonth);
   }
 
   Future<void> _fetchLedgerData() async {
@@ -47,13 +48,7 @@ class _HouseholdLedgerScreenState extends State<HouseholdLedgerScreen> {
     }
   }
 
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
-
-  Future<void> fetchCoupleExpense(int year, int month) async {
+  Future<void> _fetchCoupleExpense(int year, int month) async {
     try {
       final data = await _apiService.fetchCoupleExpense(year, month);
       setState(() {
@@ -67,11 +62,17 @@ class _HouseholdLedgerScreenState extends State<HouseholdLedgerScreen> {
   }
 
   void _onMonthChanged(int year, int month) {
-    fetchCoupleExpense(year, month);
+    _fetchCoupleExpense(year, month);
   }
 
   Future<void> _onRefresh(int year, int month) async {
-    await fetchCoupleExpense(year, month);
+    await _fetchCoupleExpense(year, month);
+  }
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
   }
 
   @override
@@ -121,19 +122,27 @@ class _HouseholdLedgerScreenState extends State<HouseholdLedgerScreen> {
       return Column(
         children: [
           Expanded(
-            child: _isListView
+            child: _selectedIndex == 0
                 ? JointLedgerListScreen(
               coupleExpense: coupleExpense,
-              onRefresh: _onRefresh,
+              onRefresh: _onRefresh,  // _onRefresh 메소드 호출
               currentYear: currentYear,
               currentMonth: currentMonth,
-              onMonthChanged: _onMonthChanged,
+              onMonthChanged: _onMonthChanged,  // _onMonthChanged 메소드 호출
             )
-                : JointLedgerScreen(
-              onMonthChanged: _onMonthChanged,
+                : _selectedIndex == 1
+                ? JointLedgerScreen(
+              onMonthChanged: _onMonthChanged,  // _onMonthChanged 메소드 호출
               coupleExpense: coupleExpense,
-              onRefresh: _onRefresh,
+              onRefresh: _onRefresh,  // _onRefresh 메소드 호출
               apiService: _apiService,
+            )
+                : AnalysisExpenseMainPage(
+              coupleExpense: coupleExpense,
+              onRefresh: _onRefresh,  // _onRefresh 메소드 호출
+              currentYear: currentYear,
+              currentMonth: currentMonth,
+              onMonthChanged: _onMonthChanged,  // _onMonthChanged 메소드 호출
             ),
           ),
           _buildCustomFooter(),
@@ -161,8 +170,9 @@ class _HouseholdLedgerScreenState extends State<HouseholdLedgerScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          _buildFooterTab('내역', Icons.list, _isListView),
-          _buildFooterTab('캘린더', Icons.calendar_today, !_isListView),
+          _buildFooterTab('내역', Icons.list, _selectedIndex == 0),
+          _buildFooterTab('캘린더', Icons.calendar_today, _selectedIndex == 1),
+          _buildFooterTab('통계', Icons.pie_chart, _selectedIndex == 2),
         ],
       ),
     );
@@ -172,7 +182,11 @@ class _HouseholdLedgerScreenState extends State<HouseholdLedgerScreen> {
     return InkWell(
       onTap: () {
         setState(() {
-          _isListView = label == '내역';
+          _selectedIndex = label == '내역'
+              ? 0
+              : label == '캘린더'
+              ? 1
+              : 2;
         });
       },
       child: Column(

@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:gagyebbyu_fe/storage/TokenStorage.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import '../../models/fund/fund_create.dart';
 import '../../models/couple/couple_response.dart';
 import 'fund_view.dart';
@@ -19,10 +21,48 @@ class _FundCreateViewState extends State<FundCreateView> {
   int _targetAmount = 0;
   bool _isLoading = true;
 
+  final Color _primaryColor = Color(0xFF3182F6);
+  final Color _backgroundColor = Color(0xFFF9FAFB);
+  final Color _cardColor = Colors.white;
+  final Color _textColor = Color(0xFF191F28);
+  final Color _subTextColor = Color(0xFF8B95A1);
+
+  // TextEditingController 및 NumberFormat 초기화
+  final TextEditingController _targetAmountController = TextEditingController();
+  final NumberFormat _numberFormat = NumberFormat('#,##0');
+
   @override
   void initState() {
     super.initState();
     _fetchCoupleInfo();
+
+    // 목표 금액 입력 필드에 대한 리스너 추가
+    _targetAmountController.addListener(_formatTargetAmount);
+  }
+
+  @override
+  void dispose() {
+    // 컨트롤러 정리
+    _targetAmountController.dispose();
+    super.dispose();
+  }
+
+  // 입력값을 포맷팅하는 함수
+  void _formatTargetAmount() {
+    String text = _targetAmountController.text.replaceAll(',', '');
+    if (text.isEmpty) return;
+
+    // 숫자만 추출
+    int? value = int.tryParse(text);
+    if (value == null) return;
+
+    String formatted = _numberFormat.format(value);
+    if (formatted != _targetAmountController.text) {
+      _targetAmountController.value = TextEditingValue(
+        text: formatted,
+        selection: TextSelection.collapsed(offset: formatted.length),
+      );
+    }
   }
 
   Future<void> _fetchCoupleInfo() async {
@@ -41,9 +81,6 @@ class _FundCreateViewState extends State<FundCreateView> {
       if (response.statusCode == 200) {
         setState(() {
           _coupleResponse = CoupleResponse.fromJson(json.decode(utf8.decode(response.bodyBytes)));
-          if (_coupleResponse != null) {
-            print(_coupleResponse!.coupleId);
-          }
           _isLoading = false;
         });
       } else {
@@ -69,9 +106,6 @@ class _FundCreateViewState extends State<FundCreateView> {
     FundCreate newFund = FundCreate(goal: _goal, targetAmount: _targetAmount);
 
     try {
-      print("@@@@@@@@@@@@@@@@@@@@@@");
-      print(newFund.targetAmount);
-      print(newFund.goal);
       final response = await http.post(
         url,
         headers: {
@@ -96,15 +130,16 @@ class _FundCreateViewState extends State<FundCreateView> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('펀드 생성 완료'),
-          content: Text('펀드가 성공적으로 생성되었습니다.'),
+          title: Text('펀드 생성 완료', style: TextStyle(color: _textColor, fontWeight: FontWeight.bold)),
+          content: Text('펀드가 성공적으로 생성되었습니다.', style: TextStyle(color: _textColor)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           actions: <Widget>[
             TextButton(
-              child: Text('확인'),
+              child: Text('확인', style: TextStyle(color: _primaryColor, fontWeight: FontWeight.bold)),
               onPressed: () {
-                Navigator.of(context).pop(); // Close dialog
+                Navigator.of(context).pop();
                 Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (context) => FundView()), // Navigate to FundView
+                  MaterialPageRoute(builder: (context) => FundView()),
                 );
               },
             ),

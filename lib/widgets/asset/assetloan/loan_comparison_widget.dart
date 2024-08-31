@@ -13,7 +13,7 @@ class LoanComparisonCard extends StatelessWidget {
       child: ListTile(
         leading: CircleAvatar(
           child: Text(loan.bankName[0]),
-          backgroundColor: Colors.blue,
+          backgroundColor: Color(0xFFFF6B6B),
         ),
         title: Text(loan.loanName),
         subtitle: Text('${loan.interestRate}% | 최대 ${loan.maxBalance}원'),
@@ -23,7 +23,7 @@ class LoanComparisonCard extends StatelessWidget {
             // 대출 신청 로직 구현
           },
           style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.blueAccent,
+            backgroundColor: Color(0xFFFF6B6B),
             padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           ),
         ),
