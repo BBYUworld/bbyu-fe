@@ -56,7 +56,7 @@ class CoupleUserInfoCard extends StatelessWidget {
                   ),
                   SizedBox(height: 4),
                   Text(
-                    '마지막 업데이트: 2024.02.16',
+                    '마지막 업데이트: 2024.08.31',
                     style: TextStyle(
                       fontSize: 12,
                       color: Colors.grey,

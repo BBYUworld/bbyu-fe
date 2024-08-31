@@ -30,8 +30,6 @@ class LoanBalanceCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                ElevatedButton(onPressed: () {}, child: Text('내 납부내역')),
-                ElevatedButton(onPressed: () {}, child: Text('납부 일정')),
               ],
             ),
           ],

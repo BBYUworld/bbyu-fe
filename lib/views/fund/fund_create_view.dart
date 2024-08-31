@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter/physics.dart';
 import 'package:flutter/services.dart';
 import 'package:gagyebbyu_fe/storage/TokenStorage.dart';
 import 'package:http/http.dart' as http;
@@ -17,11 +18,12 @@ class _FundCreateViewState extends State<FundCreateView> {
   final _formKey = GlobalKey<FormState>();
   final TokenStorage _tokenStorage = TokenStorage();
   CoupleResponse? _coupleResponse;
+
   String _goal = '';
   int _targetAmount = 0;
   bool _isLoading = true;
 
-  final Color _primaryColor = Color(0xFF3182F6);
+  final Color _primaryColor = Color(0xFFFF6B6B);
   final Color _backgroundColor = Color(0xFFF9FAFB);
   final Color _cardColor = Colors.white;
   final Color _textColor = Color(0xFF191F28);
@@ -62,8 +64,10 @@ class _FundCreateViewState extends State<FundCreateView> {
   }
 
   Future<void> _fetchCoupleInfo() async {
+    print('Fetching couple info...');
     final url = Uri.parse('http://3.39.19.140:8080/api/couple');
     final accessToken = await _tokenStorage.getAccessToken();
+    print('Access Token: $accessToken');
 
     try {
       final response = await http.get(
@@ -74,11 +78,15 @@ class _FundCreateViewState extends State<FundCreateView> {
         },
       );
 
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
+
       if (response.statusCode == 200) {
         setState(() {
           _coupleResponse = CoupleResponse.fromJson(json.decode(utf8.decode(response.bodyBytes)));
           _isLoading = false;
         });
+        print('Couple Response: $_coupleResponse');
       } else {
         print('Failed to load couple information. Status code: ${response.statusCode}');
         setState(() {
@@ -92,9 +100,15 @@ class _FundCreateViewState extends State<FundCreateView> {
       });
     }
   }
-
   Future<void> _createFund() async {
-    if (_coupleResponse == null) return;
+    print('=============================0000000000000000==========================');
+    if (_coupleResponse == null) {
+      print('Error: _coupleResponse is null');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('커플 정보를 불러오는데 실패했습니다. 다시 시도해주세요.')),
+      );
+      return;
+    }
 
     final url = Uri.parse('http://3.39.19.140:8080/api/fund/${_coupleResponse!.coupleId}');
     final accessToken = await _tokenStorage.getAccessToken();
@@ -259,10 +273,10 @@ class _FundCreateViewState extends State<FundCreateView> {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
-        onPressed: () {
+        onPressed: () async {
           if (_formKey.currentState!.validate()) {
             _formKey.currentState!.save();
-            _createFund();
+            await _createFund();
           }
         },
         style: ElevatedButton.styleFrom(

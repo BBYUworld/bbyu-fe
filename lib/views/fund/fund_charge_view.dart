@@ -67,6 +67,8 @@ class _FundChargeViewState extends State<FundChargeView> {
 
   Future<void> _fetchAccounts() async {
     final url = Uri.parse('${widget.baseURL}/asset-accounts');
+    print("===============================");
+    print(url);
     final accessToken = await _tokenStorage.getAccessToken();
 
     try {

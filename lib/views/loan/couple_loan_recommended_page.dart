@@ -226,7 +226,7 @@ class _CoupleLoanRecommendationPageState extends State<CoupleLoanRecommendationP
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
-                  '총 ${formatter.format(recommend.totalPayment)}원',
+                  '총 ${formatter.format(recommend.totalPayment)}만원',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
                 ),
               ),
@@ -250,7 +250,7 @@ class _CoupleLoanRecommendationPageState extends State<CoupleLoanRecommendationP
         SizedBox(height: 8),
         _buildLoanInfoRow('은행', loan.bankName),
         _buildLoanInfoRow('상품명', loan.loanName),
-        _buildLoanInfoRow('대출한도', '${formatter.format(loan.loanLimit)}원'),
+        _buildLoanInfoRow('대출한도', '${formatter.format(loan.loanLimit)}만원'),
         _buildLoanInfoRow('금리', '${loan.interestRate.toStringAsFixed(2)}%'),
         _buildLoanInfoRow('대출기간', '${loan.loanTermMonths}개월'),
         _buildLoanInfoRow('신용점수 요구사항', '${loan.creditScoreRequirement}'),
