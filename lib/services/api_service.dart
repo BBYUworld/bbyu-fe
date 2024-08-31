@@ -256,6 +256,23 @@ class ApiService {
     }
     return "";
   }
+  Future<String> createSavingAccount(String accountNo, int amount, String accountTypeUniqueNo) async{
+    try{
+      final response = await _dio.post('/api/asset-accounts/saving',
+          data: {
+            "withdrawalAccountNo" : accountNo,
+            "depositBalance" : "$amount",
+            "accountTypeUniqueNo" : accountTypeUniqueNo,
+          }
+      );
+      if(response.statusCode == 200){
+        return "ok";
+      }
+    }catch(e){
+      rethrow;
+    }
+    return "";
+  }
 
 
 }

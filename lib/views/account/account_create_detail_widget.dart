@@ -7,8 +7,9 @@ import 'package:gagyebbyu_fe/services/ledger_api_service.dart';
 
 class DetailPage extends StatefulWidget {
   final AccountDto accountDto;
+  final bool isSavings; // 적금인지 여부를 나타내는 변수
 
-  const DetailPage({Key? key, required this.accountDto}) : super(key: key);
+  const DetailPage({Key? key, required this.accountDto, required this.isSavings}) : super(key: key);
 
   @override
   _DetailPageState createState() => _DetailPageState();
@@ -71,11 +72,22 @@ class _DetailPageState extends State<DetailPage> {
         print("${widget.accountDto.accountTypeUniqueNo}");
 
         try {
-          String message = await ApiService().createDepositAccount(
-            selectedAccount!.accountNo,
-            amount,
-            widget.accountDto.accountTypeUniqueNo,
-          );
+          String message;
+          if (widget.isSavings) {
+            // 적금일 때 API 요청
+            message = await ApiService().createSavingAccount(
+              selectedAccount!.accountNo,
+              amount,
+              widget.accountDto.accountTypeUniqueNo,
+            );
+          } else {
+            // 예금일 때 API 요청
+            message = await ApiService().createDepositAccount(
+              selectedAccount!.accountNo,
+              amount,
+              widget.accountDto.accountTypeUniqueNo,
+            );
+          }
 
           if (message == "ok") {
             _showSuccessDialog();
@@ -156,8 +168,8 @@ class _DetailPageState extends State<DetailPage> {
                   Divider(height: 20, color: subtextColor),
                   _buildInfoRow('금리', '${widget.accountDto.interestRate}%'),
                   _buildInfoRow('기간', '${widget.accountDto.termMonths}개월'),
-                  _buildInfoRow('최소 금액', _formatCurrency(widget.accountDto.minAmount*10000)),
-                  _buildInfoRow('최대 금액', _formatCurrency(widget.accountDto.maxAmount*10000)),
+                  _buildInfoRow('최소 금액', _formatCurrency(widget.accountDto.minAmount * 10000)),
+                  _buildInfoRow('최대 금액', _formatCurrency(widget.accountDto.maxAmount * 10000)),
                   _buildInfoRow('계좌 번호', '${widget.accountDto.accountTypeUniqueNo}'),
                 ],
               ),

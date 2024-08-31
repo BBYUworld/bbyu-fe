@@ -145,43 +145,51 @@ class _MainPageState extends State<MainPage> {
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                _coupleDto != null ? _coupleDto!.nickname : "현재 연결된 커플 배우자가 없습니다.",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: textColor),
-              ),
-              SizedBox(height: 16),
-              _coupleDto != null && _coupleSum != null
-                  ? Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(_coupleDto!.user1Name, style: TextStyle(color: subtextColor)),
-                      SizedBox(height: 4),
-                      Text(
-                        _formatCurrency(_coupleSum!), // Using the formatted sum
-                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: textColor),
-                      ),
-                    ],
+              if (_coupleDto != null) ...[
+                Text(
+                  _coupleDto!.nickname,
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: textColor),
+                ),
+                SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(_coupleDto!.user1Name, style: TextStyle(color: subtextColor)),
+                        SizedBox(height: 4),
+                        Text(
+                          _formatCurrency(_coupleSum!), // Using the formatted sum
+                          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: textColor),
+                        ),
+                      ],
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(_coupleDto!.user2Name, style: TextStyle(color: subtextColor)),
+                        SizedBox(height: 4),
+                        CircleAvatar(
+                          radius: 24,
+                          backgroundColor: backgroundColor,
+                          child: Icon(Icons.person, size: 24, color: primaryColor),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ] else ...[
+                Center(
+                  child: Text(
+                    "현재 연결된 커플 배우자가 없습니다.",
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: textColor),
                   ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(_coupleDto!.user2Name, style: TextStyle(color: subtextColor)),
-                      SizedBox(height: 4),
-                      CircleAvatar(
-                        radius: 24,
-                        backgroundColor: backgroundColor,
-                        child: Icon(Icons.person, size: 24, color: primaryColor),
-                      ),
-                    ],
-                  ),
-                ],
-              )
-                  : SizedBox.shrink(),
+                ),
+              ],
             ],
           ),
         ),

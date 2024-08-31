@@ -60,7 +60,10 @@ class _AccountSelectionWidgetState extends State<AccountSelectionWidget> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => DetailPage(accountDto: item.accountDto),
+                    builder: (context) => DetailPage(
+                      accountDto: item.accountDto,
+                      isSavings: title == '적금 추천', // 적금인 경우 true를 전달
+                    ),
                   ),
                 );
               },
