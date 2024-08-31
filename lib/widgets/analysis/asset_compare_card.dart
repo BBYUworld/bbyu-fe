@@ -48,7 +48,7 @@ class AssetCompareCard extends StatelessWidget {
               children: [
                 _buildTag('${assetResult.startAge}대'),
                 SizedBox(width: 8.0),
-                _buildTag('${assetResult.startIncome ~/ 10000}만원대'), // Displaying income as "백만원대"
+                _buildTag('${assetResult.startIncome}만원대'), // Displaying income as "백만원대"
               ],
             ),
             SizedBox(height: 12.0),

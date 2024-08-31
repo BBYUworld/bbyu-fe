@@ -5,7 +5,6 @@ import '../../models/analysis/analysis_expense.dart';
 import '../../models/expense/expense_category.dart';
 import '../../utils/currency_formatting.dart';
 import '../../utils/expense_category_color_mapping.dart';
-import '../../utils/expense_label_mapping.dart';
 
 class CategoryChartCard extends StatefulWidget {
   final Future<List<ExpenseCategoryDto>> Function(int year, int month) fetchExpenseCategories;
@@ -35,19 +34,17 @@ class _CategoryChartCardState extends State<CategoryChartCard> {
   @override
   void didUpdateWidget(CategoryChartCard oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.currentYear != widget.currentYear || oldWidget.currentMonth != widget.currentMonth) {
+    if (oldWidget.currentYear != widget.currentYear ||
+        oldWidget.currentMonth != widget.currentMonth) {
       _loadData();
     }
   }
 
   void _loadData() {
     setState(() {
-      futureExpenseCategories = widget.fetchExpenseCategories(widget.currentYear, widget.currentMonth);
+      futureExpenseCategories = widget.fetchExpenseCategories(
+          widget.currentYear, widget.currentMonth);
     });
-  }
-
-  String getMappedLabel(String label) {
-    return expenseLabelMapping[label] ?? label;
   }
 
   Widget _buildNoDataView() {
@@ -58,14 +55,8 @@ class _CategoryChartCardState extends State<CategoryChartCard> {
           Icon(Icons.info_outline, size: 80, color: Colors.grey),
           SizedBox(height: 16),
           Text(
-            '데이터가 없습니다',
+            '지출 데이터가 없습니다.',
             style: TextStyle(fontSize: 20, color: Colors.grey),
-          ),
-          SizedBox(height: 8),
-          Text(
-            '선택한 달에 대한 지출 데이터가 없습니다.',
-            style: TextStyle(fontSize: 16, color: Colors.grey),
-            textAlign: TextAlign.center,
           ),
         ],
       ),
@@ -73,14 +64,16 @@ class _CategoryChartCardState extends State<CategoryChartCard> {
   }
 
   Widget _buildCategoryList(List<ExpenseCategoryDto> categories) {
-    final nonZeroSections = categories.where((data) => data.percentage > 0).toList();
+    final nonZeroSections = categories.where((data) => data.percentage > 0)
+        .toList();
 
     if (nonZeroSections.isEmpty) {
       return _buildNoDataView();
     }
 
     final sections = nonZeroSections.map((data) {
-      final color = expenseColorMapping[categoryFromString(data.label)] ?? Colors.grey;
+      final color = expenseColorMapping[categoryFromString(data.label)] ??
+          Colors.grey;
 
       return PieChartSectionData(
         color: color,
@@ -91,8 +84,7 @@ class _CategoryChartCardState extends State<CategoryChartCard> {
     }).toList();
 
     final labels = nonZeroSections.map((data) {
-      final label = data.label.toString();
-      return getMappedLabel(label);
+      return categoryToString(categoryFromString(data.label));
     }).toList();
 
     final amounts = nonZeroSections.map((data) => data.amount).toList();
@@ -113,11 +105,13 @@ class _CategoryChartCardState extends State<CategoryChartCard> {
                 pieTouchData: PieTouchData(
                   touchCallback: (PieTouchResponse? pieTouchResponse) {
                     setState(() {
-                      if (pieTouchResponse == null || pieTouchResponse.touchedSection == null) {
+                      if (pieTouchResponse == null ||
+                          pieTouchResponse.touchedSection == null) {
                         touchedIndex = -1;
                         return;
                       }
-                      touchedIndex = pieTouchResponse.touchedSection!.touchedSectionIndex;
+                      touchedIndex =
+                          pieTouchResponse.touchedSection!.touchedSectionIndex;
                     });
                   },
                 ),
@@ -197,13 +191,16 @@ class _CategoryChartCardState extends State<CategoryChartCard> {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Center(child: CircularProgressIndicator());
             } else if (snapshot.hasError) {
-              return Center(child: Text('Error: ${snapshot.error}'));
+              return _buildNoDataView();
             } else if (snapshot.hasData && snapshot.data!.isEmpty) {
+              // 데이터가 비어 있을 때
               return _buildNoDataView();
             } else if (snapshot.hasData) {
+              // 데이터가 있는 경우
               return _buildCategoryList(snapshot.data!);
             } else {
-              return Center(child: Text('Unexpected error occurred'));
+              // 예기치 못한 오류가 발생한 경우
+              return _buildNoDataView();
             }
           },
         ),
