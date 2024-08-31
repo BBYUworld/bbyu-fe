@@ -21,7 +21,7 @@ class _DetailPageState extends State<DetailPage> {
   Account? selectedAccount;
   int? accountBalance; // Variable to hold the current account balance
 
-  final Color primaryColor = Color(0xFFFF6B6B);
+  final Color primaryColor = Color(0xFFFFD7D7);
   final Color textColor = Color(0xFF191F28);
   final Color subtextColor = Color(0xFF8B95A1);
   final Color cardColor = Colors.white;
