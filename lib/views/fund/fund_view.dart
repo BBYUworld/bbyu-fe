@@ -19,7 +19,7 @@ class FundView extends StatefulWidget {
 }
 
 class _FundViewState extends State<FundView> {
-  final String baseURL = 'http://10.0.2.2:8080/api'; // baseURL 정의
+  final String baseURL = 'http://3.39.19.140:8080/api'; // baseURL 정의
   Future<Map<String, dynamic>>? _initialDataFuture;
   final TokenStorage _tokenStorage = TokenStorage();
   int _selectedIndex = 3; // '펀딩' 탭의 인덱스
