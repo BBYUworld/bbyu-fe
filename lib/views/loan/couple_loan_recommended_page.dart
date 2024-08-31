@@ -84,7 +84,7 @@ class _CoupleLoanRecommendationPageState extends State<CoupleLoanRecommendationP
             style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: _textColor),
             decoration: InputDecoration(
               hintText: '0',
-              suffixText: '원',
+              suffixText: '만원',
               suffixStyle: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: _subTextColor),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -121,7 +121,7 @@ class _CoupleLoanRecommendationPageState extends State<CoupleLoanRecommendationP
         children: [
           CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(_primaryColor)),
           SizedBox(height: 24),
-          Text('최적의 대출 상품을 찾고 있어요', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: _textColor)),
+          Text('AI가 최적의 대출 상품을 찾고 있어요!', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: _textColor)),
           SizedBox(height: 8),
           Text('잠시만 기다려주세요', style: TextStyle(fontSize: 16, color: _subTextColor)),
         ],
@@ -226,7 +226,7 @@ class _CoupleLoanRecommendationPageState extends State<CoupleLoanRecommendationP
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
-                  '총 ${formatter.format(recommend.totalPayment)}원',
+                  '총 ${formatter.format(recommend.totalPayment)}만원',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
                 ),
               ),
@@ -250,7 +250,7 @@ class _CoupleLoanRecommendationPageState extends State<CoupleLoanRecommendationP
         SizedBox(height: 8),
         _buildLoanInfoRow('은행', loan.bankName),
         _buildLoanInfoRow('상품명', loan.loanName),
-        _buildLoanInfoRow('대출한도', '${formatter.format(loan.loanLimit)}원'),
+        _buildLoanInfoRow('대출한도', '${formatter.format(loan.loanLimit)}만원'),
         _buildLoanInfoRow('금리', '${loan.interestRate.toStringAsFixed(2)}%'),
         _buildLoanInfoRow('대출기간', '${loan.loanTermMonths}개월'),
         _buildLoanInfoRow('신용점수 요구사항', '${loan.creditScoreRequirement}'),

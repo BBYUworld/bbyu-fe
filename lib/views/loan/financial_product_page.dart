@@ -38,7 +38,7 @@ class FinancialProductRecommendPage extends StatelessWidget {
                     SizedBox(height: 16),
                     RecommendationButton(
                       text: '커플 대출 추천받기',
-                      subtext: '함께하는 미래를 위한 최적의 대출 상품',
+                      subtext: '함께하는 미래를 위한 쀼AI 최적의 대출 상품',
                       icon: Icons.favorite,
                       routeName: '/couple',
                     ),
@@ -101,7 +101,7 @@ class PageDescription extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Text(
-      '당신의 상황에 맞는 최적의 금융 상품을 추천해 드립니다.',
+      '쀼AI가 당신의 상황에 맞는 최적의 금융 상품을 추천해 드립니다.',
       style: TextStyle(
         fontSize: 16,
         color: AppColors.subtextColor,

@@ -55,10 +55,10 @@ class _AssetRecommendedPageState extends State<AssetRecommendedPage> {
       body: isLoading
           ? CustomLoadingWidget(
         loadingTexts: [
-          '맞춤 금융상품을 찾고 있어요',
-          '거의 다 왔어요!',
-          '조금만 더 기다려주세요',
-          '최적의 상품을 선별 중입니다'
+          '쀼AI가 맞춤 금융상품을 찾고 있어요!!',
+          '거의 다 왔어요! 쀼AI가 열심히 찾구있어요!!',
+          '조금만 더 기다려주세요!',
+          '쀼AI가 최적의 상품을 선별 중입니다!'
         ],
         imagePath: 'assets/loan_image/loan_info2.png',
       )
@@ -91,7 +91,7 @@ class _AssetRecommendedPageState extends State<AssetRecommendedPage> {
                     Text('나만을 위한 맞춤 금융 상품',
                         style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: textColor)),
                     SizedBox(height: 10),
-                    Text('당신의 재무 상황에 맞는 최적의 상품을 추천해드려요',
+                    Text('쀼AI가 당신의 재무 상황을 분석해 최적의 상품을 추천해드렸어요',
                         style: TextStyle(color: subtextColor)),
                   ],
                 ),
