@@ -76,7 +76,16 @@ class _CoupleLoanRecommendationPageState extends State<CoupleLoanRecommendationP
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('대출 금액', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: _textColor)),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('대출 금액', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: _textColor)),
+              IconButton(
+                icon: Icon(Icons.help_outline, color: _primaryColor),
+                onPressed: _showStressDSRInfo,
+              ),
+            ],
+          ),
           SizedBox(height: 12),
           TextField(
             controller: _moneyController,
@@ -292,6 +301,10 @@ class _CoupleLoanRecommendationPageState extends State<CoupleLoanRecommendationP
         _recommendation = recommendation;
         _isLoading = false;
       });
+
+      if (_recommendation == null || _recommendation!.coupleLoanRecommends.isEmpty) {
+        _showStressDSRModal();
+      }
     } catch (e) {
       setState(() => _isLoading = false);
       ScaffoldMessenger.of(context).showSnackBar(
@@ -302,5 +315,65 @@ class _CoupleLoanRecommendationPageState extends State<CoupleLoanRecommendationP
         ),
       );
     }
+  }
+
+  void _showStressDSRModal() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('대출 불가',
+              style: TextStyle(color: _textColor, fontWeight: FontWeight.bold)),
+          content: Text('Stress DSR을 만족하지 못했습니다. \n 해당 금액을 대출받을 수 없습니다.',
+              style: TextStyle(color: _textColor)),
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16)),
+          actions: <Widget>[
+            TextButton(
+              child: Text('확인', style: TextStyle(
+                  color: _primaryColor, fontWeight: FontWeight.bold)),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+  void _showStressDSRInfo() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Stress DSR이란?',
+              style: TextStyle(color: _textColor, fontWeight: FontWeight.bold)),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text('Stress DSR(총부채원리금상환비율)은 모든 대출의 원리금 상환액이 소득에서 차지하는 비중을 뜻합니다.',
+                    style: TextStyle(color: _textColor)),
+                SizedBox(height: 10),
+                Text('일반적으로 DSR이 40%를 넘으면 대출이 어려울 수 있으며, 이는 개인의 재무 건전성을 평가하는 중요한 지표입니다.',
+                    style: TextStyle(color: _textColor)),
+                SizedBox(height: 10),
+                Text('Stress DSR은 금리 상승 등의 스트레스 상황을 가정하여 계산된 더 보수적인 DSR 지표입니다.',
+                    style: TextStyle(color: _textColor)),
+              ],
+            ),
+          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          actions: <Widget>[
+            TextButton(
+              child: Text('이해했습니다',
+                  style: TextStyle(color: _primaryColor, fontWeight: FontWeight.bold)),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 }

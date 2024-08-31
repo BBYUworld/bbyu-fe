@@ -27,7 +27,7 @@ class AssetAccount extends Asset {
     this.oneTimeTransferLimit,
     this.dailyTransferLimit,
     this.maturityDate,
-    this.interestRate,  // required 제거
+    this.interestRate,
     this.term,
   }) : super(
     assetId: assetId,
