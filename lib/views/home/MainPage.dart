@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gagyebbyu_fe/services/api_service.dart';
 import 'package:intl/intl.dart'; // Add this for number formatting
 import 'package:gagyebbyu_fe/models/couple_model.dart';
 import 'package:gagyebbyu_fe/views/home/Footer.dart';
@@ -56,7 +57,7 @@ class _MainPageState extends State<MainPage> {
       }
     } catch (e) {
       print('Failed to load data: $e');
-      _coupleSum = 0; // Set to 0 in case of failure
+      _coupleSum = 0;
     } finally {
       setState(() {
         _isLoaded = true;

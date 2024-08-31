@@ -30,7 +30,7 @@ class LoanAmountInputWidget extends StatelessWidget {
                     decoration: InputDecoration(
                       border: OutlineInputBorder(),
                       hintText: '금액 입력',
-                      suffixText: '만원',
+                      suffixText: '원',
                     ),
                   ),
                 ),

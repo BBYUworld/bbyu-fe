@@ -221,6 +221,22 @@ class ApiService {
     }
   }
 
+  //couple 자본 합산
+  Future<int> fetchSumCouple() async {
+    try {
+      final response = await _dio.get('/api/asset/couple/main');
+      print("fetchSumCouple = ${response.data}");
+      if (response.statusCode == 200) {
+        return response.data as int;
+      } else {
+        throw Exception('Failed to load total remained amount');
+      }
+    } catch (e) {
+      print('Error fetching total remained amount: $e');
+      rethrow;
+    }
+  }
+
   //couple recommand 보여줌
   Future<CoupleLoanRecommendation> fetchCoupleRecommendedLoans(MoneyDto moneyDto) async {
     try {

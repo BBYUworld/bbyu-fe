@@ -172,6 +172,6 @@ class _AccountSelectionWidgetState extends State<AccountSelectionWidget> {
 
   String _formatCurrency(int amount) {
     final formatter = NumberFormat('#,###');
-    return '${formatter.format(amount)}만원';
+    return '${formatter.format(amount)}원';
   }
 }
