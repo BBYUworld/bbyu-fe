@@ -40,7 +40,7 @@ class FinancialProductRecommendPage extends StatelessWidget {
                       text: '커플 대출 추천받기',
                       subtext: '함께하는 미래를 위한 최적의 대출 상품',
                       icon: Icons.favorite,
-                      routeName: '/coupleloan',
+                      routeName: '/couple',
                     ),
                   ],
                 ),
