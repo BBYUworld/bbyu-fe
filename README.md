@@ -190,6 +190,10 @@
 
 <br/>
 
+##시스템 아키텍처
+![시스템 아키텍처](https://github.com/user-attachments/assets/5310207c-be50-4b7b-9994-f20f3ca457cb)
+
+
 ## 개발환경
 
 | 분야     | 기술 스택      | 버전      |
