@@ -56,7 +56,7 @@ class _RegisterViewState extends State<RegisterView> {
     }
     try {
       final email = Uri.encodeQueryComponent(_emailController.text);
-      final url = Uri.parse("http://3.39.19.140:8080/user/search?email=$email");
+      final url = Uri.parse("http://10.0.2.2:8080/user/search?email=$email");
       final response = await http.get(
         url,
         headers: {'Content-Type': "application/json"},
@@ -84,7 +84,7 @@ class _RegisterViewState extends State<RegisterView> {
       _showSnackBar("이메일 중복조회를 먼저 진행해주세요.");
       return;
     }
-    final url = Uri.parse('http://3.39.19.140:8080/user/regist');
+    final url = Uri.parse('http://10.0.2.2:8080/user/regist');
     try{
       final response = await http.post(
         url,

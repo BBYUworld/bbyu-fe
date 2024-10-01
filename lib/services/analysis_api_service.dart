@@ -5,7 +5,7 @@ import '../models/analysis/analysis_asset.dart';
 import 'package:gagyebbyu_fe/storage/TokenStorage.dart';
 
 final TokenStorage _tokenStorage = TokenStorage();
-final String baseUrl = 'http://3.39.19.140:8080';
+final String baseUrl = 'http://10.0.2.2:8080';
 
 Future<List<AssetCategoryDto>> fetchAssetCategory() async {
   final accessToken = await _tokenStorage.getAccessToken();

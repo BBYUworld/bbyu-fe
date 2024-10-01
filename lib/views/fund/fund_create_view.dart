@@ -65,7 +65,7 @@ class _FundCreateViewState extends State<FundCreateView> {
 
   Future<void> _fetchCoupleInfo() async {
     print('Fetching couple info...');
-    final url = Uri.parse('http://3.39.19.140:8080/api/couple');
+    final url = Uri.parse('http://10.0.2.2:8080/api/couple');
     final accessToken = await _tokenStorage.getAccessToken();
     print('Access Token: $accessToken');
 
@@ -110,7 +110,7 @@ class _FundCreateViewState extends State<FundCreateView> {
       return;
     }
 
-    final url = Uri.parse('http://3.39.19.140:8080/api/fund/${_coupleResponse!.coupleId}');
+    final url = Uri.parse('http://10.0.2.2:8080/api/fund/${_coupleResponse!.coupleId}');
     final accessToken = await _tokenStorage.getAccessToken();
 
     FundCreate newFund = FundCreate(goal: _goal, targetAmount: _targetAmount);

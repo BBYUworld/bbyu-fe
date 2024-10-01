@@ -50,7 +50,7 @@ class _LoginViewState extends State<LoginView> with SingleTickerProviderStateMix
       _isLoading = true;
     });
 
-    final url = Uri.parse('http://3.39.19.140:8080/user/login');
+    final url = Uri.parse('http://10.0.2.2:8080/user/login');
     try {
       final response = await http.post(
         url,

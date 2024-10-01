@@ -2,6 +2,8 @@ import 'dart:ffi';
 
 import 'package:dio/dio.dart';
 import 'package:gagyebbyu_fe/models/account/account_recommendation.dart';
+import 'package:gagyebbyu_fe/models/asset/asset.dart';
+import 'package:gagyebbyu_fe/models/asset/asset_account.dart';
 import 'package:gagyebbyu_fe/models/couple/couple_response.dart';
 import 'package:gagyebbyu_fe/models/loan/CoupleLoanRecommendation.dart';
 import 'package:gagyebbyu_fe/models/loan/MoneyDto.dart';
@@ -23,7 +25,7 @@ class ApiService {
 
   ApiService._internal() : _navigationService = NavigationService() {
     _dio = Dio(BaseOptions(
-      baseUrl: 'http://3.39.19.140:8080',
+      baseUrl: 'http://10.0.2.2:8080',
       connectTimeout: Duration(seconds: 15),
       receiveTimeout: Duration(seconds: 15),
     ));
@@ -78,6 +80,48 @@ class ApiService {
       }
     } catch (e) {
       print('Error fetching asset loans: $e');
+      rethrow;
+    }
+  }
+
+  //커플의 자산 정보 출력
+  Future<List<Asset>> fetchCoupleAssets(String assetType) async {
+    try {
+      final response = await _dio.get('/api/assets/couple/account/$assetType');
+      if (response.statusCode == 200) {
+        if (response.data is List) {
+          return (response.data as List)
+              .map((item) => Asset.fromJson(item as Map<String, dynamic>))
+              .toList();
+        } else {
+          throw Exception('Expected a list of assets but got ${response.data.runtimeType}');
+        }
+      } else {
+        throw Exception('Failed to load assets');
+      }
+    } catch (e) {
+      print('Error fetching assets: $e');
+      rethrow;
+    }
+  }
+
+  //커플의 계좌 정보 출력
+  Future<List<AssetAccount>> fetchCoupleAccount() async {
+    try {
+      final response = await _dio.get('/api/asset-accounts/couple');
+      if (response.statusCode == 200) {
+        if (response.data is List) {
+          return (response.data as List)
+              .map((item) => AssetAccount.fromJson(item as Map<String, dynamic>))
+              .toList();
+        } else {
+          throw Exception('Expected a list of assets but got ${response.data.runtimeType}');
+        }
+      } else {
+        throw Exception('Failed to load assets');
+      }
+    } catch (e) {
+      print('Error fetching assets: $e');
       rethrow;
     }
   }

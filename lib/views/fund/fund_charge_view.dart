@@ -12,7 +12,7 @@ class FundChargeView extends StatefulWidget {
   final int fundId;
   final String baseURL;
 
-  FundChargeView({required this.fundId, this.baseURL = 'http://3.39.19.140:8080/api'});
+  FundChargeView({required this.fundId, this.baseURL = 'http://10.0.2.2:8080/api'});
 
   @override
   _FundChargeViewState createState() => _FundChargeViewState();

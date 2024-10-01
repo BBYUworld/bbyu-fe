@@ -114,7 +114,7 @@ class _OnboardingProcessState extends State<OnboardingProcess> {
   Future<void> _saveAccountToServer() async{
     print("additional Info = $_additionalInfo");
     print("selectedAccounts = $_selectedAccounts");
-    final url = Uri.parse("http://3.39.19.140:8080/user/adittional/info");
+    final url = Uri.parse("http://10.0.2.2:8080/user/adittional/info");
     final accessToken = await _tokenStorage.getAccessToken();
     final jsonData = {
       "additionalInfo": {

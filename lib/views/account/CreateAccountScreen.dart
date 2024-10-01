@@ -53,7 +53,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
     });
 
     try {
-      final url = Uri.parse("http://3.39.19.140:8080/user/product");
+      final url = Uri.parse("http://10.0.2.2:8080/user/product");
       final accessToken = await _tokenStorage.getAccessToken();
       final response = await http.get(
           url,
